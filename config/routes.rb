@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  post '/register', to: 'user#create'
+  post '/login', to: 'auth#login'
+
   resources :vacancies
   resources :materials
   resources :talks
