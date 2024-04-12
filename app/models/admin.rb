@@ -1,3 +1,4 @@
-class Admin < User
-  has_many :events, optional: true
+class Admin < ApplicationRecord
+  belongs_to :user
+  has_many :events
 end

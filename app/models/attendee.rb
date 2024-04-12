@@ -1,3 +1,3 @@
-class Attendee < User
-  has_many :vacancies, optional: true
+class Attendee < ApplicationRecord
+  belongs_to :user
 end

@@ -1,4 +1,5 @@
-class StaffLeader < User
+class StaffLeader < ApplicationRecord
+  belongs_to :user
   has_many :teams
-  has_many :vacancies, optional: true
+  has_many :vacancies, optional: true # Attendee
 end

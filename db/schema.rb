@@ -10,7 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_31_211640) do
+ActiveRecord::Schema[7.0].define(version: 2024_04_11_123533) do
+  create_table "admins", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_admins_on_user_id"
+  end
+
+  create_table "attendees", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_attendees_on_user_id"
+  end
+
   create_table "events", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -34,6 +48,27 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_31_211640) do
     t.index ["event_id"], name: "index_merches_on_event_id"
   end
 
+  create_table "speakers", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_speakers_on_user_id"
+  end
+
+  create_table "staff_leaders", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_staff_leaders_on_user_id"
+  end
+
+  create_table "staff_members", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_staff_members_on_user_id"
+  end
+
   create_table "talks", force: :cascade do |t|
     t.string "title"
     t.text "description"
@@ -55,6 +90,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_31_211640) do
     t.string "dre"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "role", default: 1
   end
 
   create_table "vacancies", force: :cascade do |t|
@@ -65,7 +101,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_31_211640) do
     t.index ["staff_member_id"], name: "index_vacancies_on_staff_member_id"
   end
 
+  add_foreign_key "admins", "users"
+  add_foreign_key "attendees", "users"
   add_foreign_key "materials", "talks"
   add_foreign_key "merches", "events"
+  add_foreign_key "speakers", "users"
+  add_foreign_key "staff_leaders", "users"
+  add_foreign_key "staff_members", "users"
   add_foreign_key "vacancies", "staff_members"
 end
