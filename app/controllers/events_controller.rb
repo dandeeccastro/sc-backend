@@ -1,18 +1,18 @@
 class EventsController < ApplicationController
   before_action :set_event, only: %i[show update destroy]
-  before_action :authenticate_user, only: %i[create update destroy]
-  before_action :admin?, only: %i[create update destroy]
+  before_action :authenticate_user, only: %i[index create update destroy]
+  before_action :admin?, only: %i[index create update destroy]
 
   # GET /events
   def index
     @events = Event.all
 
-    render json: @events
+    render json: { events: @events }
   end
 
   # GET /events/1
   def show
-    render json: @event
+    render json: { event: @event }
   end
 
   # POST /events
@@ -38,6 +38,7 @@ class EventsController < ApplicationController
   # DELETE /events/1
   def destroy
     @event.destroy
+    render json: { message: 'Event deleted!' }, status: :ok
   end
 
   private
