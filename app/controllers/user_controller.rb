@@ -1,4 +1,17 @@
 class UserController < ApplicationController
+  before_action :set_user, only: %i[show update destroy]
+  before_action :authenticate_user, only: %i[index update show destroy]
+  before_action :self_or_admin?, only: %i[update destroy]
+
+  def index
+    @users = User.all
+    render json: { users: @users }, status: :ok
+  end
+
+  def show
+    render json: { user: @user }, status: :ok
+  end
+
   def create
     @user = User.new(user_params)
     if @user.save
@@ -13,7 +26,34 @@ class UserController < ApplicationController
     end
   end
 
+  def update
+    if @user.id == @current_user.id || @current_user.admin
+      if @user.update(user_params)
+        render json: { user: @user }, status: :ok
+      else
+        render json: { errors: @user.errors }, status: :unprocessable_entity
+      end
+    else
+      render json: { errors: "You don't have permission to do this" }, status: :unauthorized
+    end
+  end
+
+  def destroy
+    @user.destroy
+    render json: { message: 'User deleted!' }, status: :ok
+  end
+
   private
+
+  def set_user
+    @user = User.find(params[:id])
+  end
+
+  def self_or_admin?
+    unless @user.id == @current_user.id || @current_user.admin
+      render json: { errors: @user.errors }, status: :unprocessable_entity
+    end
+  end
 
   def user_params
     params.require(:user).permit(:name, :email, :dre, :password)
