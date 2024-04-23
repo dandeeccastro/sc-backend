@@ -1,4 +1,8 @@
 FactoryBot.define do
+  factory :location do
+    name { 'Roxinho CCMN' }
+  end
+
   factory :staff do
     leader { false }
     user { nil }
@@ -39,6 +43,7 @@ FactoryBot.define do
     start_date { '2024-04-16 00:00' }
     end_date { '2024-04-16 00:00' }
     event { nil }
+    location { nil }
   end
 
   factory :team do

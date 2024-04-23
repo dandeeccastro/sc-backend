@@ -41,7 +41,7 @@ class TalksController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def talk_params
-    params.require(:talk).permit(:title, :description, :start_date, :end_date, :event_id)
+    params.require(:talk).permit(:title, :description, :start_date, :end_date, :event_id, :location_id)
   end
 
   # TODO: apply the Law of Demeter here to make it consise

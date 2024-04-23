@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_04_23_144650) do
+ActiveRecord::Schema[7.0].define(version: 2024_04_23_154708) do
   create_table "admins", force: :cascade do |t|
     t.integer "user_id", null: false
     t.datetime "created_at", null: false
@@ -31,6 +31,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_23_144650) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["team_id"], name: "index_events_on_team_id"
+  end
+
+  create_table "locations", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "materials", force: :cascade do |t|
@@ -80,9 +86,11 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_23_144650) do
     t.datetime "start_date"
     t.datetime "end_date"
     t.integer "event_id"
+    t.integer "location_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["event_id"], name: "index_talks_on_event_id"
+    t.index ["location_id"], name: "index_talks_on_location_id"
   end
 
   create_table "teams", force: :cascade do |t|
@@ -118,6 +126,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_23_144650) do
   add_foreign_key "speakers", "users"
   add_foreign_key "staffs", "users"
   add_foreign_key "talks", "events"
+  add_foreign_key "talks", "locations"
   add_foreign_key "teams", "events"
   add_foreign_key "vacancies", "staffs"
 end

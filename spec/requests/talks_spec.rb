@@ -7,6 +7,7 @@ end
 
 def regular_admin_setup
   let!(:event) { create(:event) }
+  let!(:location) { create(:location) }
   let!(:user) { create(:user) }
   let!(:admin) { create(:admin, user: user) }
 end
@@ -16,11 +17,13 @@ def regular_staff_setup
   let!(:staff) { create(:staff, user: user) }
   let!(:team) { create(:team, staffs: [staff]) }
   let!(:event) { create(:event, team: team) }
+  let!(:location) { create(:location) }
 end
 
 def regular_attendee_with_talk
   let!(:event) { create(:event) }
-  let!(:talk) { create(:talk, event: event) }
+  let!(:location) { create(:location) }
+  let!(:talk) { create(:talk, event: event, location: location) }
   let!(:user) { create(:user) }
 end
 
@@ -47,6 +50,7 @@ RSpec.describe '/talks', type: :request do
             start_date: '2024-04-27 12:00',
             end_date: '2024-04-27 14:00',
             event_id: event.id,
+            location_id: location.id,
           }
         }
 
@@ -60,7 +64,7 @@ RSpec.describe '/talks', type: :request do
   describe 'PUT /update' do
     context 'as admin' do
       regular_admin_setup
-      let!(:talk) { create(:talk, event: event) }
+      let!(:talk) { create(:talk, event: event, location: location) }
       it 'should update talk' do
         token = authenticate user
         put "/talks/#{talk.id}", headers: { Authorization: token }, params: {
@@ -78,7 +82,7 @@ RSpec.describe '/talks', type: :request do
 
     context 'as staff' do
       regular_staff_setup
-      let!(:talk) { create(:talk, event: event) }
+      let!(:talk) { create(:talk, event: event, location: location) }
       it 'should update talk' do
         token = authenticate user
         put "/talks/#{talk.id}", headers: { Authorization: token }, params: {
