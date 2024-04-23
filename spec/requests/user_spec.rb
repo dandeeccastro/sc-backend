@@ -5,13 +5,17 @@ def authenticate(user)
   Oj.load(response.body)['token']
 end
 
+def admin_setup
+  let!(:regular_user) { create(:user) }
+  let!(:admin_user) { create(:user) }
+  let!(:admin) { create(:admin, user: admin_user) }
+end
+
 RSpec.describe "Users", type: :request do
   describe 'GET /user' do
-    let!(:user) { create(:user) }
-    let!(:admin) { create(:admin, user: user) }
-
+    admin_setup
     it 'should list users when authenticated with admin' do
-      token = authenticate user
+      token = authenticate admin_user
       get '/user', headers: { Authorization: token }
       data = Oj.load response.body
 
@@ -19,30 +23,38 @@ RSpec.describe "Users", type: :request do
       expect(data).to have_key 'users'
       expect(data['users']).to be_an_instance_of Array
     end
+
+    it 'should fail to list when user is not admin' do
+      token = authenticate regular_user
+      get '/user', headers: { Authorization: token }
+      data = Oj.load response.body
+
+      expect(response.status).to eq 401
+      # expect(data).to have_key 'users'
+      # expect(data['users']).to be_an_instance_of Array
+    end
   end
 
   describe 'GET /user/1' do
-    let!(:user) { create(:user) }
-    let!(:other_user) { create(:user, email: 'other@email.com', dre: '22222222222') }
-    let!(:admin) { create(:admin, user: other_user) }
+    admin_setup
     it "should show user's own information" do
-      token = authenticate user
-      get "/user/#{user.id}", headers: { Authorization: token }
+      token = authenticate regular_user
+      get "/user/#{regular_user.id}", headers: { Authorization: token }
       data = Oj.load response.body
 
       expect(response.status).to eq 200
       expect(data).to have_key 'user'
-      expect(data['user']['id']).to eq user.id
+      expect(data['user']['id']).to eq regular_user.id
     end
 
     it 'should return user information when requester is admin' do
-      token = authenticate other_user
-      get "/user/#{user.id}", headers: { Authorization: token }
+      token = authenticate admin_user
+      get "/user/#{regular_user.id}", headers: { Authorization: token }
       data = Oj.load response.body
 
       expect(response.status).to eq 200
       expect(data).to have_key 'user'
-      expect(data['user']['id']).not_to eq other_user.id
+      expect(data['user']['id']).not_to eq admin_user.id
     end
   end
 

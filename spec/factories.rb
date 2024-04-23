@@ -32,9 +32,9 @@ FactoryBot.define do
 
   factory :user do
     name { 'Lorem Ipsum' }
-    email { 'lorem.ipsum@gmail.com' }
+    sequence(:email) { |n| "lorem.ipsum#{n}@gmail.com" }
+    sequence(:dre) { |n| "1111111111#{n}" }
     password { 'senha123' }
-    dre { '12312312312' }
   end
 
   factory :talk do

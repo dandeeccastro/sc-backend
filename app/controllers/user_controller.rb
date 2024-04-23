@@ -2,6 +2,7 @@ class UserController < ApplicationController
   before_action :set_user, only: %i[show update destroy]
   before_action :authenticate_user, only: %i[index update show destroy]
   before_action :self_or_admin?, only: %i[update destroy]
+  before_action :admin?, only: %i[index]
 
   def index
     @users = User.all
@@ -50,9 +51,11 @@ class UserController < ApplicationController
   end
 
   def self_or_admin?
-    unless @user.id == @current_user.id || @current_user.admin
-      render json: { errors: @user.errors }, status: :unprocessable_entity
-    end
+    render json: { errors: 'Unauthorized' }, status: :unauthorized unless @user.id == @current_user.id || @current_user.admin
+  end
+
+  def admin?
+    render json: { errors: 'Admin only' }, status: :unauthorized unless @current_user.admin
   end
 
   def user_params
