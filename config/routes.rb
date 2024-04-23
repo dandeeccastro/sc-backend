@@ -4,9 +4,9 @@ Rails.application.routes.draw do
 
   resources :events
   resources :user, except: %i[create]
+  resources :talks
   # resources :vacancies
   # resources :materials
-  # resources :talks
   # resources :merches
   # resources :teams
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

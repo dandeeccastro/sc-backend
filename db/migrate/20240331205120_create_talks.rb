@@ -5,6 +5,7 @@ class CreateTalks < ActiveRecord::Migration[7.0]
       t.text :description
       t.datetime :start_date
       t.datetime :end_date
+      t.belongs_to :event, foreign_key: true
 
       t.timestamps
     end
