@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_04_11_123533) do
+ActiveRecord::Schema[7.0].define(version: 2024_04_23_144650) do
   create_table "admins", force: :cascade do |t|
     t.integer "user_id", null: false
     t.datetime "created_at", null: false
@@ -27,8 +27,10 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_11_123533) do
 
   create_table "events", force: :cascade do |t|
     t.string "name"
+    t.integer "team_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["team_id"], name: "index_events_on_team_id"
   end
 
   create_table "materials", force: :cascade do |t|
@@ -55,18 +57,21 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_11_123533) do
     t.index ["user_id"], name: "index_speakers_on_user_id"
   end
 
-  create_table "staff_leaders", force: :cascade do |t|
+  create_table "staffs", force: :cascade do |t|
+    t.boolean "leader"
     t.integer "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["user_id"], name: "index_staff_leaders_on_user_id"
+    t.index ["user_id"], name: "index_staffs_on_user_id"
   end
 
-  create_table "staff_members", force: :cascade do |t|
-    t.integer "user_id", null: false
+  create_table "staffs_teams", id: false, force: :cascade do |t|
+    t.integer "staff_id"
+    t.integer "team_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["user_id"], name: "index_staff_members_on_user_id"
+    t.index ["staff_id"], name: "index_staffs_teams_on_staff_id"
+    t.index ["team_id"], name: "index_staffs_teams_on_team_id"
   end
 
   create_table "talks", force: :cascade do |t|
@@ -74,13 +79,17 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_11_123533) do
     t.text "description"
     t.datetime "start_date"
     t.datetime "end_date"
+    t.integer "event_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_talks_on_event_id"
   end
 
   create_table "teams", force: :cascade do |t|
+    t.integer "event_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_teams_on_event_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -95,18 +104,20 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_11_123533) do
 
   create_table "vacancies", force: :cascade do |t|
     t.boolean "presence"
-    t.integer "staff_member_id", null: false
+    t.integer "staff_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["staff_member_id"], name: "index_vacancies_on_staff_member_id"
+    t.index ["staff_id"], name: "index_vacancies_on_staff_id"
   end
 
   add_foreign_key "admins", "users"
   add_foreign_key "attendees", "users"
+  add_foreign_key "events", "teams"
   add_foreign_key "materials", "talks"
   add_foreign_key "merches", "events"
   add_foreign_key "speakers", "users"
-  add_foreign_key "staff_leaders", "users"
-  add_foreign_key "staff_members", "users"
-  add_foreign_key "vacancies", "staff_members"
+  add_foreign_key "staffs", "users"
+  add_foreign_key "talks", "events"
+  add_foreign_key "teams", "events"
+  add_foreign_key "vacancies", "staffs"
 end

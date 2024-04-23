@@ -6,8 +6,7 @@ class User < ApplicationRecord
   validates :name, presence: true
 
   has_one :admin
-  has_one :staff_leader
-  has_one :staff_member
+  has_one :staff
   has_one :speaker
   has_one :attendee
 end
