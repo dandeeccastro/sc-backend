@@ -5,24 +5,24 @@ FactoryBot.define do
 
   factory :staff do
     leader { false }
-    user { nil }
+    user
   end
 
   factory :staff_leader, class: 'Staff' do
     leader { true }
-    user { nil }
+    user
   end
 
   factory :attendee do
-    user { nil }
+    user
   end
 
   factory :speaker do
-    user { nil }
+    user
   end
 
   factory :admin do
-    user { nil }
+    user
   end
 
   factory :event do
