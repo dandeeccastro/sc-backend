@@ -7,18 +7,18 @@ class TeamsController < ApplicationController
 
   def index
     @teams = Team.all
-    render json: { teams: @teams }, status: :ok
+    render json: TeamBlueprint.render(@teams), status: :ok
   end
 
   def show
-    render json: { team: @team }, status: :ok
+    render json: TeamBlueprint.render(@team), status: :ok
   end
 
   def create
     @team = Team.new(team_params)
 
     if @team.save
-      render json: { team: @team }, status: :created
+      render json: TeamBlueprint.render(@team), status: :created
     else
       render json: { error: @team.errors }, status: :unprocessable_entity
     end
@@ -26,7 +26,7 @@ class TeamsController < ApplicationController
 
   def update
     if @team.update(team_params)
-      render json: { team: @team }, status: :created
+      render json: TeamBlueprint.render(@team), status: :created
     else
       render json: { error: @team.errors }, status: :unprocessable_entity
     end
@@ -44,7 +44,7 @@ class TeamsController < ApplicationController
   end
 
   def team_params
-    params.permit(:staff_ids, :team, :id)
+    params.permit(:id, staff_ids: [])
   end
 
   def admin?

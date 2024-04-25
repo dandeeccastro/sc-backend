@@ -19,7 +19,7 @@ RSpec.describe '/teams', type: :request do
         data = Oj.load response.body
 
         expect(response).to be_successful
-        expect(data).to have_key 'teams'
+        expect(data).to be_an_instance_of Array
       end
     end
 
@@ -29,7 +29,7 @@ RSpec.describe '/teams', type: :request do
         data = Oj.load response.body
 
         expect(response).to be_successful
-        expect(data).to have_key 'team'
+        expect(data).to have_key 'staffs'
       end
     end
 
@@ -39,7 +39,7 @@ RSpec.describe '/teams', type: :request do
         data = Oj.load response.body
 
         expect(response.status).to eq 201
-        expect(data).to have_key 'team'
+        expect(data).to have_key 'staffs'
       end
     end
 
@@ -49,7 +49,8 @@ RSpec.describe '/teams', type: :request do
         data = Oj.load response.body
 
         expect(response.status).to eq 201
-        expect(data).to have_key 'team'
+        expect(data).to have_key 'staffs'
+        expect(data['staffs'].length).to eq 3
       end
     end
 
@@ -83,7 +84,7 @@ RSpec.describe '/teams', type: :request do
         data = Oj.load response.body
 
         expect(response).to be_successful
-        expect(data).to have_key 'team'
+        expect(data).to have_key 'staffs'
       end
     end
 
@@ -100,7 +101,7 @@ RSpec.describe '/teams', type: :request do
         data = Oj.load response.body
 
         expect(response.status).to eq 201
-        expect(data).to have_key 'team'
+        expect(data).to have_key 'staffs'
       end
     end
 
