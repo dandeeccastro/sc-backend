@@ -57,7 +57,7 @@ RSpec.describe '/talks', type: :request do
       data = Oj.load response.body
 
       expect(response.status).to eq 201
-      expect(data).to have_key 'talk'
+      expect(data).to have_key 'title'
     end
   end
 
@@ -76,7 +76,7 @@ RSpec.describe '/talks', type: :request do
         data = Oj.load response.body
 
         expect(response.status).to eq 200
-        expect(data['talk']['title']).to eq 'Novo nome da Palestra'
+        expect(data['title']).to eq 'Novo nome da Palestra'
       end
     end
 
@@ -94,7 +94,7 @@ RSpec.describe '/talks', type: :request do
         data = Oj.load response.body
 
         expect(response.status).to eq 200
-        expect(data['talk']['title']).to eq 'Novo nome da Palestra'
+        expect(data['title']).to eq 'Novo nome da Palestra'
       end
     end
   end

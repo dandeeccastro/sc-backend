@@ -6,11 +6,11 @@ class UserController < ApplicationController
 
   def index
     @users = User.all
-    render json: { users: @users }, status: :ok
+    render json: UserBlueprint.render(@users), status: :ok
   end
 
   def show
-    render json: { user: @user }, status: :ok
+    render json: UserBlueprint.render(@user), status: :ok
   end
 
   def create
@@ -18,7 +18,7 @@ class UserController < ApplicationController
     if @user.save
       @attendee = Attendee.new(user: @user)
       if @attendee.save
-        render json: { user: @user }, status: :ok
+        render json: UserBlueprint.render(@user), status: :ok
       else
         render json: { errors: @attendee.errors }, status: :unprocessable_entity
       end
@@ -28,14 +28,10 @@ class UserController < ApplicationController
   end
 
   def update
-    if @user.id == @current_user.id || @current_user.admin
-      if @user.update(user_params)
-        render json: { user: @user }, status: :ok
-      else
-        render json: { errors: @user.errors }, status: :unprocessable_entity
-      end
+    if @user.update(user_params)
+      render json: UserBlueprint.render(@user), status: :ok
     else
-      render json: { errors: "You don't have permission to do this" }, status: :unauthorized
+      render json: { errors: @user.errors }, status: :unprocessable_entity
     end
   end
 

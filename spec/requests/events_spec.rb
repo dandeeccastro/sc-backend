@@ -9,6 +9,7 @@ RSpec.describe '/events', type: :request do
   context 'as an authenticated admin' do
     let!(:user) { create(:user) }
     let!(:admin) { create(:admin, user: user) }
+    let!(:events) { create_list(:event, 3) }
 
     describe 'GET /event' do
       it 'should list all events' do
@@ -17,7 +18,8 @@ RSpec.describe '/events', type: :request do
         data = Oj.load response.body
 
         expect(response.status).to eq 200
-        expect(data).to have_key 'events'
+        expect(data).to be_an_instance_of Array
+        expect(data.length).to eq 3
       end
     end
 
@@ -28,7 +30,7 @@ RSpec.describe '/events', type: :request do
         data = Oj.load response.body
 
         expect(response.status).to eq 201
-        expect(data).to have_key 'event'
+        expect(data).to have_key 'name'
       end
     end
 
@@ -40,8 +42,8 @@ RSpec.describe '/events', type: :request do
         data = Oj.load response.body
 
         expect(response.status).to eq 200
-        expect(data).to have_key 'event'
-        expect(data['event']['name']).to eq 'Semana da Química'
+        expect(data).to have_key 'name'
+        expect(data['name']).to eq 'Semana da Química'
       end
     end
 
@@ -105,7 +107,7 @@ RSpec.describe '/events', type: :request do
         data = Oj.load response.body
 
         expect(response.status).to eq 200
-        expect(data).to have_key 'event'
+        expect(data).to have_key 'name'
       end
     end
   end

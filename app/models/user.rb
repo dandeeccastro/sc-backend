@@ -5,8 +5,8 @@ class User < ApplicationRecord
   validates :dre, uniqueness: true
   validates :name, presence: true
 
-  has_one :admin
-  has_one :staff
-  has_one :speaker
-  has_one :attendee
+  has_one :admin, dependent: :destroy
+  has_one :staff, dependent: :destroy
+  has_one :speaker, dependent: :destroy
+  has_one :attendee, dependent: :destroy
 end

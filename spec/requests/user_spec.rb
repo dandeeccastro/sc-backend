@@ -5,98 +5,107 @@ def authenticate(user)
   Oj.load(response.body)['token']
 end
 
-def admin_setup
-  let!(:regular_user) { create(:user) }
-  let!(:admin_user) { create(:user) }
-  let!(:admin) { create(:admin, user: admin_user) }
-end
-
 RSpec.describe "Users", type: :request do
-  describe 'GET /user' do
-    admin_setup
-    it 'should list users when authenticated with admin' do
-      token = authenticate admin_user
-      get '/user', headers: { Authorization: token }
-      data = Oj.load response.body
+  context 'as an admin' do
+    let!(:admin) { create(:admin) }
+    let!(:users) { create_list(:user, 3) }
 
-      expect(response.status).to eq 200
-      expect(data).to have_key 'users'
-      expect(data['users']).to be_an_instance_of Array
+    before { @token = authenticate admin.user }
+
+    describe 'GET /user' do
+      it 'should list users when authenticated with admin' do
+        get '/user', headers: { Authorization: @token }
+        data = Oj.load response.body
+
+        expect(response.status).to eq 200
+        expect(data).to be_an_instance_of Array
+        expect(data.length).to eq 4
+      end
     end
 
-    it 'should fail to list when user is not admin' do
-      token = authenticate regular_user
-      get '/user', headers: { Authorization: token }
-      data = Oj.load response.body
+    describe 'GET /user/1' do
+      it 'should return user information when requester is admin' do
+        get "/user/#{admin.user.id}", headers: { Authorization: @token }
+        data = Oj.load response.body
 
-      expect(response.status).to eq 401
-      # expect(data).to have_key 'users'
-      # expect(data['users']).to be_an_instance_of Array
-    end
-  end
-
-  describe 'GET /user/1' do
-    admin_setup
-    it "should show user's own information" do
-      token = authenticate regular_user
-      get "/user/#{regular_user.id}", headers: { Authorization: token }
-      data = Oj.load response.body
-
-      expect(response.status).to eq 200
-      expect(data).to have_key 'user'
-      expect(data['user']['id']).to eq regular_user.id
+        expect(response.status).to eq 200
+        expect(data).to have_key 'email'
+        expect(data['id']).not_to eq admin.user.id
+      end
     end
 
-    it 'should return user information when requester is admin' do
-      token = authenticate admin_user
-      get "/user/#{regular_user.id}", headers: { Authorization: token }
-      data = Oj.load response.body
+    describe 'PUT /user/1' do
+      it 'should update own user information' do
+        put "/user/#{admin.user.id}", headers: { Authorization: @token }, params: { user: { name: 'Nome Alterado', email: 'email@alterado.com' } }
+        data = Oj.load response.body
 
-      expect(response.status).to eq 200
-      expect(data).to have_key 'user'
-      expect(data['user']['id']).not_to eq admin_user.id
+        expect(response.status).to eq 200
+        expect(data['email']).to eq 'email@alterado.com'
+      end
     end
   end
 
-  describe 'POST /register' do
-    it 'should create user with params' do
-      post '/register', params: { user: { name: 'Danilo', email: 'user@gmail.com', password: 'senha123' } }
-      data = Oj.load response.body
+  context 'normal user' do
+    let!(:attendee) { create(:attendee) }
 
-      expect(response.status).to eq 200
-      expect(data).to have_key 'user'
+    before { @token = authenticate attendee.user }
+
+    describe 'GET /user' do
+      it 'should fail to list when user is not admin' do
+        get '/user', headers: { Authorization: @token }
+        expect(response.status).to eq 401
+      end
     end
 
-    it 'should fail to create without required params' do
-      post '/register', params: { user: { email: 'user@gmail.com', password: 'senha123' } }
-      data = Oj.load response.body
+    describe 'GET /user/1' do
+      it "should show user's own information" do
+        get "/user/#{attendee.user.id}", headers: { Authorization: @token }
+        data = Oj.load response.body
 
-      expect(response.status).to eq 422
-      expect(data).to have_key 'errors'
+        expect(response.status).to eq 200
+        expect(data).to have_key 'email'
+        expect(data['email']).to eq attendee.user.email
+      end
+    end
+
+    describe 'PUT /user/1' do
+      it 'should update oneself' do
+        put "/user/#{attendee.user.id}", headers: { Authorization: @token }, params: { user: { name: 'Nome Alterado', email: 'email@alterado.com' } }
+        data = Oj.load response.body
+
+        expect(response.status).to eq 200
+        expect(data['email']).to eq 'email@alterado.com'
+      end
+    end
+
+    describe 'DELETE /user/1' do
+      it 'should delete given user' do
+        delete "/user/#{attendee.user.id}", headers: { Authorization: @token }
+        data = Oj.load response.body
+
+        expect(response.status).to eq 200
+        expect(data).to have_key 'message'
+      end
     end
   end
 
-  describe 'PUT /user/1' do
-    let!(:user) { create(:user) }
-    it 'should update own user information' do
-      token = authenticate user
-      put "/user/#{user.id}", headers: { Authorization: token }, params: { user: { name: 'Nome Alterado', email: 'email@alterado.com' } }
-      data = Oj.load response.body
+  context 'unauthenticated' do
+    describe 'POST /register' do
+      it 'should create user with params' do
+        post '/register', params: { user: { name: 'Danilo', email: 'user@gmail.com', password: 'senha123' } }
+        data = Oj.load response.body
 
-      expect(response.status).to eq 200
-      expect(data['user']['email']).to eq 'email@alterado.com'
-    end
-  end
+        expect(response.status).to eq 200
+        expect(data).to have_key 'email'
+      end
 
-  describe 'DELETE /user/1' do
-    let!(:user) { create(:user) }
-    it 'should delete given user' do
-      token = authenticate user
-      delete "/user/#{user.id}", headers: { Authorization: token }
-      data = Oj.load response.body
+      it 'should fail to create without required params' do
+        post '/register', params: { user: { email: 'user@gmail.com', password: 'senha123' } }
+        data = Oj.load response.body
 
-      expect(response.status).to eq 200
-      expect(data).to have_key 'message'
+        expect(response.status).to eq 422
+        expect(data).to have_key 'errors'
+      end
     end
   end
 end
