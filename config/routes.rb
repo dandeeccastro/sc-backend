@@ -6,9 +6,9 @@ Rails.application.routes.draw do
   resources :user, except: %i[create]
   resources :talks
   resources :teams
+  resources :merches
   # resources :vacancies
   # resources :materials
-  # resources :merches
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")

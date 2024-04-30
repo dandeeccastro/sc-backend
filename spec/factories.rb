@@ -50,4 +50,10 @@ FactoryBot.define do
     staffs { [] }
     event { nil }
   end
+
+  factory :merch do
+    name { 'Example Merch' }
+    price { 9999 }
+    event
+  end
 end

@@ -1,51 +1,54 @@
 class MerchesController < ApplicationController
-  before_action :set_merch, only: %i[ show update destroy ]
+  before_action :set_merch, only: %i[show update destroy]
+  before_action :authenticate_user
+  before_action :staff_or_admin?, only: %i[create update destroy]
 
-  # GET /merches
   def index
     @merches = Merch.all
-
-    render json: @merches
+    render json: MerchBlueprint.render(@merches), status: :ok
   end
 
-  # GET /merches/1
   def show
-    render json: @merch
+    render json: MerchBlueprint.render(@merch), status: :ok
   end
 
-  # POST /merches
   def create
     @merch = Merch.new(merch_params)
 
     if @merch.save
-      render json: @merch, status: :created, location: @merch
+      render json: MerchBlueprint.render(@merch), status: :created
     else
       render json: @merch.errors, status: :unprocessable_entity
     end
   end
 
-  # PATCH/PUT /merches/1
   def update
     if @merch.update(merch_params)
-      render json: @merch
+      render json: MerchBlueprint.render(@merch), status: :ok
     else
       render json: @merch.errors, status: :unprocessable_entity
     end
   end
 
-  # DELETE /merches/1
   def destroy
     @merch.destroy
+    render json: { message: 'Merch deleted!' }, status: :ok
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_merch
-      @merch = Merch.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def merch_params
-      params.require(:merch).permit(:name, :image, :price, :event_id)
-    end
+  def set_merch
+    @merch = Merch.find(params[:id])
+  end
+
+  def merch_params
+    params.permit(:name, :image, :price, :event_id)
+  end
+
+  def staff_or_admin?
+    staff = @current_user.staff
+    team = Event.find(merch_params[:event_id])&.team
+    is_team_member = team&.staffs&.find(staff.id)
+    render json: { message: 'Unauthorized!' }, status: :unauthorized unless @current_user.admin || is_team_member
+  end
 end
