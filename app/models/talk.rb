@@ -7,6 +7,7 @@ class Talk < ApplicationRecord
   has_many :vacancies
   has_many :speakers
   has_one :staff
+  has_many :attendees, through: :vacancies
 
   def overlaps_with_other_talk
     overlapping_talks = Talk.where(
