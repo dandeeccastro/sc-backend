@@ -65,8 +65,9 @@ RSpec.describe '/teams', type: :request do
   end
 
   context 'as a staff leader' do
+    let!(:event) { create(:event) }
     let!(:staff) { create(:staff, leader: true) }
-    let!(:team) { create(:team, staffs: [staff]) }
+    let!(:team) { create(:team, staffs: [staff], event: event) }
     let!(:staffs) { create_list(:staff, 3) }
 
     before { @token = authenticate staff.user }

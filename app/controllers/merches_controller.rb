@@ -46,9 +46,8 @@ class MerchesController < ApplicationController
   end
 
   def staff_or_admin?
-    staff = @current_user.staff
-    team = Event.find(merch_params[:event_id])&.team
-    is_team_member = team&.staffs&.find(staff.id)
-    render json: { message: 'Unauthorized!' }, status: :unauthorized unless @current_user.admin || is_team_member
+    event = Event.find(merch_params[:event_id])
+    admin_or_staff_from_event = @current_user.admin || @current_user.staff&.from_event?(event)
+    render json: { message: 'Unauthorized!' }, status: :unauthorized unless admin_or_staff_from_event
   end
 end

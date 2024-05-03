@@ -40,12 +40,8 @@ class TalksController < ApplicationController
   end
 
   def authorized?
-    is_admin = @current_user.admin.present?
-    staff = @current_user.staff
-    team = Event.find(talk_params[:event_id])&.team
-    is_team_member = team&.staffs&.find(staff.id)
-    if !is_admin && !is_team_member
-      render json: { message: 'Not allowed to do that!' }, status: :unauthorized
-    end
+    event = Event.find(talk_params[:event_id])
+    admin_or_staff_from_event = @current_user.admin.present? || @current_user.staff.from_event?(event)
+    render json: { message: 'Unauthorized' }, status: :unauthorized unless admin_or_staff_from_event
   end
 end
