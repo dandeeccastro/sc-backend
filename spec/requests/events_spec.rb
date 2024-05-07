@@ -1,10 +1,5 @@
 require 'rails_helper'
 
-def authenticate(user)
-  post '/login', params: { email: user.email, password: user.password }
-  Oj.load(response.body)['token']
-end
-
 RSpec.describe '/events', type: :request do
   context 'as an authenticated admin' do
     let!(:user) { create(:user) }

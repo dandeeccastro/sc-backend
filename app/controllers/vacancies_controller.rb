@@ -1,21 +1,23 @@
 class VacanciesController < ApplicationController
-  before_action :set_vacancy, only: %i[ show update destroy ]
+  before_action :set_vacancy, only: %i[show update destroy]
   before_action :authenticate_user
+  before_action :admin_or_attendee?, only: %i[create destroy]
+  before_action :admin_or_staff?, only: %i[index show update]
 
   def index
     @vacancies = Vacancy.all
-    render json: VacancyBlueprint(@vacancies)
+    render json: VacancyBlueprint.render(@vacancies)
   end
 
   def show
-    render json: VacancyBlueprint(@vacancy)
+    render json: VacancyBlueprint.render(@vacancy)
   end
 
   def create
     @vacancy = Vacancy.new(vacancy_params)
 
     if @vacancy.save
-      render json: VacancyBlueprint(@vacancy), status: :created, location: @vacancy
+      render json: VacancyBlueprint.render(@vacancy), status: :created, location: @vacancy
     else
       render json: @vacancy.errors, status: :unprocessable_entity
     end
@@ -23,7 +25,7 @@ class VacanciesController < ApplicationController
 
   def update
     if @vacancy.update(vacancy_params)
-      render json: VacancyBlueprint(@vacancy)
+      render json: VacancyBlueprint.render(@vacancy)
     else
       render json: @vacancy.errors, status: :unprocessable_entity
     end
@@ -40,6 +42,15 @@ class VacanciesController < ApplicationController
   end
 
   def vacancy_params
-    params.require(:vacancy).permit(:presence, :staff_member_id)
+    params.permit(:presence, :talk_id, :attendee_id)
+  end
+
+  def admin_or_staff?
+    event = Talk.find(vacancy_params[:talk_id]).event
+    render json: { message: 'Unauthorized' } unless @current_user.admin || @current_user.staff&.from_event?(event)
+  end
+
+  def admin_or_attendee?
+    render json: { message: 'Unauthorized' } unless @current_user.admin || @current_user.attendee
   end
 end

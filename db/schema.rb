@@ -140,10 +140,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_01_103425) do
 
   create_table "vacancies", force: :cascade do |t|
     t.boolean "presence"
-    t.integer "staff_id", null: false
+    t.integer "attendee_id", null: false
+    t.integer "talk_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["staff_id"], name: "index_vacancies_on_staff_id"
+    t.index ["attendee_id"], name: "index_vacancies_on_attendee_id"
+    t.index ["talk_id"], name: "index_vacancies_on_talk_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -158,5 +160,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_01_103425) do
   add_foreign_key "talks", "events"
   add_foreign_key "talks", "locations"
   add_foreign_key "teams", "events"
-  add_foreign_key "vacancies", "staffs"
+  add_foreign_key "vacancies", "attendees"
+  add_foreign_key "vacancies", "talks"
 end

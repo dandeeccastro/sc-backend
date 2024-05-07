@@ -1,10 +1,5 @@
 require 'rails_helper'
 
-def authenticate(user)
-  post '/login', params: { email: user.email, password: user.password }
-  Oj.load(response.body)['token']
-end
-
 RSpec.describe '/merches', type: :request do
   context 'as staff leader' do
     let!(:staff) { create(:staff_leader) }

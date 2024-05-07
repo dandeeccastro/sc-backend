@@ -1,10 +1,5 @@
 require 'rails_helper'
 
-def authenticate(user)
-  post '/login', params: { email: user.email, password: user.password }
-  Oj.load(response.body)['token']
-end
-
 def regular_admin_setup
   let!(:event) { create(:event) }
   let!(:location) { create(:location) }
