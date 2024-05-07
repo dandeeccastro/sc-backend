@@ -4,11 +4,11 @@ RSpec.describe '/vacancies', type: :request do
   context 'as staff' do
     let!(:staff) { create(:staff) }
     let!(:event) { create(:event) }
-    let!(:team) { create(:team, event: event, staffs:[staff])}
+    let!(:team) { create(:team, event: event, users: [staff]) }
     let!(:talk) { create(:talk, event: event) }
     let!(:vacancies) { create_list(:vacancy, 3, talk: talk) }
 
-    before { @token = authenticate staff.user }
+    before { @token = authenticate staff }
 
     describe 'GET /vacancies' do
       it 'should list all vacancies ' do
@@ -49,11 +49,11 @@ RSpec.describe '/vacancies', type: :request do
     let!(:vacancies) { create_list(:vacancy, 3, talk: talk) }
     let!(:attendee) { create(:attendee) }
 
-    before { @token = authenticate attendee.user }
+    before { @token = authenticate attendee }
 
     describe 'POST /vacancies' do
       it 'should create vacancy' do
-        post '/vacancies', headers: { Authorization: @token }, params: { talk_id: talk.id, attendee_id: attendee.id }
+        post '/vacancies', headers: { Authorization: @token }, params: { talk_id: talk.id, user_id: attendee.id }
         data = Oj.load response.body
 
         expect(response.status).to eq 201

@@ -16,12 +16,7 @@ class UserController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
-      @attendee = Attendee.new(user: @user)
-      if @attendee.save
-        render json: UserBlueprint.render(@user), status: :ok
-      else
-        render json: { errors: @attendee.errors }, status: :unprocessable_entity
-      end
+      render json: UserBlueprint.render(@user), status: :ok
     else
       render json: { errors: @user.errors }, status: :unprocessable_entity
     end
@@ -47,11 +42,11 @@ class UserController < ApplicationController
   end
 
   def self_or_admin?
-    render json: { errors: 'Unauthorized' }, status: :unauthorized unless @user.id == @current_user.id || @current_user.admin
+    render json: { errors: 'Unauthorized' }, status: :unauthorized unless @user.id == @current_user.id || @current_user.admin?
   end
 
   def admin?
-    render json: { errors: 'Admin only' }, status: :unauthorized unless @current_user.admin
+    render json: { errors: 'Admin only' }, status: :unauthorized unless @current_user.admin?
   end
 
   def user_params

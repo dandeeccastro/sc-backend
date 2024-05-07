@@ -42,15 +42,15 @@ class VacanciesController < ApplicationController
   end
 
   def vacancy_params
-    params.permit(:presence, :talk_id, :attendee_id)
+    params.permit(:presence, :talk_id, :user_id)
   end
 
   def admin_or_staff?
     event = Talk.find(vacancy_params[:talk_id]).event
-    render json: { message: 'Unauthorized' } unless @current_user.admin || @current_user.staff&.from_event?(event)
+    render json: { message: 'Unauthorized' } unless @current_user.admin? || @current_user.runs_event?(event)
   end
 
   def admin_or_attendee?
-    render json: { message: 'Unauthorized' } unless @current_user.admin || @current_user.attendee
+    render json: { message: 'Unauthorized' } unless @current_user.admin? || @current_user.attendee?
   end
 end

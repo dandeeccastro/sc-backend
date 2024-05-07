@@ -1,5 +1,5 @@
 class VacancyBlueprint < Blueprinter::Base
   fields :presence
-  association :attendee, blueprint: AttendeeBlueprint
+  association :user, blueprint: UserBlueprint
   association :talk, blueprint: TalkBlueprint
 end

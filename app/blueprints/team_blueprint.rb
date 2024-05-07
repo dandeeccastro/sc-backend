@@ -1,3 +1,3 @@
 class TeamBlueprint < Blueprinter::Base
-  association :staffs, blueprint: StaffBlueprint
+  association :users, blueprint: UserBlueprint
 end

@@ -4,10 +4,10 @@ RSpec.describe '/merches', type: :request do
   context 'as staff leader' do
     let!(:staff) { create(:staff_leader) }
     let!(:event) { create(:event) }
-    let!(:team) { create(:team, event: event, staffs: [staff]) }
+    let!(:team) { create(:team, event: event, users: [staff]) }
     let!(:merches) { create_list(:merch, 3) }
 
-    before { @token = authenticate staff.user }
+    before { @token = authenticate staff }
 
     describe 'GET /merches' do
       it 'should get all merches' do
@@ -65,9 +65,10 @@ RSpec.describe '/merches', type: :request do
   context 'unauthorized' do
     let!(:attendee) { create(:attendee) }
     let!(:event) { create(:event) }
+    let!(:team) { create(:team, event: event) }
     let!(:merches) { create_list(:merch, 3) }
 
-    before { @token = authenticate attendee.user }
+    before { @token = authenticate attendee }
 
     describe 'GET /merches' do
       it 'should get all merches' do

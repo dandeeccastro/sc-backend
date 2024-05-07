@@ -1,33 +1,11 @@
 FactoryBot.define do
   factory :vacancy do
-    attendee
+    user
     talk { nil }
   end
 
   factory :location do
     name { 'Roxinho CCMN' }
-  end
-
-  factory :staff do
-    leader { false }
-    user
-  end
-
-  factory :staff_leader, class: 'Staff' do
-    leader { true }
-    user
-  end
-
-  factory :attendee do
-    user
-  end
-
-  factory :speaker do
-    user
-  end
-
-  factory :admin do
-    user
   end
 
   factory :event do
@@ -37,9 +15,48 @@ FactoryBot.define do
 
   factory :user do
     name { 'Lorem Ipsum' }
-    sequence(:email) { |n| "lorem.ipsum#{n}@gmail.com" }
+    sequence(:email) { |n| "regularuser#{n}@gmail.com" }
     sequence(:dre) { |n| "1111111111#{n}" }
     password { 'senha123' }
+  end
+
+  factory :attendee, class: 'User' do
+    name { 'Lorem Ipsum' }
+    sequence(:email) { |n| "attendee#{n}@gmail.com" }
+    sequence(:dre) { |n| "2111111111#{n}" }
+    password { 'senha123' }
+    permissions { User::ATTENDEE }
+  end
+
+  factory :speaker, class: 'User' do
+    name { 'Lorem Ipsum' }
+    sequence(:email) { |n| "speaker#{n}@gmail.com" }
+    sequence(:dre) { |n| "311111111#{n}1" }
+    password { 'senha123' }
+    permissions { User::SPEAKER }
+  end
+
+  factory :staff, class: 'User' do
+    name { 'Lorem Ipsum' }
+    sequence(:email) { |n| "staff#{n}@gmail.com" }
+    sequence(:dre) { |n| "41111111#{n}11" }
+    password { 'senha123' }
+    permissions { User::STAFF }
+  end
+
+  factory :staff_leader, class: 'User' do
+    name { 'Lorem Ipsum' }
+    sequence(:email) { |n| "staffleader#{n}@gmail.com" }
+    sequence(:dre) { |n| "5111111#{n}111" }
+    password { 'senha123' }
+    permissions { User::STAFF_LEADER }
+  end
+  factory :admin, class: 'User' do
+    name { 'Lorem Ipsum' }
+    sequence(:email) { |n| "admin#{n}@gmail.com" }
+    sequence(:dre) { |n| "611111#{n}1111" }
+    password { 'senha123' }
+    permissions { User::ADMIN }
   end
 
   factory :talk do
@@ -52,7 +69,7 @@ FactoryBot.define do
   end
 
   factory :team do
-    staffs { [] }
+    users { [] }
     event { nil }
   end
 

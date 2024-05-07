@@ -39,20 +39,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_01_103425) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "admins", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_id"], name: "index_admins_on_user_id"
-  end
-
-  create_table "attendees", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_id"], name: "index_attendees_on_user_id"
-  end
-
   create_table "events", force: :cascade do |t|
     t.string "name"
     t.integer "team_id"
@@ -84,30 +70,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_01_103425) do
     t.index ["event_id"], name: "index_merches_on_event_id"
   end
 
-  create_table "speakers", force: :cascade do |t|
-    t.integer "user_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_id"], name: "index_speakers_on_user_id"
-  end
-
-  create_table "staffs", force: :cascade do |t|
-    t.boolean "leader"
-    t.integer "user_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_id"], name: "index_staffs_on_user_id"
-  end
-
-  create_table "staffs_teams", id: false, force: :cascade do |t|
-    t.integer "staff_id"
-    t.integer "team_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["staff_id"], name: "index_staffs_teams_on_staff_id"
-    t.index ["team_id"], name: "index_staffs_teams_on_team_id"
-  end
-
   create_table "talks", force: :cascade do |t|
     t.string "title"
     t.text "description"
@@ -128,38 +90,50 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_01_103425) do
     t.index ["event_id"], name: "index_teams_on_event_id"
   end
 
+  create_table "teams_users", id: false, force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "team_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["team_id"], name: "index_teams_users_on_team_id"
+    t.index ["user_id"], name: "index_teams_users_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "name"
     t.string "email"
     t.string "password_digest"
     t.string "dre"
+    t.integer "permissions", default: 1
+    t.integer "team_id"
+    t.integer "talk_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "role", default: 1
+    t.index ["talk_id"], name: "index_users_on_talk_id"
+    t.index ["team_id"], name: "index_users_on_team_id"
   end
 
   create_table "vacancies", force: :cascade do |t|
     t.boolean "presence"
-    t.integer "attendee_id", null: false
+    t.integer "user_id", null: false
     t.integer "talk_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["attendee_id"], name: "index_vacancies_on_attendee_id"
     t.index ["talk_id"], name: "index_vacancies_on_talk_id"
+    t.index ["user_id"], name: "index_vacancies_on_user_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "admins", "users"
-  add_foreign_key "attendees", "users"
   add_foreign_key "events", "teams"
   add_foreign_key "materials", "talks"
   add_foreign_key "merches", "events"
-  add_foreign_key "speakers", "users"
-  add_foreign_key "staffs", "users"
   add_foreign_key "talks", "events"
   add_foreign_key "talks", "locations"
   add_foreign_key "teams", "events"
-  add_foreign_key "vacancies", "attendees"
+  add_foreign_key "users", "talks"
+  add_foreign_key "users", "teams"
   add_foreign_key "vacancies", "talks"
+  add_foreign_key "vacancies", "users"
 end

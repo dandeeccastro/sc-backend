@@ -5,9 +5,8 @@ class Talk < ApplicationRecord
   belongs_to :location
   has_many :materials
   has_many :vacancies
-  has_many :speakers
-  has_one :staff
-  has_many :attendees, through: :vacancies
+  has_many :users
+  has_many :users, through: :vacancies
 
   def overlaps_with_other_talk
     overlapping_talks = Talk.where(

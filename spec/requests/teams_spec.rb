@@ -6,7 +6,7 @@ RSpec.describe '/teams', type: :request do
     let!(:team) { create(:team) }
     let!(:staffs) { create_list(:staff, 3) }
 
-    before do @token = authenticate admin.user end
+    before { @token = authenticate admin }
 
     describe 'GET /teams' do
       it 'should show all teams' do
@@ -24,28 +24,28 @@ RSpec.describe '/teams', type: :request do
         data = Oj.load response.body
 
         expect(response).to be_successful
-        expect(data).to have_key 'staffs'
+        expect(data).to have_key 'users'
       end
     end
 
     describe 'POST /team' do
       it 'should create a new team' do
-        post '/teams', headers: { Authorization: @token }, params: { staff_ids: staffs.map(&:id) }
+        post '/teams', headers: { Authorization: @token }, params: { user_ids: staffs.map(&:id) }
         data = Oj.load response.body
 
         expect(response.status).to eq 201
-        expect(data).to have_key 'staffs'
+        expect(data).to have_key 'users'
       end
     end
 
     describe 'PUT /team/1' do
       it 'should update an existing team' do
-        put "/teams/#{team.id}", headers: { Authorization: @token }, params: { staff_ids: staffs.map(&:id) }
+        put "/teams/#{team.id}", headers: { Authorization: @token }, params: { user_ids: staffs.map(&:id) }
         data = Oj.load response.body
 
         expect(response.status).to eq 201
-        expect(data).to have_key 'staffs'
-        expect(data['staffs'].length).to eq 3
+        expect(data).to have_key 'users'
+        expect(data['users'].length).to eq 3
       end
     end
 
@@ -61,11 +61,11 @@ RSpec.describe '/teams', type: :request do
 
   context 'as a staff leader' do
     let!(:event) { create(:event) }
-    let!(:staff) { create(:staff, leader: true) }
-    let!(:team) { create(:team, staffs: [staff], event: event) }
+    let!(:staff) { create(:staff_leader) }
+    let!(:team) { create(:team, users: [staff], event: event) }
     let!(:staffs) { create_list(:staff, 3) }
 
-    before { @token = authenticate staff.user }
+    before { @token = authenticate staff }
 
     describe 'GET /teams' do
       it 'should fail to show all teams' do
@@ -80,24 +80,24 @@ RSpec.describe '/teams', type: :request do
         data = Oj.load response.body
 
         expect(response).to be_successful
-        expect(data).to have_key 'staffs'
+        expect(data).to have_key 'users'
       end
     end
 
     describe 'POST /team' do
       it 'should create a new team' do
-        post '/teams', headers: { Authorization: @token }, params: { staff_ids: staffs.map(&:id) }
+        post '/teams', headers: { Authorization: @token }, params: { user_ids: staffs.map(&:id) }
         expect(response.status).to eq 401
       end
     end
 
     describe 'PUT /team/1' do
       it 'should update an existing team' do
-        put "/teams/#{team.id}", headers: { Authorization: @token }, params: { staff_ids: staffs.map(&:id) }
+        put "/teams/#{team.id}", headers: { Authorization: @token }, params: { user_ids: staffs.map(&:id) }
         data = Oj.load response.body
 
         expect(response.status).to eq 201
-        expect(data).to have_key 'staffs'
+        expect(data).to have_key 'users'
       end
     end
 
@@ -114,7 +114,7 @@ RSpec.describe '/teams', type: :request do
     let!(:team) { create(:team) }
     let!(:staffs) { create_list(:staff, 3) }
 
-    before { @token = authenticate staff.user}
+    before { @token = authenticate staff }
 
     describe 'GET /teams' do
       it 'should show all teams' do
@@ -132,14 +132,14 @@ RSpec.describe '/teams', type: :request do
 
     describe 'POST /team' do
       it 'should create a new team' do
-        post '/teams', headers: { Authorization: @token }, params: { staff_ids: staffs.map(&:id) }
+        post '/teams', headers: { Authorization: @token }, params: { user_ids: staffs.map(&:id) }
         expect(response.status).to eq 401
       end
     end
 
     describe 'PUT /team/1' do
       it 'should update an existing team' do
-        put "/teams/#{team.id}", headers: { Authorization: @token }, params: { staff_ids: staffs.map(&:id) }
+        put "/teams/#{team.id}", headers: { Authorization: @token }, params: { user_ids: staffs.map(&:id) }
         expect(response.status).to eq 401
       end
     end

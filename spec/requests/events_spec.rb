@@ -2,8 +2,7 @@ require 'rails_helper'
 
 RSpec.describe '/events', type: :request do
   context 'as an authenticated admin' do
-    let!(:user) { create(:user) }
-    let!(:admin) { create(:admin, user: user) }
+    let!(:user) { create(:admin) }
     let!(:events) { create_list(:event, 3) }
 
     describe 'GET /event' do
@@ -56,12 +55,11 @@ RSpec.describe '/events', type: :request do
   end
 
   context 'as an attendee' do
-    let!(:user) { create(:user) }
-    let!(:staff) { create(:staff, user: user) }
+    let!(:attendee) { create(:attendee) }
 
     describe 'GET /event' do
       it 'should list all events' do
-        token = authenticate user
+        token = authenticate attendee
         get '/events', headers: { Authorization: token }
         expect(response.status).to eq 401
       end
@@ -69,7 +67,7 @@ RSpec.describe '/events', type: :request do
 
     describe 'POST /event' do
       it 'should create event' do
-        token = authenticate user
+        token = authenticate attendee
         post '/events', headers: { Authorization: token }, params: { event: { name: 'Semana da Computação 2024' } }
         expect(response.status).to eq 401
       end
@@ -78,7 +76,7 @@ RSpec.describe '/events', type: :request do
     describe 'PUT /event/1' do
       let!(:event) { create(:event) }
       it 'should update event' do
-        token = authenticate user
+        token = authenticate attendee
         put "/events/#{event.id}", headers: { Authorization: token }, params: { event: { name: 'Semana da Química' } }
         expect(response.status).to eq 401
       end
@@ -87,7 +85,7 @@ RSpec.describe '/events', type: :request do
     describe 'DELETE /event/1' do
       let!(:event) { create(:event) }
       it 'should delete event' do
-        token = authenticate user
+        token = authenticate attendee
         delete "/events/#{event.id}", headers: { Authorization: token }
         expect(response.status).to eq 401
       end

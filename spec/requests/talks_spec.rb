@@ -3,14 +3,12 @@ require 'rails_helper'
 def regular_admin_setup
   let!(:event) { create(:event) }
   let!(:location) { create(:location) }
-  let!(:user) { create(:user) }
-  let!(:admin) { create(:admin, user: user) }
+  let!(:user) { create(:admin) }
 end
 
 def regular_staff_setup
-  let!(:user) { create(:user) }
-  let!(:staff) { create(:staff, user: user) }
-  let!(:team) { create(:team, staffs: [staff]) }
+  let!(:user) { create(:staff) }
+  let!(:team) { create(:team, users: [user]) }
   let!(:event) { create(:event, team: team) }
   let!(:location) { create(:location) }
 end
@@ -19,7 +17,7 @@ def regular_attendee_with_talk
   let!(:event) { create(:event) }
   let!(:location) { create(:location) }
   let!(:talk) { create(:talk, event: event, location: location) }
-  let!(:user) { create(:user) }
+  let!(:user) { create(:attendee) }
 end
 
 RSpec.describe '/talks', type: :request do
