@@ -75,6 +75,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_01_103425) do
     t.text "description"
     t.datetime "start_date"
     t.datetime "end_date"
+    t.integer "vacancy_limit"
     t.integer "event_id"
     t.integer "location_id"
     t.datetime "created_at", null: false

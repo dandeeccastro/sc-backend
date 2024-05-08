@@ -51,6 +51,7 @@ FactoryBot.define do
     password { 'senha123' }
     permissions { User::STAFF_LEADER }
   end
+
   factory :admin, class: 'User' do
     name { 'Lorem Ipsum' }
     sequence(:email) { |n| "admin#{n}@gmail.com" }
@@ -65,6 +66,7 @@ FactoryBot.define do
     start_date { '2024-04-16 00:00' }
     end_date { '2024-04-16 00:00' }
     event { nil }
+    vacancy_limit { 40 }
     location
   end
 
