@@ -1,7 +1,7 @@
 class AuthController < ApplicationController
   def login
     @user = User.find_by(email: auth_params[:email])
-    if @user.authenticate(auth_params[:password])
+    if @user&.authenticate(auth_params[:password])
       token = encode(uid: @user.id)
       time = Time.now + 24.hours.to_i
       render json: { token: token, exp: time.strftime("%d/%m/%Y %H:%M") }, status: :ok

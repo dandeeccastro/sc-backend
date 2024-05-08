@@ -31,7 +31,7 @@ RSpec.describe "Users", type: :request do
 
     describe 'PUT /user/1' do
       it 'should update own user information' do
-        put "/user/#{admin.id}", headers: { Authorization: @token }, params: { user: { name: 'Nome Alterado', email: 'email@alterado.com' } }
+        put "/user/#{admin.id}", headers: { Authorization: @token }, params: { name: 'Nome Alterado', email: 'email@alterado.com' }
         data = Oj.load response.body
 
         expect(response.status).to eq 200
@@ -65,7 +65,7 @@ RSpec.describe "Users", type: :request do
 
     describe 'PUT /user/1' do
       it 'should update oneself' do
-        put "/user/#{attendee.id}", headers: { Authorization: @token }, params: { user: { name: 'Nome Alterado', email: 'email@alterado.com' } }
+        put "/user/#{attendee.id}", headers: { Authorization: @token }, params: { name: 'Nome Alterado', email: 'email@alterado.com' }
         data = Oj.load response.body
 
         expect(response.status).to eq 200
@@ -87,7 +87,7 @@ RSpec.describe "Users", type: :request do
   context 'unauthenticated' do
     describe 'POST /register' do
       it 'should create user with params' do
-        post '/register', params: { user: { name: 'Danilo', email: 'user@gmail.com', password: 'senha123' } }
+        post '/register', params: { name: 'Danilo', email: 'user@gmail.com', password: 'senha123' }
         data = Oj.load response.body
 
         expect(response.status).to eq 200
@@ -95,7 +95,7 @@ RSpec.describe "Users", type: :request do
       end
 
       it 'should fail to create without required params' do
-        post '/register', params: { user: { email: 'user@gmail.com', password: 'senha123' } }
+        post '/register', params: { email: 'user@gmail.com', password: 'senha123' }
         data = Oj.load response.body
 
         expect(response.status).to eq 422
