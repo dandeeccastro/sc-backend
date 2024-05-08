@@ -42,6 +42,7 @@ RSpec.describe '/talks', type: :request do
             description: 'Um exemplo de palestra',
             start_date: '2024-04-27 12:00',
             end_date: '2024-04-27 14:00',
+            vacancy_limit: 50,
             event_id: event.id,
             location_id: location.id,
           }
