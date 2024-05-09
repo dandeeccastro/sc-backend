@@ -80,4 +80,8 @@ FactoryBot.define do
     price { 9999 }
     event
   end
+
+  factory :material do
+    name { |n| "Material #{n}" }
+  end
 end
