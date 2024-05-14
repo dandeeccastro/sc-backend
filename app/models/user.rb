@@ -17,6 +17,8 @@ class User < ApplicationRecord
   # Attendee
   has_many :talks, through: :vacancies
 
+  has_many :merches, through: :reservations
+
   def admin?
     (permissions & ADMIN).positive?
   end

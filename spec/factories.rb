@@ -1,4 +1,9 @@
 FactoryBot.define do
+  factory :reservation do
+    user
+    merch
+  end
+
   factory :vacancy do
     user
     talk { nil }

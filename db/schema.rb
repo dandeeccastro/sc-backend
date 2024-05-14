@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_05_01_103425) do
+ActiveRecord::Schema[7.0].define(version: 2024_05_09_200112) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -68,6 +68,15 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_01_103425) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["event_id"], name: "index_merches_on_event_id"
+  end
+
+  create_table "reservations", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "merch_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["merch_id"], name: "index_reservations_on_merch_id"
+    t.index ["user_id"], name: "index_reservations_on_user_id"
   end
 
   create_table "talks", force: :cascade do |t|
@@ -130,6 +139,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_01_103425) do
   add_foreign_key "events", "teams"
   add_foreign_key "materials", "talks"
   add_foreign_key "merches", "events"
+  add_foreign_key "reservations", "merches"
+  add_foreign_key "reservations", "users"
   add_foreign_key "talks", "events"
   add_foreign_key "talks", "locations"
   add_foreign_key "teams", "events"

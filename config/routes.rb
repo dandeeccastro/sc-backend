@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   resources :merches
   resources :vacancies
   resources :materials
+  resources :reservations, except: %i[update]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")
