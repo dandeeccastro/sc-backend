@@ -1,5 +1,5 @@
 class EventBlueprint < Blueprinter::Base
-  fields :name
+  fields :name, :slug
 
   association :team, blueprint: TeamBlueprint
 end

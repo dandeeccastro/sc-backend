@@ -35,6 +35,11 @@ class EventsController < ApplicationController
     render json: { message: 'Event deleted!' }, status: :ok
   end
 
+  def talks
+    event = Event.where('slug = :slug', { slug: event_params[:slug] })
+    render json: TalkBlueprint.render(event.talks) if event.present?
+  end
+
   private
 
   def set_event
@@ -42,7 +47,7 @@ class EventsController < ApplicationController
   end
 
   def event_params
-    params.require(:event).permit(:name)
+    params.require(:event).permit(:name, :slug)
   end
 
   def admin?

@@ -2,6 +2,8 @@ Rails.application.routes.draw do
   post '/register', to: 'user#create'
   post '/login', to: 'auth#login'
 
+  get '/events/:slug/talks', to: 'events#talks'
+
   resources :events
   resources :user, except: %i[create]
   resources :talks
