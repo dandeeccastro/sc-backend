@@ -1,8 +1,8 @@
 class Event < ApplicationRecord
   before_save :set_slug
 
-  validates :name, uniqueness: true, nullable: false
-  validates :slug, uniqueness: true, nullable: false
+  validates :name, uniqueness: true
+  validates :slug, uniqueness: true
 
   has_many :merches
   has_many :talks

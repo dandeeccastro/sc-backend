@@ -10,7 +10,7 @@ class CertificateFinder
   end
 
   def staff_participation
-    return unless @user.runs_event?(event)
+    return unless @user.runs_event?(@event)
 
     staff_certificate_hash(user: @user, event: @event)
   end
