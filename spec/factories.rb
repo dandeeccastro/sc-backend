@@ -1,4 +1,8 @@
 FactoryBot.define do
+  factory :notification do
+    
+  end
+
   factory :reservation do
     user
     merch
@@ -19,7 +23,7 @@ FactoryBot.define do
   end
 
   factory :user do
-    name { 'Lorem Ipsum' }
+    sequence(:name) { |n| "Lorem Ipsum #{n}" }
     sequence(:email) { |n| "regularuser#{n}@gmail.com" }
     sequence(:dre) { |n| "1111111111#{n}" }
     password { 'senha123' }
@@ -81,7 +85,7 @@ FactoryBot.define do
   end
 
   factory :merch do
-    name { 'Example Merch' }
+    sequence(:name) { |n| "Example Merch #{n}" }
     price { 9999 }
     event
   end
