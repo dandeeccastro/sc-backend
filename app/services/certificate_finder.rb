@@ -6,7 +6,7 @@ class CertificateFinder
   end
 
   def all
-    [attendee_participation, staff_participation, ...participated_in_talks]
+    [attendee_participation, staff_participation].concat(participated_in_talks).compact
   end
 
   def staff_participation
@@ -17,41 +17,47 @@ class CertificateFinder
 
   def attendee_participation
     has_participated = Vacancy.where('presence = true AND user_id = :user_id', { user_id: @user.id })
-    return unless has_participated.empty?
+    return if has_participated.empty?
 
     attendee_certificate_hash(user: @user, event: @event)
   end
 
   def participated_in_talks
     participations = Vacancy.where('presence = true AND user_id = :user_id', { user_id: @user.id })
-    return unless participations.empty?
+    return [] if participations.empty?
 
     participations.map { |vacancy| talk_certificate_hash(user: @user, event: @event, talk: vacancy.talk) }
   end
 
   def talk_certificate_hash(user:, event:, talk:)
     {
-      name: "Certificado de Participação na Palestra #{talk.title} em #{event.name}",
-      receiver: user.name,
       type: :talk_participation,
+      title: "Certificado de Participação na Palestra #{talk.title} em #{event.name}",
+      receiver: user.name,
+      reason: talk.title,
+      dre: user.dre,
       hours: 4
     }
   end
 
   def attendee_certificate_hash(user:, event:)
     {
-      name: "Certificado de Participação em #{event.name}",
-      receiver: user.name,
       type: :attendee_participation,
+      title: "Certificado de Participação em #{event.name}",
+      receiver: user.name,
+      reason: event.name,
+      dre: user.dre,
       hours: 4
     }
   end
 
   def staff_certificate_hash(user:, event:)
     {
-      name: "Certificado de Participação como Staff em #{event.name}",
-      receiver: user.name,
       type: :staff_participation,
+      title: "Certificado de Participação como Staff em #{event.name}",
+      receiver: user.name,
+      reason: event.name,
+      dre: user.dre,
       hours: 5
     }
   end
