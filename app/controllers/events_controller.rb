@@ -49,8 +49,4 @@ class EventsController < ApplicationController
   def event_params
     params.require(:event).permit(:name, :slug)
   end
-
-  def admin?
-    render json: { message: 'Unauthorized' }, status: :unauthorized unless @current_user.admin?
-  end
 end

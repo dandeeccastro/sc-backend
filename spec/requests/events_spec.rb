@@ -20,7 +20,7 @@ RSpec.describe '/events', type: :request do
     describe 'POST /event' do
       it 'should create event' do
         token = authenticate user
-        post '/events', headers: { Authorization: token }, params: { event: { name: 'Semana da Computação 2024' } }
+        post '/events', headers: { Authorization: token }, params: { event: { name: 'Test event' } }
         data = Oj.load response.body
 
         expect(response.status).to eq 201

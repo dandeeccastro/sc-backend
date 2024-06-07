@@ -42,11 +42,8 @@ class UserController < ApplicationController
   end
 
   def self_or_admin?
-    render json: { errors: 'Unauthorized' }, status: :unauthorized unless @user.id == @current_user.id || @current_user.admin?
-  end
-
-  def admin?
-    render json: { errors: 'Admin only' }, status: :unauthorized unless @current_user.admin?
+    condition = @user.id == @current_user.id || @current_user.admin?
+    render json: { errors: 'Unauthorized' }, status: :unauthorized unless condition
   end
 
   def user_params

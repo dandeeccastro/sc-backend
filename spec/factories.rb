@@ -18,7 +18,7 @@ FactoryBot.define do
   end
 
   factory :event do
-    name { 'Semana da Computação 2024' }
+    sequence(:name) { |n| "Semana da Computação 202#{n}" }
     talks { [] }
   end
 

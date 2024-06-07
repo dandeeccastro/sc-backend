@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_05_24_134203) do
+ActiveRecord::Schema[7.0].define(version: 2024_06_04_015203) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -45,6 +45,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_24_134203) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "slug"
+    t.datetime "start_date"
+    t.datetime "end_date"
     t.index ["team_id"], name: "index_events_on_team_id"
   end
 
@@ -69,6 +71,18 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_24_134203) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["event_id"], name: "index_merches_on_event_id"
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.text "description"
+    t.integer "talk_id"
+    t.integer "event_id", null: false
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_notifications_on_event_id"
+    t.index ["talk_id"], name: "index_notifications_on_talk_id"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
   create_table "reservations", force: :cascade do |t|
@@ -140,6 +154,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_24_134203) do
   add_foreign_key "events", "teams"
   add_foreign_key "materials", "talks"
   add_foreign_key "merches", "events"
+  add_foreign_key "notifications", "events"
+  add_foreign_key "notifications", "talks"
+  add_foreign_key "notifications", "users"
   add_foreign_key "reservations", "merches"
   add_foreign_key "reservations", "users"
   add_foreign_key "talks", "events"
