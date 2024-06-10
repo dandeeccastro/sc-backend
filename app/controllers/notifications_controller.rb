@@ -1,13 +1,14 @@
 class NotificationsController < ApplicationController
+  before_action :authenticate_user
+  before_action :set_event
   before_action :set_notification, only: %i[destroy]
+  before_action :admin_or_staff?, only: %i[create destroy]
 
-  # GET /notifications
   def index
-    @notifications = Notification.all
+    @notifications = Notification.where('event_id = :event_id', { event_id: notification_params[:event_id] })
     render json: NotificationBlueprint.render(@notifications)
   end
 
-  # POST /notifications
   def create
     @notification = Notification.new(notification_params)
 
@@ -18,7 +19,6 @@ class NotificationsController < ApplicationController
     end
   end
 
-  # DELETE /notifications/1
   def destroy
     @notification.destroy
     render json: { message: 'Notification deleted' }, status: :ok
@@ -32,5 +32,9 @@ class NotificationsController < ApplicationController
 
   def notification_params
     params.permit(:description, :user_id, :event_id, :talk_id)
+  end
+
+  def set_event
+    @event = Event.find(notification_params[:event_id])
   end
 end

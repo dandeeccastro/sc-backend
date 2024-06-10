@@ -1,6 +1,8 @@
 FactoryBot.define do
   factory :notification do
-    
+    description { 'Teste notification' }
+    event { nil }
+    user { nil }
   end
 
   factory :reservation do
@@ -19,6 +21,8 @@ FactoryBot.define do
 
   factory :event do
     sequence(:name) { |n| "Semana da Computação 202#{n}" }
+    start_date { '03/06/2024 12:00' }
+    end_date { '03/08/2024 12:00' }
     talks { [] }
   end
 
@@ -72,8 +76,8 @@ FactoryBot.define do
   factory :talk do
     title { 'Example Talk' }
     description { 'This is an example talk for testing purposes' }
-    start_date { '2024-04-16 00:00' }
-    end_date { '2024-04-16 00:00' }
+    start_date { '16/06/2024 00:00' }
+    end_date { '16/06/2024 01:00' }
     event { nil }
     vacancy_limit { 40 }
     location

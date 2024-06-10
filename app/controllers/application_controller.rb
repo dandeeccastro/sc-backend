@@ -1,6 +1,8 @@
 class ApplicationController < ActionController::API
   include Authenticable
 
+  wrap_parameters false
+
   private
 
   def authenticate_user

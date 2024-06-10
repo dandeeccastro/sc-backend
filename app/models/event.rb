@@ -11,7 +11,7 @@ class Event < ApplicationRecord
   has_one :team
 
   def invalidates_talks
-    talks = Talk.where('start_date < :start_date OR end_date > :end_date', { start_date: start_date, end_date: end_date})
+    talks = Talk.where('start_date < :start_date OR end_date > :end_date AND event_id = :event_id', { start_date: start_date, end_date: end_date, event_id: id })
     errors.add(:invalidated_talks, "Existem #{talks.count} palestras que conflitam com o horário do evento") unless talks.empty?
   end
 
