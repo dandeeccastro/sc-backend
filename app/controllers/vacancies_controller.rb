@@ -4,8 +4,13 @@ class VacanciesController < ApplicationController
   before_action :admin_or_attendee?, only: %i[create destroy]
   before_action :admin_or_staff?, only: %i[index show update]
 
-  def index
-    @vacancies = Vacancy.all
+  def user
+    @vacancies = Vacancy.where('user_id = :user_id', { user_id: params[:user_id] })
+    render json: VacancyBlueprint.render(@vacancies)
+  end
+
+  def talk
+    @vacancies = Vacancy.where('talk_id = :talk_id', { talk_id: params[:talk_id] })
     render json: VacancyBlueprint.render(@vacancies)
   end
 

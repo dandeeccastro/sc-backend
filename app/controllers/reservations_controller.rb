@@ -31,7 +31,8 @@ class ReservationsController < ApplicationController
   end
 
   def reservation_params
-    params.permit(:user_id, :merch_id)
+    params[:user_id] = @current_user.id
+    params.permit(:merch_id, :event_id, :user_id)
   end
 
   def event
@@ -41,8 +42,7 @@ class ReservationsController < ApplicationController
   def has_permission?
     is_admin = @current_user.admin?
     is_staff_from_event = @current_user.runs_event?(event)
-    owns_reservation = @current_user.id == reservation_params[:user_id]
 
-    render json: { message: 'Unauthorized' }, status: :unauthorized unless is_admin || is_staff_from_event || owns_reservation
+    render json: { message: 'Unauthorized' }, status: :unauthorized unless is_admin || is_staff_from_event
   end
 end
