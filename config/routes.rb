@@ -12,7 +12,9 @@ Rails.application.routes.draw do
   get '/debug/:event_id/:user_id/staff', to: 'certificates#staff'
   get '/debug/:event_id/:user_id/talk/:talk_id', to: 'certificates#talk'
 
-  resources :events
+  resources :events, except: %i[show]
+  get '/events/:slug', to: 'events#show'
+
   resources :user, except: %i[create]
   resources :talks
   resources :teams
