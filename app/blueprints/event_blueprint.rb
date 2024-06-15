@@ -1,5 +1,7 @@
 class EventBlueprint < Blueprinter::Base
   fields :name, :slug, :start_date, :end_date
 
-  association :team, blueprint: TeamBlueprint
+  view :event do
+    association :talks, blueprint: TalkBlueprint
+  end
 end

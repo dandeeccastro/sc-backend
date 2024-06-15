@@ -9,7 +9,7 @@ class EventsController < ApplicationController
   end
 
   def show
-    render json: EventBlueprint.render(@event)
+    render json: EventBlueprint.render(@event, view: :event)
   end
 
   def create
