@@ -1,7 +1,7 @@
 class EventsController < ApplicationController
   before_action :set_event, only: %i[show update destroy]
-  before_action :authenticate_user, only: %i[index create update destroy]
-  before_action :admin?, only: %i[index create update destroy]
+  before_action :authenticate_user, only: %i[create update destroy]
+  before_action :admin?, only: %i[create update destroy]
 
   def index
     @events = Event.all
