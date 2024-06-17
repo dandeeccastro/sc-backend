@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_06_15_154152) do
+ActiveRecord::Schema[7.0].define(version: 2024_06_17_134740) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -85,6 +85,16 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_15_154152) do
     t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
+  create_table "ratings", force: :cascade do |t|
+    t.integer "score"
+    t.integer "user_id", null: false
+    t.integer "talk_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["talk_id"], name: "index_ratings_on_talk_id"
+    t.index ["user_id"], name: "index_ratings_on_user_id"
+  end
+
   create_table "reservations", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "merch_id", null: false
@@ -136,6 +146,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_15_154152) do
     t.datetime "updated_at", null: false
     t.integer "role", default: 1
     t.string "cpf"
+    t.string "ocupation"
+    t.string "institution"
     t.index ["talk_id"], name: "index_users_on_talk_id"
     t.index ["team_id"], name: "index_users_on_team_id"
   end
@@ -158,6 +170,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_15_154152) do
   add_foreign_key "notifications", "events"
   add_foreign_key "notifications", "talks"
   add_foreign_key "notifications", "users"
+  add_foreign_key "ratings", "talks"
+  add_foreign_key "ratings", "users"
   add_foreign_key "reservations", "merches"
   add_foreign_key "reservations", "users"
   add_foreign_key "talks", "events"

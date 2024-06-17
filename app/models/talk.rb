@@ -8,6 +8,13 @@ class Talk < ApplicationRecord
   has_many :vacancies
   has_many :users
   has_many :users, through: :vacancies
+  has_many :ratings
+
+  def rating
+    return 0 if ratings.empty?
+
+    ratings.map(&:score).reduce(:+) / ratings.length
+  end
 
   def overlaps_with_other_talk
     overlapping_talks = Talk.where(

@@ -1,4 +1,10 @@
 FactoryBot.define do
+  factory :rating do
+    score { 1 }
+    user { nil }
+    talk { nil }
+  end
+
   factory :notification do
     description { 'Teste notification' }
     event { nil }

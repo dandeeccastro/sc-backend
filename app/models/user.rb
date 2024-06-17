@@ -21,6 +21,7 @@ class User < ApplicationRecord
   has_many :talks, through: :vacancies
 
   has_many :merches, through: :reservations
+  has_many :ratings
 
   def admin?
     (permissions & ADMIN).positive?
