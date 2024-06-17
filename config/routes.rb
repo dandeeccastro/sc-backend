@@ -13,17 +13,18 @@ Rails.application.routes.draw do
   get '/events/:event_id/talks/:talk_id/vacancies', to: 'vacancies#talk'
   get '/user/:user_id/vacancies', to: 'vacancies#user'
 
-  resources :events do
-    resources :merches do
-      resources :reservations, except: %i[update]
-    end
-    resources :notifications
-    resources :talks do
-      resources :materials
-      resources :notifications
-      resources :vacancies, except: :index
-    end
-  end
+  resources :merches
+  resources :reservations, except: %i[update]
+  resources :talks
+  resources :materials
+  resources :notifications
+  resources :vacancies, except: :index
+
+  resources :events, except: %i[show]
+  get '/events/:slug', to: 'events#show'
+
+  resources :user, except: %i[create]
+  resources :talks
 
   resources :teams
   resources :user, except: %i[create]

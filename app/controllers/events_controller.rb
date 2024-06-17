@@ -1,7 +1,7 @@
 class EventsController < ApplicationController
-  before_action :set_event, only: %i[show update destroy]
-  before_action :authenticate_user, only: %i[index create update destroy]
-  before_action :admin?, only: %i[index create update destroy]
+  before_action :set_event, only: %i[update destroy]
+  before_action :authenticate_user, only: %i[create update destroy]
+  before_action :admin?, only: %i[create update destroy]
 
   def index
     @events = Event.all
@@ -9,7 +9,8 @@ class EventsController < ApplicationController
   end
 
   def show
-    render json: EventBlueprint.render(@event)
+    @event = Event.find_by(slug: params[:slug])
+    render json: EventBlueprint.render(@event, view: :event)
   end
 
   def create

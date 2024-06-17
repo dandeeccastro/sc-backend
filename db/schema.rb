@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_06_04_015203) do
+ActiveRecord::Schema[7.0].define(version: 2024_06_15_154152) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -135,6 +135,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_04_015203) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "role", default: 1
+    t.string "cpf"
     t.index ["talk_id"], name: "index_users_on_talk_id"
     t.index ["team_id"], name: "index_users_on_team_id"
   end

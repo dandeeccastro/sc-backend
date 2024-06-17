@@ -10,6 +10,9 @@ class User < ApplicationRecord
   validates :email, presence: true, uniqueness: true
   validates :dre, uniqueness: true, allow_nil: true
   validates :name, presence: true
+  validates :cpf, uniqueness: true, presence: true
+
+  validate :cpf_valid?
 
   # Staff / Staff Leader
   has_and_belongs_to_many :teams
@@ -41,5 +44,9 @@ class User < ApplicationRecord
 
   def runs_event?(event)
     event.team.users.find_by_id(id)
+  end
+
+  def cpf_valid?
+    errors.add(:invalid_cpf, 'CPF inválido') unless CPF.valid?(cpf)
   end
 end
