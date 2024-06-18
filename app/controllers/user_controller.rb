@@ -1,7 +1,7 @@
 class UserController < ApplicationController
-  before_action :set_user, only: %i[show update destroy]
+  before_action :set_user, only: %i[show update destroy talks]
   before_action :authenticate_user, only: %i[index update show destroy]
-  before_action :self_or_admin?, only: %i[update destroy]
+  before_action :self_or_admin?, only: %i[update destroy talks]
   before_action :admin?, only: %i[index]
 
   def index
@@ -33,6 +33,10 @@ class UserController < ApplicationController
   def destroy
     @user.destroy
     render json: { message: 'User deleted!' }, status: :ok
+  end
+
+  def talks
+    render json: TalkBlueprint.render(@user.talks.order('start_date desc')), status: :ok
   end
 
   private
