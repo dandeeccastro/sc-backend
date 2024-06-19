@@ -2,7 +2,7 @@ class TalkBlueprint < Blueprinter::Base
   identifier :id
 
   view :simple do
-    fields :title, :start_date, :end_date
+    fields :title, :start_date, :end_date, :type, :category
   end
 
   view :detailed do
