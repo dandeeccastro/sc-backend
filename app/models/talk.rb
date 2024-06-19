@@ -7,13 +7,13 @@ class Talk < ApplicationRecord
   belongs_to :event
   belongs_to :location
   has_many :materials
-  has_many :vacancies
+  has_many :vacancies, dependent: :destroy
   has_many :users
   has_many :users, through: :vacancies
   has_many :ratings
   has_one :speaker
-  has_one :type
-  has_one :category
+  belongs_to :type
+  belongs_to :category
 
   def rating
     return 0 if ratings.empty?

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_06_19_130529) do
+ActiveRecord::Schema[7.0].define(version: 2024_06_19_222522) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -37,6 +37,13 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_19_130529) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "categories", force: :cascade do |t|
+    t.string "name"
+    t.string "color"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "events", force: :cascade do |t|
@@ -121,12 +128,14 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_19_130529) do
     t.integer "location_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "type"
-    t.string "category"
     t.integer "speaker_id"
+    t.integer "type_id"
+    t.integer "category_id"
+    t.index ["category_id"], name: "index_talks_on_category_id"
     t.index ["event_id"], name: "index_talks_on_event_id"
     t.index ["location_id"], name: "index_talks_on_location_id"
     t.index ["speaker_id"], name: "index_talks_on_speaker_id"
+    t.index ["type_id"], name: "index_talks_on_type_id"
   end
 
   create_table "teams", force: :cascade do |t|
@@ -143,6 +152,13 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_19_130529) do
     t.datetime "updated_at", null: false
     t.index ["team_id"], name: "index_teams_users_on_team_id"
     t.index ["user_id"], name: "index_teams_users_on_user_id"
+  end
+
+  create_table "types", force: :cascade do |t|
+    t.string "name"
+    t.string "color"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|
@@ -185,9 +201,11 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_19_130529) do
   add_foreign_key "ratings", "users"
   add_foreign_key "reservations", "merches"
   add_foreign_key "reservations", "users"
+  add_foreign_key "talks", "categories"
   add_foreign_key "talks", "events"
   add_foreign_key "talks", "locations"
   add_foreign_key "talks", "speakers"
+  add_foreign_key "talks", "types"
   add_foreign_key "teams", "events"
   add_foreign_key "users", "talks"
   add_foreign_key "users", "teams"
