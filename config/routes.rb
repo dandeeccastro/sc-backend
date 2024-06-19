@@ -4,7 +4,6 @@ Rails.application.routes.draw do
 
   resources :events, except: %i[show]
   get '/events/:slug', to: 'events#show'
-  get  '/events/:slug/talks', to: 'events#talks'
   get  '/events/:event_id/certificates/:user_id', to: 'certificates#list'
   post '/events/:event_id/certificates/:user_id', to: 'certificates#emit'
 
