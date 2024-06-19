@@ -9,6 +9,7 @@ class Talk < ApplicationRecord
   has_many :users
   has_many :users, through: :vacancies
   has_many :ratings
+  has_one :speaker
 
   def rating
     return 0 if ratings.empty?

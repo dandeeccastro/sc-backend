@@ -1,4 +1,10 @@
 FactoryBot.define do
+  factory :speaker do
+    name { "MyString" }
+    bio { "MyText" }
+    image { nil }
+  end
+
   factory :rating do
     score { 1 }
     user { nil }
