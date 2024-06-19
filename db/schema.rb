@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_06_17_134740) do
+ActiveRecord::Schema[7.0].define(version: 2024_06_19_130529) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -104,6 +104,13 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_17_134740) do
     t.index ["user_id"], name: "index_reservations_on_user_id"
   end
 
+  create_table "speakers", force: :cascade do |t|
+    t.string "name"
+    t.text "bio"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "talks", force: :cascade do |t|
     t.string "title"
     t.text "description"
@@ -114,8 +121,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_17_134740) do
     t.integer "location_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "type"
+    t.string "category"
+    t.integer "speaker_id"
     t.index ["event_id"], name: "index_talks_on_event_id"
     t.index ["location_id"], name: "index_talks_on_location_id"
+    t.index ["speaker_id"], name: "index_talks_on_speaker_id"
   end
 
   create_table "teams", force: :cascade do |t|
@@ -176,6 +187,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_17_134740) do
   add_foreign_key "reservations", "users"
   add_foreign_key "talks", "events"
   add_foreign_key "talks", "locations"
+  add_foreign_key "talks", "speakers"
   add_foreign_key "teams", "events"
   add_foreign_key "users", "talks"
   add_foreign_key "users", "teams"

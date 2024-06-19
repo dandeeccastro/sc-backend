@@ -53,14 +53,6 @@ FactoryBot.define do
     permissions { User::ATTENDEE }
   end
 
-  factory :speaker, class: 'User' do
-    name { 'Lorem Ipsum' }
-    sequence(:email) { |n| "speaker#{n}@gmail.com" }
-    sequence(:dre) { |n| "311111111#{n}1" }
-    password { 'senha123' }
-    permissions { User::SPEAKER }
-  end
-
   factory :staff, class: 'User' do
     name { 'Lorem Ipsum' }
     sequence(:email) { |n| "staff#{n}@gmail.com" }
@@ -93,6 +85,7 @@ FactoryBot.define do
     event { nil }
     vacancy_limit { 40 }
     location
+    speaker
   end
 
   factory :team do
