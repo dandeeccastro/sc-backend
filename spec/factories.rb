@@ -1,4 +1,14 @@
 FactoryBot.define do
+  factory :category do
+    name { "MyString" }
+    color { "MyString" }
+  end
+
+  factory :type do
+    name { "MyString" }
+    color { "MyString" }
+  end
+
   factory :speaker do
     name { "MyString" }
     bio { "MyText" }

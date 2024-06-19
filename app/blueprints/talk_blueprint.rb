@@ -3,6 +3,8 @@ class TalkBlueprint < Blueprinter::Base
 
   view :simple do
     fields :title, :start_date, :end_date, :type, :category
+    association :type, blueprint: TypeBlueprint
+    association :category, blueprint: CategoryBlueprint
   end
 
   view :detailed do
