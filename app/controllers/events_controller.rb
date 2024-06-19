@@ -36,11 +36,6 @@ class EventsController < ApplicationController
     render json: { message: 'Event deleted!' }, status: :ok
   end
 
-  def talks
-    event = Event.where('slug = :slug', { slug: event_params[:slug] })
-    render json: event.schedule if event.present?
-  end
-
   private
 
   def set_event
