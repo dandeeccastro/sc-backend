@@ -1,4 +1,6 @@
 class Talk < ApplicationRecord
+  self.inheritance_column = 'other'
+
   validate :overlaps_with_other_talk
   validate :outside_event_bounds
 
