@@ -16,6 +16,10 @@ class Talk < ApplicationRecord
     ratings.map(&:score).reduce(:+) / ratings.length
   end
 
+  def day
+    start_date.strftime('%d/%m/%y')
+  end
+
   def overlaps_with_other_talk
     overlapping_talks = Talk.where(
       'location_id = :location AND event_id = :event AND id != :id AND ((start_date >= :start_date AND end_date <= :start_date) OR (start_date >= :end_date AND end_date <= :end_date))',

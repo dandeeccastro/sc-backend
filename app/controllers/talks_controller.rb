@@ -4,14 +4,14 @@ class TalksController < ApplicationController
   before_action :authorized?, only: %i[create update destroy]
 
   def show
-    render json: TalkBlueprint.render(@talk)
+    render json: TalkBlueprint.render(@talk, view: :detailed)
   end
 
   def create
     @talk = Talk.new(talk_params)
 
     if @talk.save
-      render json: TalkBlueprint.render(@talk), status: :created, location: @talk
+      render json: TalkBlueprint.render(@talk, view: :detailed), status: :created, location: @talk
     else
       render json: { errors: @talk.errors }, status: :unprocessable_entity
     end
@@ -19,7 +19,7 @@ class TalksController < ApplicationController
 
   def update
     if @talk.update(talk_params)
-      render json: TalkBlueprint.render(@talk)
+      render json: TalkBlueprint.render(@talk, view: :detailed)
     else
       render json: { errors: @talk.errors }, status: :unprocessable_entity
     end

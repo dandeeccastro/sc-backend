@@ -15,6 +15,13 @@ class Event < ApplicationRecord
     errors.add(:invalidated_talks, "Existem #{talks.count} palestras que conflitam com o horário do evento") unless talks.empty?
   end
 
+  def schedule
+    dates = Hash[talks.map(&:day).uniq.collect{ |v| [v, []] }]
+    talks.each { |talk| dates[talk.day] << talk }
+    dates.map { |date, talks| dates[date] = TalkBlueprint.render(talks, view: :simple) }
+    dates
+  end
+
   private
 
   def set_slug

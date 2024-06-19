@@ -38,7 +38,7 @@ class EventsController < ApplicationController
 
   def talks
     event = Event.where('slug = :slug', { slug: event_params[:slug] })
-    render json: TalkBlueprint.render(event.talks) if event.present?
+    render json: event.schedule if event.present?
   end
 
   private
