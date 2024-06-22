@@ -40,7 +40,7 @@ class VacanciesController < ApplicationController
     vacancies = Vacancy.create(vacancies_data)
     render json: { 
       confirmed: VacancyBlueprint.render(vacancies.select { |v| !v.errors }),
-      denied: VacancyBlueprint.render(vacancies.select { |v| v.errors }),
+      denied: vacancies.select { |v| v.errors },
     }, status: :ok
   end
 
