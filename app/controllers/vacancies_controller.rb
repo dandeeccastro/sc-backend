@@ -39,8 +39,8 @@ class VacanciesController < ApplicationController
     vacancies_data = params[:talk_ids].map { |talk_id| { talk_id: talk_id, user_id: @current_user.id } }
     vacancies = Vacancy.create(vacancies_data)
     render json: { 
-      confirmed: VacancyBlueprint.render(vacancies.select { |v| !v.errors }),
-      denied: vacancies.select { |v| v.errors },
+      confirmed: VacancyBlueprint.render_as_json(vacancies.select { |v| !v.errors }),
+      denied: VacancyBlueprint.render_as_json(vacancies.select { |v| v.errors }),
     }, status: :ok
   end
 
