@@ -11,7 +11,7 @@ class Talk < ApplicationRecord
   has_many :users
   has_many :users, through: :vacancies
   has_many :ratings
-  has_one :speaker
+  belongs_to :speaker
   belongs_to :type
   belongs_to :category
 
