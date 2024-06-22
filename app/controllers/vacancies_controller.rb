@@ -38,11 +38,10 @@ class VacanciesController < ApplicationController
   def participate
     vacancies_data = params[:talk_ids].map { |talk_id| { talk_id: talk_id, user_id: @current_user.id } }
     vacancies = Vacancy.create(vacancies_data)
-    if vacancies
-      render json: { message: 'Inscrições realizadas com sucesso' }, status: :ok
-    else
-      render json: vacancies.errors, status: :unprocessable_entity
-    end
+    render json: { 
+      confirmed: VacancyBlueprint.render(vacancies.select { |v| !v.errors }),
+      denied: VacancyBlueprint.render(vacancies.select { |v| v.errors }),
+    }, status: :ok
   end
 
   def validate
