@@ -1,11 +1,11 @@
 class VacanciesController < ApplicationController
   before_action :set_vacancy, only: %i[show update destroy]
   before_action :authenticate_user
-  before_action :admin_or_attendee?, only: %i[create destroy]
+  before_action :admin_or_attendee?, only: %i[schedule create destroy]
   before_action :admin_or_staff?, only: %i[index show update validate]
 
-  def index
-    @vacancies = Vacancy.all
+  def schedule
+    @vacancies = Vacancy.where(user_id: @current_user.id)
     render json: VacancyBlueprint.render(@vacancies)
   end
 

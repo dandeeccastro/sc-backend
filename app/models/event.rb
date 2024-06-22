@@ -18,7 +18,7 @@ class Event < ApplicationRecord
   def schedule
     dates = Hash[talks.map(&:day).uniq.collect{ |v| [v, []] }]
     talks.each { |talk| dates[talk.day] << talk }
-    dates.map { |date, talks| dates[date] = TalkBlueprint.render_as_hash(talks, view: :simple) }
+    dates.map { |date, talks| dates[date] = TalkBlueprint.render_as_hash(talks) }
     dates
   end
 

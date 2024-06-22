@@ -10,12 +10,14 @@ Rails.application.routes.draw do
   post '/participate', to: 'vacancies#participate'
   post '/validate', to: 'vacancies#validate'
 
+  get '/vacancies/me', to: 'vacancies#schedule'
+
   resources :notifications
   resources :user, except: %i[create]
   resources :talks
   resources :teams
   resources :merches
-  resources :vacancies
+  resources :vacancies, except: %i[index]
   resources :materials
   resources :reservations, except: %i[update]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
