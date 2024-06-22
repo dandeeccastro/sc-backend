@@ -48,8 +48,8 @@ class VacanciesController < ApplicationController
   def validate
     talk = Talk.find(params[:talk_id])
     if talk.start_date >= DateTime.now
-      vacancies = Vacancy.where(talk_id: params[:talk_id], user_id: params[:users].map(&:id))
-      vacancies.find_each { |vacancy| vacancy.update(presence: params[:users][vacancy.user_id]) }
+      Vacancy.where(talk_id: params[:talk_id], user_id: params[:presence]).update_all(presence: true)
+      Vacancy.where(talk_id: params[:talk_id], user_id: params[:absence]).update_all(presence: false)
       render json: { message: 'Presenças marcadas!' }, status: :ok
     else
       render json: { message: 'Proibído marcar presença de palestra que ainda não começou!' }, status: :unprocessable_entity
