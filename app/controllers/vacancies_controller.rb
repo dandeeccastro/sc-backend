@@ -1,6 +1,7 @@
 class VacanciesController < ApplicationController
   before_action :set_vacancy, only: %i[show update destroy]
   before_action :authenticate_user
+  before_action :set_event, only: %i[participate]
   before_action :admin_or_attendee?, only: %i[schedule create destroy]
   before_action :admin_or_staff?, only: %i[index show update validate]
 
@@ -36,12 +37,16 @@ class VacanciesController < ApplicationController
   end
 
   def participate
-    vacancies_data = params[:talk_ids].map { |talk_id| { talk_id: talk_id, user_id: @current_user.id } }
-    vacancies = Vacancy.create(vacancies_data)
-    render json: { 
-      confirmed: VacancyBlueprint.render_as_json(vacancies.select { |v| !v.errors }),
-      denied: VacancyBlueprint.render_as_json(vacancies.select { |v| v.errors }),
-    }, status: :ok
+    if @event.registration_start_date > DateTime.now
+      render json: { message: 'Inscrições ainda não foram abertas!' }, status: :unprocessable_entity
+    else
+      vacancies_data = params[:talk_ids].map { |talk_id| { talk_id: talk_id, user_id: @current_user.id } }
+      vacancies = Vacancy.create(vacancies_data)
+      render json: { 
+        confirmed: VacancyBlueprint.render_as_json(vacancies.select { |v| !v.errors }),
+        denied: VacancyBlueprint.render_as_json(vacancies.select { |v| v.errors }),
+      }, status: :ok
+    end
   end
 
   def validate
@@ -59,6 +64,10 @@ class VacanciesController < ApplicationController
 
   def set_vacancy
     @vacancy = Vacancy.find(params[:id])
+  end
+
+  def set_event
+    @event = Event.find(params[:event_id])
   end
 
   def vacancy_params
