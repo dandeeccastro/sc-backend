@@ -1,6 +1,6 @@
 class TalksController < ApplicationController
   before_action :set_talk, only: %i[show update destroy]
-  before_action :authenticate_user
+  before_action :authenticate_user, except: %i[show]
   before_action :authorized?, only: %i[create update destroy]
 
   def show
