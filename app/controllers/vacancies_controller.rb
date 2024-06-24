@@ -6,7 +6,7 @@ class VacanciesController < ApplicationController
   before_action :admin_or_staff?, only: %i[index show update validate]
 
   def schedule
-    talks = Event.find(params[:event_id]).talks
+    talks = Event.find_by(slug: params[:event_slug]).talks
     @vacancies = Vacancy.where(user_id: @current_user.id, talk_id: talks.map(&:id))
     render json: TalkFormatter.format_vacancies_into_schedule(@vacancies), status: :ok
   end
