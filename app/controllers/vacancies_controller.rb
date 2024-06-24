@@ -43,9 +43,10 @@ class VacanciesController < ApplicationController
     else
       vacancies_data = params[:talk_ids].map { |talk_id| { talk_id: talk_id, user_id: @current_user.id } }
       vacancies = Vacancy.create(vacancies_data)
+      vacancies.each { |v| puts v.errors.full_messages }
       render json: { 
-        confirmed: VacancyBlueprint.render_as_json(vacancies.select { |v| !v.errors }),
-        denied: VacancyBlueprint.render_as_json(vacancies.select { |v| v.errors }),
+        confirmed: VacancyBlueprint.render_as_json(vacancies.select { |v| v.valid? }),
+        denied: VacancyBlueprint.render_as_json(vacancies.select { |v| v.invalid? }),
       }, status: :ok
     end
   end
