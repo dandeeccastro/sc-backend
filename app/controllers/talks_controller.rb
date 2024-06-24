@@ -1,5 +1,5 @@
 class TalksController < ApplicationController
-  before_action :set_talk, only: %i[show update destroy rate]
+  before_action :set_talk, only: %i[show update destroy rate status]
   before_action :authenticate_user, except: %i[show]
   before_action :authorized?, only: %i[create update destroy]
 
@@ -41,7 +41,7 @@ class TalksController < ApplicationController
   end
 
   def status
-    vacancy = Vacancy.where(user_id: @current_user.id, talk_id: params[:talk_id])
+    vacancy = Vacancy.where(user_id: @current_user.id, talk_id: @talk.id)
     render json: { enrolled: vacancy.present?, participated: vacancy.first&.presence }, status: :ok
   end
 
