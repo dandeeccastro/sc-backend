@@ -13,6 +13,7 @@ Rails.application.routes.draw do
   get '/vacancies/me', to: 'vacancies#schedule'
 
   post '/talks/:id/rate', to: 'talks#rate'
+  get '/talks/:id/status', to: 'talks#status'
 
   resources :notifications
   resources :user, except: %i[create]

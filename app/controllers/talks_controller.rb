@@ -40,6 +40,11 @@ class TalksController < ApplicationController
     end
   end
 
+  def status
+    vacancy = Vacancy.where(user_id: @current_user.id, talk_id: params[:talk_id])
+    render json: { enrolled: vacancy.present?, participated: vacancy.first&.presence }, status: :ok
+  end
+
   private
 
   def set_talk
