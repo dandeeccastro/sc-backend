@@ -30,11 +30,13 @@ class TalksController < ApplicationController
   end
 
   def rate
-    rating = Rating.create(score: params[:score], user_id: @current_user.id, talk_id: @talk.id)
+    rating = Rating.find_by(user_id: @current_user.id, talk_id: @talk.id)
     if rating
-      render json: { message: 'Avaliação registrada!' }, status: :ok
+      rating.update(score: params[:score])
+      render json: { message: 'Avaliação atualizada!' }, status: :ok
     else
-      render json: { message: rating.errors }, status: :unprocessable_entity
+      Rating.create(score: params[:score], user_id: @current_user.id, talk_id: @talk.id)
+      render json: { message: 'Avaliação registrada!' }, status: :ok
     end
   end
 
