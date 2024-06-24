@@ -6,7 +6,7 @@ class Vacancy < ApplicationRecord
   belongs_to :talk
 
   def one_per_user
-    vacancies_by_same_user = Vacancy.where('user_id = :user_id AND id != :id', { user_id: user_id, id: id })
+    vacancies_by_same_user = Vacancy.where('user_id = :user_id AND talk_id = :talk_id AND id != :id', { user_id: user_id, talk_id: talk_id, id: id })
     errors.add(:multiple_vacancies, 'Você já tem reserva nessa palestra!') unless vacancies_by_same_user.empty?
   end
 
