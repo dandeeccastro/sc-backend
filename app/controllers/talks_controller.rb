@@ -1,5 +1,5 @@
 class TalksController < ApplicationController
-  before_action :set_talk, only: %i[show update destroy]
+  before_action :set_talk, only: %i[show update destroy rate]
   before_action :authenticate_user, except: %i[show]
   before_action :authorized?, only: %i[create update destroy]
 
@@ -27,6 +27,15 @@ class TalksController < ApplicationController
 
   def destroy
     @talk.destroy
+  end
+
+  def rate
+    rating = Rating.create(score: params[:score], user_id: @current_user.id, talk_id: @talk.id)
+    if rating
+      render json: { message: 'Avaliação registrada!' }, status: :ok
+    else
+      render json: { message: rating.errors }, status: :unprocessable_entity
+    end
   end
 
   private
