@@ -6,12 +6,13 @@ class VacanciesController < ApplicationController
   before_action :admin_or_staff?, only: %i[index show update validate]
 
   def schedule
-    @vacancies = Vacancy.where(user_id: @current_user.id)
-    render json: VacancyBlueprint.render(@vacancies)
+    talks = Event.find(params[:event_id]).talks
+    @vacancies = Vacancy.where(user_id: @current_user.id, talk_id: talks.map(&:id))
+    render json: TalkFormatter.format_vacancies_into_schedule(@vacancies), status: :ok
   end
 
   def show
-    render json: VacancyBlueprint.render(@vacancy)
+    render json: VacancyBlueprint.render(@vacancy), status: :ok
   end
 
   def create
