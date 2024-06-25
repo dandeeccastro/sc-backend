@@ -1,7 +1,7 @@
 class MerchesController < ApplicationController
   before_action :set_event
   before_action :set_merch, only: %i[show update destroy]
-  before_action :authenticate_user
+  before_action :authenticate_user, except: %i[index show]
   before_action :staff_or_admin?, only: %i[create update destroy]
 
   def index
