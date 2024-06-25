@@ -2,7 +2,7 @@ Rails.application.routes.draw do
   post '/register', to: 'user#create'
   post '/login', to: 'auth#login'
 
-  resources :events, param: :event_slug, except: %i[show] do
+  resources :events, param: :slug, except: %i[show] do
     resources :merches 
   end
 
