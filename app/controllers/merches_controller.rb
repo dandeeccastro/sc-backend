@@ -43,7 +43,7 @@ class MerchesController < ApplicationController
   end
 
   def set_event
-    @event = Event.find(slug: params[:event_slug])
+    @event = Event.find_by(slug: params[:event_slug])
   end
 
   def merch_params
