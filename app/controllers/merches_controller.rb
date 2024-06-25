@@ -1,10 +1,11 @@
 class MerchesController < ApplicationController
+  before_action :set_event
   before_action :set_merch, only: %i[show update destroy]
   before_action :authenticate_user
   before_action :staff_or_admin?, only: %i[create update destroy]
 
   def index
-    @merches = Merch.all
+    @merches = Merch.where(event_id: params[:event_id])
     render json: MerchBlueprint.render(@merches), status: :ok
   end
 
@@ -41,12 +42,16 @@ class MerchesController < ApplicationController
     @merch = Merch.find(params[:id])
   end
 
+  def set_event
+    @event = Event.find(params[:event_id])
+  end
+
   def merch_params
     params.permit(:name, :image, :price, :event_id)
   end
 
   def staff_or_admin?
-    event = Event.find(merch_params[:event_id])
+    event = Event.find(params[:event_id])
     admin_or_staff_from_event = @current_user.admin? || @current_user.runs_event?(event)
     render json: { message: 'Unauthorized!' }, status: :unauthorized unless admin_or_staff_from_event
   end

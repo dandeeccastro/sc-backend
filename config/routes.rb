@@ -2,7 +2,10 @@ Rails.application.routes.draw do
   post '/register', to: 'user#create'
   post '/login', to: 'auth#login'
 
-  resources :events, except: %i[show]
+  resources :events, except: %i[show] do
+    resources :merches 
+  end
+
   get '/events/:slug', to: 'events#show'
   get  '/events/:event_id/certificates/:user_id', to: 'certificates#list'
   post '/events/:event_id/certificates/:user_id', to: 'certificates#emit'
@@ -19,7 +22,6 @@ Rails.application.routes.draw do
   resources :user, except: %i[create]
   resources :talks
   resources :teams
-  resources :merches
   resources :vacancies, except: %i[index]
   resources :materials
   resources :reservations, except: %i[update]
