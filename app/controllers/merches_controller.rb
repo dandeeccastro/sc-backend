@@ -5,7 +5,7 @@ class MerchesController < ApplicationController
   before_action :staff_or_admin?, only: %i[create update destroy]
 
   def index
-    @merches = Merch.where(event_id: params[:event_id])
+    @merches = Merch.where(event_id: @event.id)
     render json: MerchBlueprint.render(@merches), status: :ok
   end
 
