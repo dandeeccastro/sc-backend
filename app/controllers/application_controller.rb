@@ -5,19 +5,6 @@ class ApplicationController < ActionController::API
 
   private
 
-  def authenticate_user
-    header = request.headers['Authorization']
-    header = header.split(' ').last if header
-    begin
-      @token = decode(header)
-      @current_user = User.find(@token['uid'])
-    rescue ActiveRecord::RecordNotFound => e
-      render json: { errors: e.message }, status: :unauthorized
-    rescue JWT::DecodeError => e
-      render json: { errors: e.message }, status: :unauthorized
-    end
-  end
-
   def admin?
     render json: { message: 'User is not admin' }, status: :unauthorized unless @current_user.admin?
   end

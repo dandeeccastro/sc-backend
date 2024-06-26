@@ -2,13 +2,15 @@ Rails.application.routes.draw do
   post '/register', to: 'user#create'
   post '/login', to: 'auth#login'
 
-  resources :events, param: :slug, except: %i[show] do
+  resources :events, param: :slug do
     resources :merches 
+
+    get '/certificates/all', to: 'certificates#list'
+    get '/certificates/get', to: 'certificates#index'
+
+    # post '/certificates/:user_id', to: 'certificates#emit'
   end
 
-  get '/events/:slug', to: 'events#show'
-  get  '/events/:event_id/certificates/:user_id', to: 'certificates#list'
-  post '/events/:event_id/certificates/:user_id', to: 'certificates#emit'
 
   post '/participate', to: 'vacancies#participate'
   post '/validate', to: 'vacancies#validate'

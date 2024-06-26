@@ -1,12 +1,23 @@
 class CertificateFinder
-  def initialize(user_id:, event_id:, talk_id: nil)
+  def initialize(user_id:, event_slug:, talk_id: nil)
     @user = User.find(user_id) if user_id
-    @event = Event.find(event_id) if event_id
+    @event = Event.find_by(slug: event_slug) if event_slug
     @talk = Talk.find(talk_id) if talk_id
   end
 
   def all
     [attendee_participation, staff_participation].concat(participated_in_talks).compact
+  end
+
+  def by_type(type)
+    case type.to_sym
+    when :talk_participation
+      participated_in_talk
+    when :attendee_participation
+      attendee_participation
+    when :staff_participation
+      staff_participation
+    end
   end
 
   def staff_participation
@@ -27,6 +38,13 @@ class CertificateFinder
     return [] if participations.empty?
 
     participations.map { |vacancy| talk_certificate_hash(user: @user, event: @event, talk: vacancy.talk) }
+  end
+
+  def participated_in_talk
+    participations = Vacancy.where(presence: true, user_id: @user.id, talk_id: @talk.id)
+    return [] if participations.empty?
+    
+    talk_certificate_hash(user: @user, event: @event, talk: @talk)
   end
 
   def talk_certificate_hash(user:, event:, talk:)

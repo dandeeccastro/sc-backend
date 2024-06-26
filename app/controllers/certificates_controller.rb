@@ -1,17 +1,25 @@
 class CertificatesController < ActionController::Base
+  include Authenticable
+
+  before_action :authenticate_user
+  before_action :set_finder
+
   def list
-    finder = CertificateFinder.new(user_id: params[:user_id], event_id: params[:event_id])
-    certificates = finder.all
+    certificates = @finder.all
     render json: certificates, status: :ok
   end
 
+  def index
+    certificate = @finder.by_type(params[:type])
+    render json: certificate, status: :ok
+  end
+
   def emit
-    finder = CertificateFinder.new(user_id: params[:user_id], event_id: params[:event_id])
-    certificates = finder.all
+    certificates = @finder.all
     attachments = generate_certificate_files certificates
     CertificateMailer.with(
       event: Event.find(params[:event_id]),
-      user: User.find(params[:user_id]),
+      user: User.find(@current_user.id),
       attachments: attachments
     ).certificate_email.deliver_now
   end
@@ -22,9 +30,12 @@ class CertificatesController < ActionController::Base
 
   private
 
-  def set_variables_from_params
-    @event = Event.find(params[:event_id])
-    @user = User.find(params[:user_id])
+  def set_finder
+    @finder = CertificateFinder.new(
+      user_id: @current_user.id,
+      event_slug: params[:event_slug],
+      talk_id: params[:talk_id]
+    )
   end
 
   def generate_certificate_files(certificate_data)
