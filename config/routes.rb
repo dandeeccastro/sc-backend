@@ -7,8 +7,6 @@ Rails.application.routes.draw do
 
     get '/certificates/all', to: 'certificates#list'
     get '/certificates/get', to: 'certificates#index'
-
-    # post '/certificates/:user_id', to: 'certificates#emit'
   end
 
 

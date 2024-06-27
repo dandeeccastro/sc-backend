@@ -1,6 +1,8 @@
 class ReservationsController < ApplicationController
   before_action :authenticate_user
   before_action :set_reservation, only: %i[show destroy]
+  before_action :staff_or_admin?, only: %i[index]
+  before_action :has_permission?, only: %i[show]
 
   def index
     @reservations = Reservation.all
@@ -41,8 +43,15 @@ class ReservationsController < ApplicationController
   def has_permission?
     is_admin = @current_user.admin?
     is_staff_from_event = @current_user.runs_event?(event)
-    owns_reservation = @current_user.id == reservation_params[:user_id]
+    owns_reservation = @current_user.id == @reservation.user_id
 
     render json: { message: 'Unauthorized' }, status: :unauthorized unless is_admin || is_staff_from_event || owns_reservation
+  end
+
+  def staff_or_admin?
+    is_admin = @current_user.admin?
+    is_staff_from_event = @current_user.runs_event?(event)
+
+    render json: { message: 'Unauthorized' }, status: :unauthorized unless is_admin || is_staff_from_event
   end
 end
