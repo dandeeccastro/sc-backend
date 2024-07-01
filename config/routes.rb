@@ -4,11 +4,13 @@ Rails.application.routes.draw do
 
   resources :events, param: :slug do
     resources :merches 
+    resources :notifications
+
+    get '/notifications', to: 'notifications#event'
 
     get '/certificates/all', to: 'certificates#list'
     get '/certificates/get', to: 'certificates#index'
   end
-
 
   post '/participate', to: 'vacancies#participate'
   post '/validate', to: 'vacancies#validate'
@@ -18,9 +20,11 @@ Rails.application.routes.draw do
   post '/talks/:id/rate', to: 'talks#rate'
   get '/talks/:id/status', to: 'talks#status'
 
-  resources :notifications
   resources :user, except: %i[create]
-  resources :talks
+  resources :talks do
+    get '/notifications', to: 'notifications#talk'
+  end
+
   resources :teams
   resources :vacancies, except: %i[index]
   resources :materials

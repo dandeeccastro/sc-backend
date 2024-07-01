@@ -1,12 +1,17 @@
 class NotificationsController < ApplicationController
   before_action :authenticate_user
-  before_action :set_event
+  before_action :set_event, except: %i[talk]
   before_action :set_notification, only: %i[destroy]
   before_action :admin_or_staff?, only: %i[create destroy]
 
-  def index
-    @notifications = Notification.where('event_id = :event_id', { event_id: notification_params[:event_id] })
+  def event
+    @notifications = Notification.where(event_id: @event.id)
     render json: NotificationBlueprint.render(@notifications)
+  end
+
+  def talk
+    notifications = Notification.where(talk_id: params[:talk_id])
+    render json: NotificationBlueprint.render(notifications)
   end
 
   def create
@@ -35,6 +40,6 @@ class NotificationsController < ApplicationController
   end
 
   def set_event
-    @event = Event.find(notification_params[:event_id])
+    @event = Event.find_by(slug: params[:event_slug])
   end
 end
