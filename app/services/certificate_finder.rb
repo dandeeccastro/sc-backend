@@ -23,7 +23,10 @@ class CertificateFinder
     return @user.runs_event?(@event) ? [staff_participation_hash(user: @user, event: @event)] : [] if @event
 
     events = Event.all
-    events.reduce([]) { |mem, event| mem << staff_participation_hash(user: @user, event: event) if @user.runs_event?(event) }
+    events.reduce([]) do |mem, event| 
+      mem << staff_participation_hash(user: @user, event: event) if @user.runs_event?(event) 
+      mem
+    end
   end
 
   def talk_participation
