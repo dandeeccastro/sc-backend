@@ -1,8 +1,8 @@
 class CertificateFinder
-  def initialize(user_id:, event_slug: nil, talk_id: nil)
-    @user = User.find(user_id) if user_id
-    @event = Event.find_by(slug: event_slug) if event_slug
-    @talk = Talk.find(talk_id) if talk_id
+  def initialize(user:, event: nil, talk_id: nil)
+    @user = user
+    @event = event
+    @talk_id = talk_id
   end
 
   def all
