@@ -1,50 +1,36 @@
 class CertificateFinder
-  def initialize(user_id:, event_slug:, talk_id: nil)
+  def initialize(user_id:, event_slug: nil, talk_id: nil)
     @user = User.find(user_id) if user_id
     @event = Event.find_by(slug: event_slug) if event_slug
     @talk = Talk.find(talk_id) if talk_id
   end
 
   def all
-    [attendee_participation, staff_participation].concat(participated_in_talks).compact
-  end
-
-  def by_type(type)
-    case type.to_sym
-    when :talk_participation
-      participated_in_talk
-    when :attendee_participation
-      attendee_participation
-    when :staff_participation
-      staff_participation
-    end
-  end
-
-  def staff_participation
-    return unless @user.runs_event?(@event)
-
-    staff_certificate_hash(user: @user, event: @event)
+    attendee_participation.concat(staff_participation).concat(talk_participation).compact
   end
 
   def attendee_participation
-    has_participated = Vacancy.where('presence = true AND user_id = :user_id', { user_id: @user.id })
-    return if has_participated.empty?
+    if @event
+      vacancies = Vacancy.joins(:talk).where(presence: true, user_id: @user.id, talk: { event_id: @event.id }).exists?
+      return vacancies ? [attendee_certificate_hash(user: @user, event: @event)] : []
+    end
 
-    attendee_certificate_hash(user: @user, event: @event)
+    events = Event.joins(talks: [ :vacancies ]).where(vacancies: { presence: true, user_id: @user.id })
+    events.map { |event| attendee_certificate_hash(user: @user, event: event) }
   end
 
-  def participated_in_talks
-    participations = Vacancy.where('presence = true AND user_id = :user_id', { user_id: @user.id })
-    return [] if participations.empty?
+  def staff_participation
+    return @user.runs_event?(@event) ? staff_participation_hash(user: @user, event: @event) : [] if @event
 
-    participations.map { |vacancy| talk_certificate_hash(user: @user, event: @event, talk: vacancy.talk) }
+    events = Event.all
+    events.reduce([]) { |mem, event| mem << staff_participation_hash(user: @user, event: event) if @user.runs_event?(event) }
   end
 
-  def participated_in_talk
-    participations = Vacancy.where(presence: true, user_id: @user.id, talk_id: @talk.id)
-    return [] if participations.empty?
-    
-    talk_certificate_hash(user: @user, event: @event, talk: @talk)
+  def talk_participation
+    vacancies = Vacancy.where(presence: true, user_id: @user.id)
+    return vacancies.reduce([]) { |mem, var| mem << talk_certificate_hash(user: @user, talk: vacancy.talk, event: @event) if vacancy.talk.event == @event } if @event
+
+    vacancies.map { |vacancy| talk_certificate_hash(user: @user, talk: vacancy.talk, event: vacancy.talk.event) }
   end
 
   def talk_certificate_hash(user:, event:, talk:)

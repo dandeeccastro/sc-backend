@@ -8,8 +8,7 @@ Rails.application.routes.draw do
 
     get '/notifications', to: 'notifications#event'
 
-    get '/certificates/all', to: 'certificates#list'
-    get '/certificates/get', to: 'certificates#index'
+    get '/certificates', to: 'certificates#list'
   end
 
   post '/participate', to: 'vacancies#participate'
@@ -19,6 +18,8 @@ Rails.application.routes.draw do
 
   post '/talks/:id/rate', to: 'talks#rate'
   get '/talks/:id/status', to: 'talks#status'
+
+  get '/certificates', to: 'certificates#list'
 
   resources :user, except: %i[create]
   resources :talks do

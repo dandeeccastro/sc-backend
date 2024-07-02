@@ -9,11 +9,6 @@ class CertificatesController < ActionController::Base
     render json: certificates, status: :ok
   end
 
-  def index
-    certificate = @finder.by_type(params[:type])
-    render json: certificate, status: :ok
-  end
-
   def emit
     certificates = @finder.all
     attachments = generate_certificate_files certificates
