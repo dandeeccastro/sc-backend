@@ -5,8 +5,8 @@ class NotificationsController < ApplicationController
   before_action :admin_or_staff?, only: %i[create destroy]
 
   def event
-    @notifications = Notification.where(event_id: @event.id)
-    render json: NotificationBlueprint.render(@notifications)
+    notifications = Notification.where(event_id: @event.id)
+    render json: NotificationBlueprint.render(notifications)
   end
 
   def talk
