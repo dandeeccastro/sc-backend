@@ -4,7 +4,7 @@ Rails.application.routes.draw do
 
   resources :events, param: :slug do
     resources :merches 
-    resources :notifications
+    resources :notifications, except: %i[index]
 
     get '/notifications', to: 'notifications#event'
 
