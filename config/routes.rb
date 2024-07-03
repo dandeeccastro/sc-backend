@@ -4,9 +4,7 @@ Rails.application.routes.draw do
 
   resources :events, param: :slug do
     resources :merches 
-    resources :notifications, except: %i[index]
-
-    get '/notifications', to: 'notifications#event'
+    resources :notifications
 
     get '/certificates', to: 'certificates#list'
   end
@@ -22,11 +20,8 @@ Rails.application.routes.draw do
   get '/certificates', to: 'certificates#list'
 
   resources :user, except: %i[create]
-  resources :talks do
-    get '/notifications', to: 'notifications#talk'
-  end
+  resources :talks
 
-  get '/notifications', to: 'notifications#talks'
 
   resources :teams
   resources :vacancies, except: %i[index]
