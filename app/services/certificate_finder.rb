@@ -15,7 +15,7 @@ class CertificateFinder
       return vacancies ? [attendee_certificate_hash(user: @user, event: @event)] : []
     end
 
-    events = Event.joins(talks: [ :vacancies ]).where(vacancies: { presence: true, user_id: @user.id })
+    events = Event.joins(talks: [ :vacancies ]).where(vacancies: { presence: true, user_id: @user.id }).distinct
     events.map { |event| attendee_certificate_hash(user: @user, event: event) }
   end
 
