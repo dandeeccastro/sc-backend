@@ -22,7 +22,7 @@ class NotificationsController < ApplicationController
 
   def index
     talk_ids = Vacancy.where(user_id: @current_user.id).map(&:talk_id)
-    notifications = Notification.where(event_id: @event.id, talk_id: nil) +  Notification.where(talk_id: talk_ids)
+    notifications = Notification.where(event_id: @event.id, talk_id: nil).or(Notification.where(talk_id: talk_ids)).order(created_at: :desc)
     render json: NotificationBlueprint.render(notifications, view: :detailed)
   end
 
