@@ -17,7 +17,7 @@ class NotificationsController < ApplicationController
   def talks
     talk_ids = Vacancy.where(user_id: @current_user.id).map(&:talk_id)
     notifications = Notification.where(talk_id: talk_ids)
-    render json: NotificationBlueprint.render(notifications)
+    render json: NotificationBlueprint.render(notifications, view: :detailed)
   end
 
   def create
