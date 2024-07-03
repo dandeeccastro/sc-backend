@@ -1,4 +1,4 @@
 class NotificationBlueprint < Blueprinter::Base
-  fields :description
+  fields :description, :created_date
   association :user, blueprint: UserBlueprint
 end
