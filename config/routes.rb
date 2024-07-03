@@ -26,6 +26,8 @@ Rails.application.routes.draw do
     get '/notifications', to: 'notifications#talk'
   end
 
+  get '/notifications', to: 'notifications#talks'
+
   resources :teams
   resources :vacancies, except: %i[index]
   resources :materials
