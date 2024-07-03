@@ -5,7 +5,7 @@ class CertificatesController < ActionController::Base
   before_action :set_variables
 
   def list
-    certificates = @finder.all
+    certificates = @finder.event_only
     render json: certificates, status: :ok
   end
 

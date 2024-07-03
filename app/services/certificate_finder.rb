@@ -9,6 +9,10 @@ class CertificateFinder
     attendee_participation.concat(staff_participation).concat(talk_participation).compact
   end
 
+  def event_only
+    attendee_participation.concat(staff_participation).compact
+  end
+
   def attendee_participation
     if @event
       vacancies = Vacancy.joins(:talk).where(presence: true, user_id: @user.id, talk: { event_id: @event.id }).exists?
