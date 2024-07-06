@@ -1,6 +1,6 @@
 class EventsController < ApplicationController
-  before_action :set_event, only: %i[update destroy]
-  before_action :authenticate_user, only: %i[create update destroy]
+  before_action :set_event, only: %i[show update destroy validate]
+  before_action :authenticate_user, only: %i[create update destroy validate]
   before_action :admin?, only: %i[create update destroy]
 
   def index
@@ -9,7 +9,6 @@ class EventsController < ApplicationController
   end
 
   def show
-    @event = Event.find_by(slug: params[:slug])
     render json: EventBlueprint.render(@event, view: :event)
   end
 
@@ -36,10 +35,14 @@ class EventsController < ApplicationController
     render json: { message: 'Event deleted!' }, status: :ok
   end
 
+  def validate
+    render json: @current_user.runs_event(@event), status: :ok
+  end
+
   private
 
   def set_event
-    @event = Event.find(params[:id])
+    @event = Event.find_by(params[:slug])
   end
 
   def event_params

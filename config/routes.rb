@@ -8,6 +8,7 @@ Rails.application.routes.draw do
 
     get '/certificates', to: 'certificates#list'
   end
+  get '/events/:slug/staff', to: 'events#validate'
 
   post '/participate', to: 'vacancies#participate'
   post '/validate', to: 'vacancies#validate'
