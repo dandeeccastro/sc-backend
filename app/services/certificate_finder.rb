@@ -35,7 +35,7 @@ class CertificateFinder
 
   def talk_participation
     vacancies = Vacancy.where(presence: true, user_id: @user.id)
-    return vacancies.reduce([]) { |mem, var| mem << talk_certificate_hash(user: @user, talk: vacancy.talk, event: @event) if vacancy.talk.event == @event } if @event
+    return vacancies.reduce([]) { |mem, vacancy| mem << talk_certificate_hash(user: @user, talk: vacancy.talk, event: @event) if vacancy.talk.event == @event } if @event
 
     vacancies.map { |vacancy| talk_certificate_hash(user: @user, talk: vacancy.talk, event: vacancy.talk.event) }
   end
