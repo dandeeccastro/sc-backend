@@ -4,22 +4,6 @@ class NotificationsController < ApplicationController
   before_action :set_notification, only: %i[destroy]
   before_action :admin_or_staff?, only: %i[create destroy]
 
-  def event
-    notifications = Notification.where(event_id: @event.id, talk_id: nil)
-    render json: NotificationBlueprint.render(notifications)
-  end
-
-  def talk
-    notifications = Notification.where(talk_id: params[:talk_id])
-    render json: NotificationBlueprint.render(notifications)
-  end
-
-  def talks
-    talk_ids = Vacancy.where(user_id: @current_user.id).map(&:talk_id)
-    notifications = Notification.where(talk_id: talk_ids)
-    render json: NotificationBlueprint.render(notifications, view: :detailed)
-  end
-
   def index
     talk_ids = Vacancy.joins(talk: [ :event ]).where(user_id: @current_user.id, event: { id: @event.id }).map(&:talk_id)
     notifications = Notification.where(event_id: @event.id, talk_id: nil).or(Notification.where(talk_id: talk_ids)).order(created_at: :desc)
