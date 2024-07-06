@@ -24,7 +24,7 @@ class CertificateFinder
   end
 
   def staff_participation
-    return @user.runs_event?(@event) ? [staff_participation_hash(user: @user, event: @event)] : [] if @event
+    return @user.runs_event?(@event) ? [staff_certificate_hash(user: @user, event: @event)] : [] if @event
 
     events = Event.all
     events.reduce([]) do |mem, event| 
