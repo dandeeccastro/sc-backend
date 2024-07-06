@@ -7,7 +7,9 @@ Rails.application.routes.draw do
     resources :notifications
 
     get '/certificates', to: 'certificates#list'
+    post '/certificates', to: 'certificates#emit'
   end
+
   get '/events/:slug/staff', to: 'events#validate'
 
   post '/participate', to: 'vacancies#participate'

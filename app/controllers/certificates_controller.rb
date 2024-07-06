@@ -3,6 +3,7 @@ class CertificatesController < ActionController::Base
 
   before_action :authenticate_user
   before_action :set_variables
+  before_action :admin_or_staff?, only: %i[emit]
 
   def list
     certificates = @finder.event_only
@@ -17,6 +18,7 @@ class CertificatesController < ActionController::Base
       user: @current_user,
       attachments: attachments
     ).certificate_email.deliver_now
+    render json: { messsage: 'Certificados enviados com sucesso por email!' }, status: :ok
   end
 
   def event; end
@@ -26,7 +28,7 @@ class CertificatesController < ActionController::Base
   private
 
   def set_variables
-    @event = Event.find_by(slug: params[:event_slug])
+    @event = Event.find_by(slug: params[:slug])
     @finder = CertificateFinder.new(
       user: @current_user,
       event: @event,
@@ -50,5 +52,10 @@ class CertificatesController < ActionController::Base
       idx += 1
     end
     attachments
+  end
+
+  def admin_or_staff?
+    criteria = @current_user.admin? || (@current_user.runs_event?(@event) && (@current_user.staff? || @current_user.staff_leader?))
+    render json: { message: 'Unauthorized' } unless criteria
   end
 end
