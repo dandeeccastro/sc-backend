@@ -28,7 +28,7 @@ class CertificatesController < ActionController::Base
   private
 
   def set_variables
-    @event = Event.find_by(event_slug: params[:slug])
+    @event = Event.find_by(slug: params[:event_slug])
     @finder = CertificateFinder.new(
       user: @current_user,
       event: @event,
