@@ -36,7 +36,7 @@ class EventsController < ApplicationController
   end
 
   def validate
-    render json: @current_user.runs_event(@event), status: :ok
+    render json: @current_user.runs_event?(@event), status: :ok
   end
 
   private
