@@ -9,6 +9,8 @@ Rails.application.routes.draw do
 
     get '/certificates', to: 'certificates#list'
     post '/certificates', to: 'certificates#emit'
+
+    get '/speakers', to: 'speakers#event'
   end
 
   get '/events/:slug/staff', to: 'events#validate'
