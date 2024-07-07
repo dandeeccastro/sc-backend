@@ -18,7 +18,7 @@ class CertificatesController < ActionController::Base
       user: @current_user,
       attachments: attachments
     ).certificate_email.deliver_now
-    render json: { messsage: 'Certificados enviados com sucesso por email!' }, status: :ok
+    render json: { message: 'Certificados enviados com sucesso por email!' }, status: :ok
   end
 
   def event; end
