@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   resources :events, param: :slug do
     resources :merches 
     resources :notifications
+    get '/talks', to: 'talks#index'
 
     get '/certificates', to: 'certificates#list'
     post '/certificates', to: 'certificates#emit'
@@ -23,8 +24,7 @@ Rails.application.routes.draw do
   get '/certificates', to: 'certificates#list'
 
   resources :user, except: %i[create]
-  resources :talks
-
+  resources :talks, except: %i[index]
 
   resources :teams
   resources :vacancies, except: %i[index]

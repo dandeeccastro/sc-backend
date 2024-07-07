@@ -3,6 +3,11 @@ class TalksController < ApplicationController
   before_action :authenticate_user, only: %i[create update destroy status]
   before_action :authorized?, only: %i[create update destroy]
 
+  def index
+    talks = Talk.where(event_id: @event.id)
+    render json: TalkBlueprint.render(talks), status: :ok
+  end
+
   def show
     render json: TalkBlueprint.render(@talk, view: :detailed)
   end
@@ -49,6 +54,10 @@ class TalksController < ApplicationController
 
   def set_talk
     @talk = Talk.find(params[:id])
+  end
+
+  def set_event
+    @event = Event.find_by(slug: params[:event_slug])
   end
 
   def talk_params
