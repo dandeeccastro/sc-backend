@@ -4,8 +4,8 @@ class SpeakerController < ApplicationController
   before_action :set_speaker, only: %i[destroy]
 
   def event
-    speakers = Speaker.joins(talks: [ :event ])
-    render json: SpeakerBlueprint.render(speakers)
+    speakers = Speaker.joins(talks: [ :event ]).distinct
+    render json: SpeakerBlueprint.render(speakers, view: :detailed)
   end
 
   def destroy
