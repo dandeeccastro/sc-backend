@@ -1,11 +1,12 @@
 class ReservationsController < ApplicationController
   before_action :authenticate_user
   before_action :set_reservation, only: %i[show destroy]
+  before_action :set_event, only: %i[index]
   before_action :staff_or_admin?, only: %i[index]
   before_action :has_permission?, only: %i[show]
 
   def index
-    @reservations = Reservation.all
+    @reservations = Reservation.joins(merch: [:event]).where(merch: { event_id: @event.id }).distinct
     render json: ReservationBlueprint.render(@reservations)
   end
 
@@ -30,6 +31,10 @@ class ReservationsController < ApplicationController
 
   def set_reservation
     @reservation = Reservation.find(params[:id])
+  end
+
+  def set_event
+    @event = Event.find_by(slug: params[:event_slug])
   end
 
   def reservation_params

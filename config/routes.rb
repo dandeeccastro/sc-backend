@@ -5,6 +5,8 @@ Rails.application.routes.draw do
   resources :events, param: :slug do
     resources :merches 
     resources :notifications
+    resources :reservations, except: %i[update]
+
     get '/talks', to: 'talks#index'
 
     get '/certificates', to: 'certificates#list'
@@ -31,7 +33,6 @@ Rails.application.routes.draw do
   resources :teams
   resources :vacancies, except: %i[index]
   resources :materials
-  resources :reservations, except: %i[update]
 
   resources :speaker, only: %i[destroy]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
