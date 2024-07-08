@@ -1,8 +1,8 @@
 class TalksController < ApplicationController
   before_action :authenticate_user, only: %i[create update destroy status]
-  before_action :authorized?, only: %i[create update destroy]
   before_action :set_talk, only: %i[show update destroy rate status]
   before_action :set_event, only: %i[index]
+  before_action :authorized?, only: %i[create update destroy]
 
   def index
     talks = Talk.where(event_id: @event.id)
@@ -33,6 +33,7 @@ class TalksController < ApplicationController
 
   def destroy
     @talk.destroy
+    render json: { message: 'Palestra excluída' }, status: :ok
   end
 
   def rate
@@ -62,12 +63,12 @@ class TalksController < ApplicationController
   end
 
   def talk_params
-    params.require(:talk).permit(:title, :description, :start_date, :end_date, :event_id, :location_id)
+    params.permit(:id, :title, :description, :start_date, :end_date, :event_id, :location_id, :speaker_id, :type_id, :category_id)
   end
 
   def authorized?
-    event = Event.find(talk_params[:event_id])
-    admin_or_staff_from_event = @current_user.admin? || @current_user.runs_event?(event)
-    render json: { message: 'Unauthorized' }, status: :unauthorized unless admin_or_staff_from_event
+    @event = Event.find(@talk.event.id) unless @event
+    criteria = @current_user.admin? || (@current_user.runs_event?(@event) && (@current_user.staff? || @current_user.staff_leader?))
+    render json: { message: 'Unauthorized' }, status: :unauthorized unless criteria
   end
 end
