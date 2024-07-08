@@ -1,7 +1,8 @@
 class TalksController < ApplicationController
-  before_action :set_talk, only: %i[show update destroy rate status]
   before_action :authenticate_user, only: %i[create update destroy status]
   before_action :authorized?, only: %i[create update destroy]
+  before_action :set_talk, only: %i[show update destroy rate status]
+  before_action :set_event, only: %i[index]
 
   def index
     talks = Talk.where(event_id: @event.id)
