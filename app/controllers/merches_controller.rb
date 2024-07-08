@@ -33,7 +33,7 @@ class MerchesController < ApplicationController
 
   def destroy
     @merch.destroy
-    render json: { message: 'Merch deleted!' }, status: :ok
+    render json: { message: 'Mercadoria deletada com sucesso!' }, status: :ok
   end
 
   private
