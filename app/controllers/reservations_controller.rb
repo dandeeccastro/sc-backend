@@ -2,8 +2,8 @@ class ReservationsController < ApplicationController
   before_action :authenticate_user
   before_action :set_reservation, only: %i[show destroy]
   before_action :set_event, only: %i[index]
-  before_action :staff_or_admin?, only: %i[index]
-  before_action :has_permission?, only: %i[show]
+  before_action :admin_or_staff?, only: %i[index]
+  before_action :superuser_or_owner?, only: %i[show destroy]
 
   def index
     @reservations = Reservation.joins(merch: [:event]).where(merch: { event_id: @event.id }).distinct
@@ -45,18 +45,13 @@ class ReservationsController < ApplicationController
     Event.find(params[:event_id])
   end
 
-  def has_permission?
-    is_admin = @current_user.admin?
-    is_staff_from_event = @current_user.runs_event?(event)
-    owns_reservation = @current_user.id == @reservation.user_id
-
-    render json: { message: 'Unauthorized' }, status: :unauthorized unless is_admin || is_staff_from_event || owns_reservation
+  def admin_or_staff?
+    criteria = @current_user.admin? || (@current_user.runs_event?(@event) && (@current_user.staff? || @current_user.staff_leader?))
+    render json: { message: 'Unauthorized' }, status: :unauthorized unless criteria
   end
 
-  def staff_or_admin?
-    is_admin = @current_user.admin?
-    is_staff_from_event = @current_user.runs_event?(event)
-
-    render json: { message: 'Unauthorized' }, status: :unauthorized unless is_admin || is_staff_from_event
+  def superuser_or_owner?
+    criteria = @current_user.admin? || (@current_user.runs_event?(@event) && (@current_user.staff? || @current_user.staff_leader?))
+    render json: { message: 'Unauthorized' }, status: :unauthorized unless criteria || @current_user.id == @reservation.user_id
   end
 end
