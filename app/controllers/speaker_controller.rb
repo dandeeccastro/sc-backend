@@ -4,7 +4,7 @@ class SpeakerController < ApplicationController
   before_action :set_speaker, only: %i[destroy]
 
   def event
-    speakers = Speaker.joins(talk: [ :event ])
+    speakers = Speaker.joins(talks: [ :event ])
     render json: SpeakerBlueprint.render(speakers)
   end
 
