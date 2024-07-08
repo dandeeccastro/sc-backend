@@ -10,7 +10,7 @@ Rails.application.routes.draw do
     get '/certificates', to: 'certificates#list'
     post '/certificates', to: 'certificates#emit'
 
-    get '/speakers', to: 'speakers#event'
+    get '/speakers', to: 'speaker#event'
   end
 
   get '/events/:slug/staff', to: 'events#validate'
@@ -32,6 +32,8 @@ Rails.application.routes.draw do
   resources :vacancies, except: %i[index]
   resources :materials
   resources :reservations, except: %i[update]
+
+  resources :speaker, only: %i[destroy]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")
