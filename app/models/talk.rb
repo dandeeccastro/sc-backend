@@ -14,7 +14,7 @@ class Talk < ApplicationRecord
   has_many :vacancies, dependent: :destroy
   has_many :users, through: :vacancies
   has_many :ratings
-  has_many :notifications, depentent: :destroy
+  has_many :notifications, dependent: :destroy
 
   def rating
     return 0 if ratings.empty?
