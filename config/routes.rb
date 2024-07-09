@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   resources :events, param: :slug do
     resources :merches 
     resources :notifications
-    resources :reservations, except: %i[update]
+    resources :reservations
 
     get '/talks', to: 'talks#index'
 

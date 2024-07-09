@@ -1,8 +1,8 @@
 class ReservationsController < ApplicationController
   before_action :authenticate_user
-  before_action :set_reservation, only: %i[show destroy]
-  before_action :set_event, only: %i[index]
-  before_action :admin_or_staff?, only: %i[index]
+  before_action :set_reservation, only: %i[show destroy update]
+  before_action :set_event, only: %i[index update]
+  before_action :admin_or_staff?, only: %i[index update]
   before_action :superuser_or_owner?, only: %i[show destroy]
 
   def index
@@ -23,6 +23,14 @@ class ReservationsController < ApplicationController
     end
   end
 
+  def update
+    if @reservation.update(reservation_params)
+      render json: ReservationBlueprint.render(@reservation), status: :ok
+    else
+      render json: @reservation.errors, status: :unprocessable_entity
+    end
+  end
+
   def destroy
     @reservation.destroy
   end
@@ -38,7 +46,7 @@ class ReservationsController < ApplicationController
   end
 
   def reservation_params
-    params.permit(:user_id, :merch_id)
+    params.permit(:user_id, :merch_id, :delivered)
   end
 
   def event
