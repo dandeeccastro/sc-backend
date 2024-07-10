@@ -37,6 +37,7 @@ Rails.application.routes.draw do
   resources :speaker, only: %i[destroy]
   resources :type, only: %i[index]
   resources :category, only: %i[index]
+  resources :location, only: %i[index]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")
