@@ -1,5 +1,4 @@
 class Reservation < ApplicationRecord
-  validates_uniqueness_of :merch_id, scope: [:user_id]
   validate :under_stock_limit
 
   belongs_to :user
