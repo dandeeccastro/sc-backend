@@ -1,6 +1,7 @@
 class TeamsController < ApplicationController
   before_action :authenticate_user
   before_action :set_team, only: %i[show update destroy]
+
   before_action :admin?, only: %i[index create destroy]
   before_action :admin_or_staff_leader?, only: %i[update]
   before_action :admin_or_staff?, only: %i[show]
@@ -58,7 +59,7 @@ class TeamsController < ApplicationController
 
   def admin_or_staff_leader?
     is_admin = @current_user.admin?
-    is_staff_leader_from_event = @current_user.staff_leader? && @current_user.runs_event?(@team.event)
+    is_staff_leader_from_event = (@current_user.staff_leader? || @current_user.staff?) && @current_user.runs_event?(@team.event)
     render json: { message: 'User is not event staff' }, status: :unauthorized unless is_staff_leader_from_event || is_admin
   end
 end
