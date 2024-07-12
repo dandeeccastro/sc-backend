@@ -13,6 +13,10 @@ class TalksController < ApplicationController
     render json: TalkBlueprint.render(@talk, view: :detailed)
   end
 
+  def staff_show
+    render json: TalkBlueprint.render(@talk, view: :staff)
+  end
+
   def create
     @talk = Talk.new(talk_params)
 

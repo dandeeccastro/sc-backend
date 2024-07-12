@@ -9,5 +9,11 @@ class TalkBlueprint < Blueprinter::Base
   view :detailed do
     fields :vacancy_limit, :description
     field :rating do |talk| talk.rating end
+    field :vacancy_count do |talk| talk.users.count end
+  end
+
+  view :staff do
+    include_view :detailed
+    field :users do |talk| talk.users end
   end
 end
