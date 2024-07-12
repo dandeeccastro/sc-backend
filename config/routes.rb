@@ -7,7 +7,8 @@ Rails.application.routes.draw do
     resources :notifications
     resources :reservations
 
-    get '/talks', to: 'talks#index'
+    resources :talks, only: %i[index]
+    get '/talks/:id/staff', to: 'talks#staff_show'
 
     get '/certificates', to: 'certificates#list'
     post '/certificates', to: 'certificates#emit'
