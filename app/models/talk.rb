@@ -8,13 +8,13 @@ class Talk < ApplicationRecord
   belongs_to :location
   belongs_to :speaker
   belongs_to :type
-  belongs_to :category
 
   has_many :materials
   has_many :vacancies, dependent: :destroy
   has_many :users, through: :vacancies
   has_many :ratings
   has_many :notifications, dependent: :destroy
+  has_and_belongs_to_many :categories
 
   def rating
     return 0 if ratings.empty?
