@@ -3,6 +3,23 @@ class SpeakerController < ApplicationController
   before_action :set_event, only: %i[event]
   before_action :set_speaker, only: %i[destroy]
 
+  def create
+    @speaker = Speaker.create(speaker_params)
+    if @speaker
+      render json: SpeakerBlueprint.render(@speaker), status: :created
+    else
+      render json: { errors: @speaker.errors }, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    if @speaker.update(speaker_params)
+      render json: SpeakerBlueprint.render(@speaker), status: :ok
+    else
+      render json: { message: @peaker.errors }, status: :unprocessable_entity
+    end
+  end
+
   def event
     speakers = Speaker.joins(talks: [ :event ]).distinct
     render json: SpeakerBlueprint.render(speakers, view: :detailed)
@@ -14,6 +31,10 @@ class SpeakerController < ApplicationController
   end
 
   private
+
+  def speaker_params
+    params.permit(:name, :bio, :image)
+  end
 
   def set_event
     @event = Event.find_by(slug: params[:event_slug])

@@ -8,7 +8,6 @@ Rails.application.routes.draw do
     resources :reservations
 
     resources :talks, only: %i[index]
-    get '/talks/:id/staff', to: 'talks#staff_show'
 
     get '/certificates', to: 'certificates#list'
     post '/certificates', to: 'certificates#emit'
@@ -20,11 +19,11 @@ Rails.application.routes.draw do
 
   post '/participate', to: 'vacancies#participate'
   post '/validate', to: 'vacancies#validate'
-
   get '/vacancies/me', to: 'vacancies#schedule'
 
-  post '/talks/:id/rate', to: 'talks#rate'
+  get '/talks/:id/staff', to: 'talks#staff_show'
   get '/talks/:id/status', to: 'talks#status'
+  post '/talks/:id/rate', to: 'talks#rate'
 
   get '/certificates', to: 'certificates#list'
 
