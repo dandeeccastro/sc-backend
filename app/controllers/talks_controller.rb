@@ -67,7 +67,7 @@ class TalksController < ApplicationController
   end
 
   def talk_params
-    params.permit(:id, :title, :description, :start_date, :end_date, :event_id, :location_id, :speaker_id, :type_id, :category_id)
+    params.permit(:id, :title, :description, :start_date, :end_date, :event_id, :location_id, :speaker_id, :type_id, :category_ids)
   end
 
   def authorized?
