@@ -39,12 +39,14 @@ class CertificatesController < ActionController::Base
     when 'myself'
       @finder = CertificateFinder.new(user: @current_user, criteria: 'user')
     when 'event'
+      @event = Event.find_by(slug: params[:event_slug])
       admin_or_staff?
-      @finder = CertificateFinder.new(event: Event.find_by(slug: params[:event_slug]), criteria: 'event')
+      @finder = CertificateFinder.new(event: @event, criteria: 'event')
     when 'user'
+      @event = Event.find_by(slug: params[:event_slug])
       admin_or_staff?
       @user = User.find(params[:user_id])
-      @finder = CertificateFinder.new(user: @user, criteria: 'user')
+      @finder = CertificateFinder.new(user: @user, event: @event, criteria: 'user')
     else
       render json: { message: 'Parâmetro emit_from inválido!' }, status: :unprocessable_entity
     end
