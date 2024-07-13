@@ -9,9 +9,6 @@ Rails.application.routes.draw do
 
     resources :talks, only: %i[index]
 
-    get '/certificates', to: 'certificates#list'
-    post '/certificates', to: 'certificates#emit'
-
     get '/speakers', to: 'speaker#event'
   end
 
@@ -26,8 +23,10 @@ Rails.application.routes.draw do
   post '/talks/:id/rate', to: 'talks#rate'
 
   get '/certificates', to: 'certificates#list'
+  post '/certificates', to: 'certificates#emit'
 
   resources :user, except: %i[create]
+
   resources :talks, except: %i[index]
 
   resources :teams

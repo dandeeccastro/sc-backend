@@ -3,22 +3,29 @@ class CertificatesController < ActionController::Base
 
   before_action :authenticate_user
   before_action :set_variables
-  before_action :admin_or_staff?, only: %i[emit]
 
   def list
-    certificates = @finder.event_only
+    certificates = @finder.find
     render json: certificates, status: :ok
   end
 
   def emit
-    certificates = @finder.all
-    attachments = generate_certificate_files certificates
-    CertificateMailer.with(
-      event: @event,
-      user: @current_user,
-      attachments: attachments
-    ).certificate_email.deliver_now
-    render json: { message: 'Certificados enviados com sucesso por email!' }, status: :ok
+    case params[:emit_from]
+    when 'event'
+      emit_event
+    when 'user'
+      CertificateMailer.with(
+        event: @event,
+        user: @user,
+        attachments: attachments
+      ).certificate_email.deliver_now
+    when 'myself'
+      CertificateMailer.with(
+        event: @event,
+        user: @current_user,
+        attachments: attachments
+      ).certificate_email.deliver_now
+    end
   end
 
   def event; end
@@ -28,12 +35,31 @@ class CertificatesController < ActionController::Base
   private
 
   def set_variables
-    @event = Event.find_by(slug: params[:event_slug])
-    @finder = CertificateFinder.new(
-      user: @current_user,
-      event: @event,
-      talk_id: params[:talk_id]
-    )
+    case params[:emit_from]
+    when 'myself'
+      @finder = CertificateFinder.new(user: @current_user)
+    when 'event'
+      admin_or_staff?
+      @finder = CertificateFinder.new(event: Event.find_by(slug: params[:event_slug]))
+    when 'user'
+      admin_or_staff?
+      @user = User.find(params[:user_id])
+      @finder = CertificateFinder.new(user: @user)
+    else
+      render json: { message: 'Parâmetro emit_from inválido!' }, status: :unprocessable_entity
+    end
+  end
+
+  def emit_event(certificates)
+    email_to_cert = Hash[certificates.map(&:email)].uniq.collect{ |v| [v, []]}
+    certificates.each { |cert| email_to_cert[cert.email] << cert }
+    email_to_cert.each do |email, cert|
+      CertificateMailer.with(
+        event: cert.event,
+        user: cert.user,
+        attachments: attachments
+      ).certificate_email.deliver_now
+    end
   end
 
   def generate_certificate_files(certificate_data)
