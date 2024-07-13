@@ -37,14 +37,14 @@ class CertificatesController < ActionController::Base
   def set_variables
     case params[:emit_from]
     when 'myself'
-      @finder = CertificateFinder.new(user: @current_user)
+      @finder = CertificateFinder.new(user: @current_user, criteria: 'user')
     when 'event'
       admin_or_staff?
-      @finder = CertificateFinder.new(event: Event.find_by(slug: params[:event_slug]))
+      @finder = CertificateFinder.new(event: Event.find_by(slug: params[:event_slug]), criteria: 'event')
     when 'user'
       admin_or_staff?
       @user = User.find(params[:user_id])
-      @finder = CertificateFinder.new(user: @user)
+      @finder = CertificateFinder.new(user: @user, criteria: 'user')
     else
       render json: { message: 'Parâmetro emit_from inválido!' }, status: :unprocessable_entity
     end
