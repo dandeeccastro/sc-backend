@@ -14,7 +14,7 @@ class CertificatesController < ActionController::Base
     attachments = generate_certificate_files(certificates)
     case params[:emit_from]
     when 'event'
-      emit_event(certificates, attachments)
+      emit_event(certificates)
     when 'user'
       CertificateMailer.with(
         event: @event,
