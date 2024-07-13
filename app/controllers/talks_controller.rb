@@ -1,7 +1,7 @@
 class TalksController < ApplicationController
   before_action :authenticate_user, only: %i[create update destroy status]
   before_action :set_talk, only: %i[show update destroy rate status]
-  before_action :set_event, only: %i[index]
+  before_action :set_event, only: %i[index destroy]
   before_action :authorized?, only: %i[create update destroy]
 
   def index
