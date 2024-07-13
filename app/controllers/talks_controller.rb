@@ -71,7 +71,7 @@ class TalksController < ApplicationController
   end
 
   def authorized?
-    @event = Event.find(@talk.event.id) unless @event || @talk
+    @event = Event.find(params[:event_id]) if params[:event_id]
     criteria = @current_user.admin? || (@current_user.runs_event?(@event) && (@current_user.staff? || @current_user.staff_leader?))
     render json: { message: 'Unauthorized' }, status: :unauthorized unless criteria
   end
