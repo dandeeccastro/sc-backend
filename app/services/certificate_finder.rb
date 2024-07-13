@@ -13,11 +13,11 @@ class CertificateFinder
   end
 
   def find_by_user
-    user_attendee_participation.concat(user_staff_participation).concat.(user_talk_participation).compact
+    user_attendee_participation.concat(user_staff_participation).concat(user_talk_participation).compact
   end
 
   def find_by_event
-    event_attendee_participation.concat(event_staff_participation).concat.(event_talk_participation).compact
+    event_attendee_participation.concat(event_staff_participation).concat(event_talk_participation).compact
   end
 
   def user_attendee_participation
