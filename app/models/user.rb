@@ -19,6 +19,7 @@ class User < ApplicationRecord
 
   # Attendee
   has_many :talks, through: :vacancies
+  has_many :vacancies
 
   has_many :merches, through: :reservations
   has_many :ratings

@@ -6,10 +6,9 @@ class CertificateFinder
   end
 
   def find
-    return find_by_user if @criteria == 'user'
+    return find_by_user if @criteria == 'myself'
     return find_by_event if @criteria == 'event'
-
-    []
+    return find_by_other if @criteria == 'user'
   end
 
   def find_by_user
@@ -36,7 +35,7 @@ class CertificateFinder
   end
 
   def event_attendee_participation
-    users = User.joins(vacancies: [:talks]).where(vacancies: { presence: true }, talks: { event_id: @event.id })
+    users = User.joins(vacancies: [:talk]).where(vacancies: { presence: true }, talks: { event_id: @event.id })
     users.map { |user| attendee_certificate_hash(user: user, event: @event)}
   end
 
