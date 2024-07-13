@@ -28,6 +28,7 @@ class CertificatesController < ActionController::Base
         attachments: attachments
       ).certificate_email.deliver_now
     end
+    render json: { message: 'Certificados emitidos com sucesso!' }, status: :ok
   end
 
   def event; end
