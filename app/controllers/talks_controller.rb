@@ -65,7 +65,7 @@ class TalksController < ApplicationController
   def set_event
     if params[:event_slug]
       @event = Event.find_by(slug: params[:event_slug])
-    elsif
+    elsif params[:event_id]
       @event = Event.find(params[:event_id])
     else
       @event = Event.find(@talk.event_id)
