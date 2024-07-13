@@ -1,3 +1,3 @@
 class Category < ApplicationRecord
-  has_many :talks
+  has_and_belongs_to_many :talks
 end
