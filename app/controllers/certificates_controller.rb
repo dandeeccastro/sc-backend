@@ -10,9 +10,11 @@ class CertificatesController < ActionController::Base
   end
 
   def emit
+    certificates = @finder.find
+    attachments = generate_certificate_files(certificates)
     case params[:emit_from]
     when 'event'
-      emit_event
+      emit_event(certificates, attachments)
     when 'user'
       CertificateMailer.with(
         event: @event,
@@ -37,7 +39,7 @@ class CertificatesController < ActionController::Base
   def set_variables
     case params[:emit_from]
     when 'myself'
-      @finder = CertificateFinder.new(user: @current_user, criteria: 'user')
+      @finder = CertificateFinder.new(user: @current_user, criteria: 'myself')
     when 'event'
       @event = Event.find_by(slug: params[:event_slug])
       admin_or_staff?
@@ -52,7 +54,7 @@ class CertificatesController < ActionController::Base
     end
   end
 
-  def emit_event(certificates)
+  def emit_event(certificates, attachments)
     email_to_cert = Hash[certificates.map(&:email)].uniq.collect{ |v| [v, []]}
     certificates.each { |cert| email_to_cert[cert.email] << cert }
     email_to_cert.each do |email, cert|
