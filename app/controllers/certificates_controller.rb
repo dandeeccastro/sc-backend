@@ -55,7 +55,7 @@ class CertificatesController < ActionController::Base
   end
 
   def emit_event(certificates, attachments)
-    email_to_cert = Hash[certificates.map{|a| a[:email]}].uniq.collect{ |v| [v, []]}
+    email_to_cert = Hash[certificates.map{|c|c[:email]}.uniq.collect{|c| [c,[]]}]
     certificates.each { |cert| email_to_cert[cert[:email]] << cert }
     email_to_cert.each do |email, cert|
       CertificateMailer.with(
