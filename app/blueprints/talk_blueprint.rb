@@ -1,6 +1,7 @@
 class TalkBlueprint < Blueprinter::Base
   identifier :id
-  fields :title, :start_date, :end_date, :type, :category
+  fields :title, :start_date, :end_date
+
   association :type, blueprint: TypeBlueprint
   association :categories, blueprint: CategoryBlueprint
   association :location, blueprint: LocationBlueprint
