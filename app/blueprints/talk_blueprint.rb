@@ -15,6 +15,6 @@ class TalkBlueprint < Blueprinter::Base
 
   view :staff do
     include_view :detailed
-    field :users do |talk| talk.users end
+    field :users do |talk| UserBlueprint.render(talk.users) end
   end
 end
