@@ -8,7 +8,7 @@ class CertificateFinder
   def find
     return find_by_user if @criteria == 'myself'
     return find_by_event if @criteria == 'event'
-    return find_by_other if @criteria == 'user'
+    return find_by_user_and_event if @criteria == 'user'
   end
 
   def find_by_user
@@ -17,6 +17,12 @@ class CertificateFinder
 
   def find_by_event
     event_attendee_participation.concat(event_staff_participation).concat(event_talk_participation).compact
+  end
+
+  def find_by_user_and_event
+    event_and_user_attendee_participation
+      .concat(event_and_user_staff_participation)
+      .concat(event_and_user_talk_participation).compact
   end
 
   def user_attendee_participation
@@ -48,6 +54,22 @@ class CertificateFinder
     talk_ids = @event.talks.map(&:id)
     vacancies = Vacancy.where(presence: true, talk_id: talk_ids)
     vacancies.map { |vacancy| talk_certificate_hash(user: vacancy.user, talk: vacancy.talk, event: @event) }
+  end
+
+  def event_and_user_attendee_participation
+    talk_ids = @event.talks.map(&:id)
+    participation = Vacancies.where(presence: true, talk_id: talk_ids, user_id: @user.id).exists?
+    attendee_certificate_hash(user: @user, event: @event) if participation
+  end
+
+  def event_and_user_staff_participation
+    staff_certificate_hash(user: @user, event: @event) if @user.runs_event?(@event)
+  end
+
+  def event_and_user_talk_participation
+    talk_ids = @event.talks.map(&:id)
+    talks = Talk.joins(:vacancies).where(vacancies: { presence: true, user_id: @user.id, talk_id: talk_ids })
+    talks.map{ |talk| talk_certificate_hash(user: @user, event: @event, talk: talk) }
   end
 
   def talk_certificate_hash(user:, event:, talk:)
