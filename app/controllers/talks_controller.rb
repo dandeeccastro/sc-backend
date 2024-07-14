@@ -52,7 +52,7 @@ class TalksController < ApplicationController
   end
 
   def status
-    vacancy = Vacancy.where(user_id: @current_user.id, talk_id: @talk.id)
+    vacancy = Vacancy.find_by(user_id: @current_user.id, talk_id: @talk.id)
     render json: { enrolled: vacancy.present?, participated: vacancy.presence }, status: :ok
   end
 
