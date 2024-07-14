@@ -33,7 +33,7 @@ class SpeakerController < ApplicationController
   private
 
   def speaker_params
-    params.permit(:name, :bio, :image, :event_id)
+    params.permit(:name, :bio, :image, :event_id, :email)
   end
 
   def set_event

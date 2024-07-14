@@ -3,6 +3,6 @@ class SpeakerBlueprint < Blueprinter::Base
   fields :name
 
   view :detailed do
-    fields :bio, :image
+    fields :bio, :image, :email
   end
 end
