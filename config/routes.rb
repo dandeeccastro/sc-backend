@@ -26,14 +26,13 @@ Rails.application.routes.draw do
   post '/certificates', to: 'certificates#emit'
 
   resources :user, except: %i[create]
-
   resources :talks, except: %i[index]
 
   resources :teams
   resources :vacancies, except: %i[index]
   resources :materials
 
-  resources :speaker, only: %i[destroy]
+  resources :speaker
   resources :type, only: %i[index]
   resources :category, only: %i[index]
   resources :location, only: %i[index]
