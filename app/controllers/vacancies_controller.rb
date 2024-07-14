@@ -77,7 +77,7 @@ class VacanciesController < ApplicationController
   end
 
   def admin_or_staff?
-    event = Talk.find(vacancy_params[:talk_id]).event
+    event = Talk.find(params[:talk_id]).event
     render json: { message: 'Unauthorized' }, status: :unauthorized unless @current_user.admin? || @current_user.runs_event?(event)
   end
 
