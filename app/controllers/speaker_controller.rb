@@ -21,7 +21,7 @@ class SpeakerController < ApplicationController
   end
 
   def event
-    speakers = Speaker.joins(talks: [ :event ]).distinct
+    speakers = Speaker.where(event_id: @event.id)
     render json: SpeakerBlueprint.render(speakers, view: :detailed)
   end
 
@@ -33,7 +33,7 @@ class SpeakerController < ApplicationController
   private
 
   def speaker_params
-    params.permit(:name, :bio, :image)
+    params.permit(:name, :bio, :image, :event_id)
   end
 
   def set_event
