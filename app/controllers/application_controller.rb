@@ -2,6 +2,7 @@ class ApplicationController < ActionController::API
   include Authenticable
 
   wrap_parameters false
+  attr_reader :current_user
 
   private
 

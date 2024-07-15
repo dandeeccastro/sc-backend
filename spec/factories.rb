@@ -59,6 +59,7 @@ FactoryBot.define do
     name { 'Lorem Ipsum' }
     sequence(:email) { |n| "attendee#{n}@gmail.com" }
     sequence(:dre) { |n| "2111111111#{n}" }
+    cpf { CPF.generate }
     password { 'senha123' }
     permissions { User::ATTENDEE }
   end
