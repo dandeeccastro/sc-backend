@@ -1,7 +1,7 @@
 class NotificationsController < ApplicationController
   before_action :authenticate_user
   before_action :set_event, except: %i[talk]
-  before_action :set_notification, only: %i[destroy]
+  before_action :set_notification, only: %i[update destroy]
   before_action :admin_or_staff?, only: %i[create destroy]
 
   def index
@@ -11,10 +11,18 @@ class NotificationsController < ApplicationController
   end
 
   def create
-    @notification = Notification.new(notification_params)
+    @notification = Notification.new(notification_params.merge(user_id: @current_user.id))
 
     if @notification.save
       render json: NotificationBlueprint.render(@notification), status: :created
+    else
+      render json: @notification.errors, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    if @notification.update(notification_params)
+      render json: NotificationBlueprint.render(@notification), status: :ok
     else
       render json: @notification.errors, status: :unprocessable_entity
     end
@@ -32,7 +40,7 @@ class NotificationsController < ApplicationController
   end
 
   def notification_params
-    params.permit(:description, :user_id, :event_id, :talk_id)
+    params.permit(:description, :user_id, :event_id, :talk_id, :title)
   end
 
   def set_event
