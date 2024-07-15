@@ -47,7 +47,7 @@ class MerchesController < ApplicationController
   end
 
   def merch_params
-    params.permit(:name, :image, :price, :event_id)
+    params.permit(:name, :image, :price, :event_id, :stock)
   end
 
   def staff_or_admin?
