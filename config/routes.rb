@@ -10,6 +10,7 @@ Rails.application.routes.draw do
     resources :talks, only: %i[index]
 
     get '/speakers', to: 'speaker#event'
+    get '/users', to: 'user#event'
   end
 
   get '/events/:slug/staff', to: 'events#validate'

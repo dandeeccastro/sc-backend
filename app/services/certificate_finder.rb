@@ -58,12 +58,14 @@ class CertificateFinder
 
   def event_and_user_attendee_participation
     talk_ids = @event.talks.map(&:id)
-    participation = Vacancies.where(presence: true, talk_id: talk_ids, user_id: @user.id).exists?
-    attendee_certificate_hash(user: @user, event: @event) if participation
+    participation = Vacancy.where(presence: true, talk_id: talk_ids, user_id: @user.id).exists?
+    [ attendee_certificate_hash(user: @user, event: @event) ] if participation
+    []
   end
 
   def event_and_user_staff_participation
-    staff_certificate_hash(user: @user, event: @event) if @user.runs_event?(@event)
+    [ staff_certificate_hash(user: @user, event: @event) ] if @user.runs_event?(@event)
+    []
   end
 
   def event_and_user_talk_participation
