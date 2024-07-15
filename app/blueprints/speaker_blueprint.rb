@@ -3,6 +3,7 @@ class SpeakerBlueprint < Blueprinter::Base
   fields :name
 
   view :detailed do
-    fields :bio, :image, :email
+    fields :bio, :email
+    field :image_url do |speaker| speaker.image_url end
   end
 end

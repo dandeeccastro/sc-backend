@@ -5,7 +5,7 @@ class TalkBlueprint < Blueprinter::Base
   association :type, blueprint: TypeBlueprint
   association :categories, blueprint: CategoryBlueprint
   association :location, blueprint: LocationBlueprint
-  association :speaker, blueprint: SpeakerBlueprint
+  association :speaker, blueprint: SpeakerBlueprint, view: :detailed
 
   view :detailed do
     fields :vacancy_limit, :description
