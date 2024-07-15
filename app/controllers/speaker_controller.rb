@@ -1,7 +1,7 @@
 class SpeakerController < ApplicationController
   before_action :authenticate_user
   before_action :set_event, only: %i[event]
-  before_action :set_speaker, only: %i[destroy]
+  before_action :set_speaker, only: %i[update destroy]
 
   def create
     @speaker = Speaker.create(speaker_params)
@@ -27,7 +27,7 @@ class SpeakerController < ApplicationController
 
   def destroy
     @speaker.destroy
-    render json: { message: 'Event deleted!' }, status: :ok
+    render json: { message: 'Palestrante excluído' }, status: :ok
   end
 
   private
