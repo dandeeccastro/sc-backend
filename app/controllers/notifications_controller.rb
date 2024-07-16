@@ -2,7 +2,9 @@ class NotificationsController < ApplicationController
   before_action :authenticate_user
   before_action :set_event, except: %i[talk]
   before_action :set_notification, only: %i[update destroy]
-  before_action :admin_or_staff?, only: %i[create destroy]
+  before_action :admin_or_staff?, only: %i[create update destroy]
+
+  after_action :log_data, only: %i[create update destroy]
 
   def index
     talk_ids = Vacancy.joins(talk: [ :event ]).where(user_id: @current_user.id, event: { id: @event.id }).map(&:talk_id)
@@ -30,7 +32,7 @@ class NotificationsController < ApplicationController
 
   def destroy
     @notification.destroy
-    render json: { message: 'Notification deleted' }, status: :ok
+    render json: { message: 'Notificação deletada!' }, status: :ok
   end
 
   private

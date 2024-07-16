@@ -5,6 +5,8 @@ class VacanciesController < ApplicationController
   before_action :admin_or_attendee?, only: %i[schedule create destroy]
   before_action :admin_or_staff?, only: %i[index show update validate]
 
+  after_action :log_data, only: %i[create update destroy validate]
+
   def schedule
     talks = Event.find_by(slug: params[:event_slug]).talks
     @vacancies = Vacancy.where(user_id: @current_user.id, talk_id: talks.map(&:id))
@@ -74,11 +76,6 @@ class VacanciesController < ApplicationController
 
   def vacancy_params
     params.permit(:presence, :talk_id, :user_id)
-  end
-
-  def admin_or_staff?
-    event = Talk.find(params[:talk_id]).event
-    render json: { message: 'Unauthorized' }, status: :unauthorized unless @current_user.admin? || @current_user.runs_event?(event)
   end
 
   def admin_or_attendee?

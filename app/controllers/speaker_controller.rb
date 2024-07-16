@@ -3,6 +3,8 @@ class SpeakerController < ApplicationController
   before_action :set_event, only: %i[event]
   before_action :set_speaker, only: %i[update destroy]
 
+  after_action :log_data, only: %i[create update destroy]
+
   def create
     @speaker = Speaker.create(speaker_params)
     if @speaker

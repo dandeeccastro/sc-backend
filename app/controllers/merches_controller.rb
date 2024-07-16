@@ -2,7 +2,9 @@ class MerchesController < ApplicationController
   before_action :set_event
   before_action :set_merch, only: %i[show update destroy]
   before_action :authenticate_user, except: %i[index show]
-  before_action :staff_or_admin?, only: %i[create update destroy]
+  before_action :admin_or_staff?, only: %i[create update destroy]
+
+  after_action :log_data, only: %i[create update destroy]
 
   def index
     @merches = Merch.where(event_id: @event.id)
@@ -27,7 +29,6 @@ class MerchesController < ApplicationController
 
   def update
     if @merch.update(merch_params)
-      AuditLogger.log(@event, "Staff #{@current_user.name} alterou mercadoria #{merch_params[:name]}")
       render json: MerchBlueprint.render(@merch), status: :ok
     else
       render json: @merch.errors, status: :unprocessable_entity
@@ -51,11 +52,5 @@ class MerchesController < ApplicationController
 
   def merch_params
     params.permit(:name, :image, :price, :event_id, :stock)
-  end
-
-  def staff_or_admin?
-    @event ||= Event.find_by(slug: params[:event_slug])
-    criteria = @current_user.admin? || (@current_user.runs_event?(@event) && (@current_user.staff? || @current_user.staff_leader?))
-    render json: { message: 'Unauthorized!' }, status: :unauthorized unless criteria
   end
 end
