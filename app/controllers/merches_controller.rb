@@ -17,6 +17,8 @@ class MerchesController < ApplicationController
     @merch = Merch.new(merch_params)
 
     if @merch.save
+      @event = Event.find(merch_params[:event_id])
+      AuditLogger.log(@event, "Staff #{@current_user.name} criou mercadoria #{merch_params[:name]}")
       render json: MerchBlueprint.render(@merch), status: :created
     else
       render json: @merch.errors, status: :unprocessable_entity
@@ -25,6 +27,7 @@ class MerchesController < ApplicationController
 
   def update
     if @merch.update(merch_params)
+      AuditLogger.log(@event, "Staff #{@current_user.name} alterou mercadoria #{merch_params[:name]}")
       render json: MerchBlueprint.render(@merch), status: :ok
     else
       render json: @merch.errors, status: :unprocessable_entity
