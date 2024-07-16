@@ -7,7 +7,7 @@ class AuditController < ApplicationController
     date = DateTime.parse(params[:date])
     filename = "#{Rails.root}/log/audit/#{date.strftime '%d-%m-%Y'}.log"
     if File.exist?(filename)
-      log_data = File.read(filename)
+      log_data = AuditLogger.get_log(@event)
       render plain: log_data, status: :ok
     else
       render json: { message: "Log não encontrado para o dia #{params[:date]}!" }, status: 404
