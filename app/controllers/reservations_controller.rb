@@ -5,6 +5,8 @@ class ReservationsController < ApplicationController
   before_action :admin_or_staff?, only: %i[index update]
   before_action :superuser_or_owner?, only: %i[show destroy]
 
+  after_action :log_data, only: %i[create update destroy]
+
   def index
     @reservations = Reservation.joins(merch: [:event]).where(merch: { event_id: @event.id }).distinct
     render json: ReservationBlueprint.render(@reservations)
@@ -51,11 +53,6 @@ class ReservationsController < ApplicationController
 
   def event
     Event.find(params[:event_id])
-  end
-
-  def admin_or_staff?
-    criteria = @current_user.admin? || (@current_user.runs_event?(@event) && (@current_user.staff? || @current_user.staff_leader?))
-    render json: { message: 'Unauthorized' }, status: :unauthorized unless criteria
   end
 
   def superuser_or_owner?
