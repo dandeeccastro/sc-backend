@@ -11,6 +11,7 @@ Rails.application.routes.draw do
 
     get '/speakers', to: 'speaker#event'
     get '/users', to: 'user#event'
+    get '/audit', to: 'audit#search'
   end
 
   get '/events/:slug/staff', to: 'events#validate'
