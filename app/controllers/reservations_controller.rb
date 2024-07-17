@@ -1,7 +1,7 @@
 class ReservationsController < ApplicationController
   before_action :authenticate_user
   before_action :set_reservation, only: %i[show destroy update]
-  before_action :set_event, only: %i[index update]
+  before_action :set_event, only: %i[index update create]
   before_action :admin_or_staff?, only: %i[index update]
   before_action :superuser_or_owner?, only: %i[show destroy]
 
