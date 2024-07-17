@@ -4,6 +4,8 @@ class CertificatesController < ActionController::Base
   before_action :authenticate_user
   before_action :set_variables
 
+  after_action :log_data, only: %i[emit]
+
   def list
     certificates = @finder.find
     render json: certificates, status: :ok
@@ -38,15 +40,14 @@ class CertificatesController < ActionController::Base
   private
 
   def set_variables
+    @event = Event.find_by(slug: params[:event_slug])
     case params[:emit_from]
     when 'myself'
       @finder = CertificateFinder.new(user: @current_user, criteria: 'myself')
     when 'event'
-      @event = Event.find_by(slug: params[:event_slug])
       admin_or_staff?
       @finder = CertificateFinder.new(event: @event, criteria: 'event')
     when 'user'
-      @event = Event.find_by(slug: params[:event_slug])
       admin_or_staff?
       @user = User.find(params[:user_id])
       @finder = CertificateFinder.new(user: @user, event: @event, criteria: 'user')
