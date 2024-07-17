@@ -1,6 +1,7 @@
 class TalkBlueprint < Blueprinter::Base
   identifier :id
   fields :title, :start_date, :end_date, :description, :vacancy_limit
+  field :participants do |talk| talk.participants end
 
   association :type, blueprint: TypeBlueprint
   association :categories, blueprint: CategoryBlueprint

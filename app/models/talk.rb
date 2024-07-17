@@ -22,6 +22,10 @@ class Talk < ApplicationRecord
     ratings.map(&:score).reduce(:+) / ratings.length
   end
 
+  def participants
+    vacancies.count
+  end
+
   def day
     start_date.strftime('%d/%m/%y')
   end
