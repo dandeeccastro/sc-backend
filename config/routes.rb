@@ -20,6 +20,8 @@ Rails.application.routes.draw do
   post '/validate', to: 'vacancies#validate'
   get '/vacancies/me', to: 'vacancies#schedule'
 
+  resources :vacancies, only: %i[destroy]
+
   get '/talks/:id/staff', to: 'talks#staff_show'
   get '/talks/:id/status', to: 'talks#status'
   post '/talks/:id/rate', to: 'talks#rate'

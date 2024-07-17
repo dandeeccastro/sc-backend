@@ -2,6 +2,7 @@ class VacanciesController < ApplicationController
   before_action :set_vacancy, only: %i[show update destroy]
   before_action :authenticate_user
   before_action :set_event, only: %i[participate]
+  before_action :owns_vacancy?, only: %i[destroy]
   before_action :admin_or_attendee?, only: %i[schedule create destroy]
   before_action :admin_or_staff?, only: %i[index show update validate]
 
@@ -37,6 +38,7 @@ class VacanciesController < ApplicationController
 
   def destroy
     @vacancy.destroy
+    render json: { message: "Você removeu sua inscrição para #{@vacancy.talk.title} com sucesso!" }, status: :ok
   end
 
   def participate
@@ -76,6 +78,10 @@ class VacanciesController < ApplicationController
 
   def vacancy_params
     params.permit(:presence, :talk_id, :user_id)
+  end
+
+  def owns_vacancy?
+    render json: { message: 'Você não pode deletar uma vaga que não te pertence' }, status: :unauthorized unless @vacancy.user_id == @current_user.id
   end
 
   def admin_or_attendee?
