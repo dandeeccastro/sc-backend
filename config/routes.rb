@@ -41,7 +41,7 @@ Rails.application.routes.draw do
   resources :events, only: %i[update destroy]
 
   resources :speaker
-  resources :type, only: %i[index create]
+  resources :type, except: %i[show]
   resources :location, only: %i[index]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
