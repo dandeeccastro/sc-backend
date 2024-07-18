@@ -32,8 +32,8 @@ class Talk < ApplicationRecord
 
   def overlaps_with_other_talk
     overlapping_talks = Talk.where(
-      'location_id = :location AND event_id = :event AND id != :id AND ((start_date >= :start_date AND end_date <= :start_date) OR (start_date >= :end_date AND end_date <= :end_date))',
-      { start_date: start_date, end_date: end_date, location: location_id, id: id, event: event_id }
+      'id != :id AND location_id = :location_id AND event_id = :event_id AND ((start_date >= :start_date AND end_date <= :start_date) OR (start_date >= :end_date AND end_date <= :end_date))',
+      { start_date: start_date, end_date: end_date, location_id: location_id, event_id: event_id, id: id }
     )
     errors.add(:overlap, 'Horário sobrepõe com outra palestra!') unless overlapping_talks.empty?
   end

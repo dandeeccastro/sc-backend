@@ -6,9 +6,9 @@ class Event < ApplicationRecord
   validates :name, uniqueness: true
   validates :slug, uniqueness: true
 
-  has_many :merches
-  has_many :talks
-  has_one :team
+  has_many :merches, dependent: :destroy
+  has_many :talks, dependent: :destroy
+  has_one :team, dependent: :destroy
 
   has_one_attached :banner
 

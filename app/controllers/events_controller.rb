@@ -1,5 +1,6 @@
 class EventsController < ApplicationController
-  before_action :set_event, only: %i[show update destroy validate]
+  before_action :set_event_by_slug, only: %i[show validate]
+  before_action :set_event, only: %i[update destroy]
   before_action :authenticate_user, only: %i[create update destroy validate]
   before_action :admin?, only: %i[create update destroy]
 
@@ -23,6 +24,7 @@ class EventsController < ApplicationController
   end
 
   def update
+    puts "Eventício #{@event}"
     if @event.update(event_params)
       render json: EventBlueprint.render(@event), status: :ok
     else
@@ -41,11 +43,15 @@ class EventsController < ApplicationController
 
   private
 
-  def set_event
+  def set_event_by_slug
     @event = Event.find_by(slug: params[:slug])
   end
 
+  def set_event
+    @event = Event.find(params[:id])
+  end
+
   def event_params
-    params.require(:event).permit(:name, :slug)
+    params.permit(:id, :name, :slug, :start_date, :end_date, :registration_start_date, :banner, :team_id)
   end
 end

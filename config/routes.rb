@@ -2,7 +2,7 @@ Rails.application.routes.draw do
   post '/register', to: 'user#create'
   post '/login', to: 'auth#login'
 
-  resources :events, param: :slug do
+  resources :events, param: :slug, except: %i[update destroy] do
     resources :merches 
     resources :notifications
     resources :reservations
@@ -31,11 +31,14 @@ Rails.application.routes.draw do
   post '/certificates', to: 'certificates#emit'
 
   resources :user, except: %i[create]
+  get '/admin', to: 'user#is_admin'
+
   resources :talks, except: %i[index]
 
   resources :teams
   resources :vacancies, except: %i[index]
   resources :materials
+  resources :events, only: %i[update destroy]
 
   resources :speaker
   resources :type, only: %i[index create]

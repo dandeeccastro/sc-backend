@@ -1,7 +1,7 @@
 class UserController < ApplicationController
   before_action :set_event, only: %i[event]
   before_action :set_user, only: %i[show update destroy]
-  before_action :authenticate_user, only: %i[index update show destroy event]
+  before_action :authenticate_user, only: %i[index update show destroy event is_admin]
   before_action :self_or_admin?, only: %i[update destroy]
   before_action :admin_or_staff?, only: %i[event]
   before_action :admin?, only: %i[index]
@@ -40,6 +40,10 @@ class UserController < ApplicationController
   def event
     users = User.joins(vacancies: { talk: [:event]}).where(event: { id: @event.id })
     render json: UserBlueprint.render(users), status: :ok
+  end
+
+  def is_admin
+    render json: @current_user.admin?, status: :ok
   end
 
   private
