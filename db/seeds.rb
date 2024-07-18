@@ -5,9 +5,7 @@
 #
 #   movies = Movie.create([{ name: "Star Wars" }, { name: "Lord of the Rings" }])
 #   Character.create(name: "Luke", movie: movies.first)
-team = Team.create(users: [])
-
-event = Event.create(name: 'Semana da Computação', start_date: DateTime.now, end_date: 2.weeks.from_now, registration_start_date: DateTime.now, team: team)
+event = Event.create(name: 'Semana da Computação', start_date: DateTime.now, end_date: 2.weeks.from_now, registration_start_date: DateTime.now)
 
 locations = Location.create([
   { name: 'Roxinho' },
@@ -23,9 +21,9 @@ types = Type.create([
 ])
 
 categories = Category.create([
-  { name: 'IA', color: 'blue' },
-  { name: 'Ciência de Dados', color: 'red' },
-  { name: 'Hacking', color: 'green' },
+  { name: 'IA', color: 'blue', event_id: event.id },
+  { name: 'Ciência de Dados', color: 'red', event_id: event.id },
+  { name: 'Hacking', color: 'green', event_id: event.id },
 ])
 
 speakers = Speaker.create([

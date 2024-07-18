@@ -1,7 +1,7 @@
 class Event < ApplicationRecord
   validate :invalidates_talks
 
-  before_save :set_slug
+  before_save :set_defaults
 
   validates :name, uniqueness: true
   validates :slug, uniqueness: true
@@ -9,6 +9,8 @@ class Event < ApplicationRecord
   has_many :merches
   has_many :talks
   has_one :team
+
+  has_one_attached :banner
 
   def invalidates_talks
     talks = Talk.where(event_id: id).where('start_date < :start_date OR end_date > :end_date', { start_date: start_date, end_date: end_date })
@@ -19,9 +21,14 @@ class Event < ApplicationRecord
     TalkFormatter.format_talks_into_schedule(talks)
   end
 
+  def banner_url
+    banner.attached? ? Rails.application.routes.url_helpers.rails_blob_path(banner, only_path: true) : ''
+  end
+
   private
 
-  def set_slug
+  def set_defaults
     self.slug = name.parameterize if slug.blank?
+    self.team = Team.create(event_id: id) if team_id.blank?
   end
 end
