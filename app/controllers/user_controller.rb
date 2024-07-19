@@ -1,10 +1,12 @@
 class UserController < ApplicationController
+  before_action :authenticate_user, only: %i[index update show destroy event is_admin]
+
   before_action :set_event, only: %i[event]
   before_action :set_user, only: %i[show update destroy]
-  before_action :authenticate_user, only: %i[index update show destroy event is_admin]
-  before_action :self_or_admin?, only: %i[update destroy]
-  before_action :admin_or_staff?, only: %i[event]
+
   before_action :admin?, only: %i[index]
+  before_action :admin_or_staff?, only: %i[event]
+  before_action :self_or_admin?, only: %i[update destroy]
 
   def index
     @users = User.all
@@ -58,11 +60,6 @@ class UserController < ApplicationController
 
   def self_or_admin?
     condition = @user.id == @current_user.id || @current_user.admin?
-    render json: { errors: 'Unauthorized' }, status: :unauthorized unless condition
-  end
-
-  def admin_or_staff?
-    condition = @current_user.admin? || (@current_user.runs_event?(@event) && (@current_user.staff? || @current_user.staff_member?))
     render json: { errors: 'Unauthorized' }, status: :unauthorized unless condition
   end
 

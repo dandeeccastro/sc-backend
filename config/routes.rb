@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :user, except: %i[create]
   post '/register', to: 'user#create'
   post '/login', to: 'auth#login'
 
@@ -34,6 +35,8 @@ Rails.application.routes.draw do
   get '/admin', to: 'user#is_admin'
 
   resources :talks, except: %i[index]
+
+  get "/teams/:slug", to: 'teams#event'
 
   resources :teams
   resources :vacancies, except: %i[index]
