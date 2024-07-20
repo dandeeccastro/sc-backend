@@ -1,6 +1,7 @@
 class CategoryController < ApplicationController
-  before_action :set_event
   before_action :authenticate_user
+  before_action :set_event
+  before_action :set_category, only: %i[update]
   before_action :admin_or_staff?, only: %i[destroy]
 
   def index
@@ -17,6 +18,14 @@ class CategoryController < ApplicationController
     end
   end
 
+  def update
+    if @category.update(category_params)
+      render json: CategoryBlueprint.render(@category), status: :ok
+    else
+      render json: { message: @category.errors }, status: :unprocessable_entity
+    end
+  end
+
   def destroy
     @category = Category.find(params[:id])
     @category.destroy!
@@ -27,6 +36,10 @@ class CategoryController < ApplicationController
 
   def category_params
     params.permit(:name, :color, :event_id)
+  end
+
+  def set_category
+    @category = Category.find(params[:id])
   end
 
   def set_event

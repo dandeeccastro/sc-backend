@@ -7,7 +7,7 @@ Rails.application.routes.draw do
     resources :merches 
     resources :notifications
     resources :reservations
-    resources :category, only: %i[index create destroy]
+    resources :category, only: %i[index create update destroy]
 
     resources :talks, only: %i[index]
 
