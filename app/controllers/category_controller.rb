@@ -1,5 +1,6 @@
 class CategoryController < ApplicationController
   before_action :set_event
+  before_action :authenticate_user
   before_action :admin_or_staff?, only: %i[destroy]
 
   def index

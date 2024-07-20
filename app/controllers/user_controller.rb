@@ -1,10 +1,10 @@
 class UserController < ApplicationController
   before_action :authenticate_user, only: %i[index update show destroy event is_admin]
 
-  before_action :set_event, only: %i[event]
+  before_action :set_event, only: %i[event index]
   before_action :set_user, only: %i[show update destroy]
 
-  before_action :admin?, only: %i[index]
+  before_action :admin_or_staff_leader?, only: %i[index]
   before_action :admin_or_staff?, only: %i[event]
   before_action :self_or_admin?, only: %i[update destroy]
 
