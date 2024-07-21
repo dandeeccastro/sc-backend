@@ -1,4 +1,5 @@
 class VacancyBlueprint < Blueprinter::Base
+  identifier :id
   association :talk, blueprint: TalkBlueprint
 
   view :staff do
