@@ -51,6 +51,6 @@ class MerchesController < ApplicationController
   end
 
   def merch_params
-    params.permit(:name, :image, :price, :event_id, :stock)
+    params.permit(:name, :image, :price, :event_id, :stock, custom_fields: {})
   end
 end
