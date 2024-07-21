@@ -1,12 +1,14 @@
 class UserController < ApplicationController
-  before_action :authenticate_user, only: %i[index update show destroy event is_admin]
+  before_action :authenticate_user, except: %i[create]
 
-  before_action :set_event, only: %i[event index]
+  before_action :set_event, only: %i[event index update]
   before_action :set_user, only: %i[show update destroy]
 
-  before_action :admin_or_staff_leader?, only: %i[index]
-  before_action :admin_or_staff?, only: %i[event]
-  before_action :self_or_admin?, only: %i[update destroy]
+  before_action :set_permissions, except: %i[create]
+  before_action only: %i[index] do check_permissions(%i[admin staff_leader]) end
+  before_action only: %i[event] do check_permissions(%i[admin staff]) end
+  before_action only: %i[show] do check_permissions(%i[admin staff_leader self]) end
+  before_action only: %i[destroy] do check_permissions(%i[admin self]) end
 
   def index
     @users = User.all
@@ -30,7 +32,7 @@ class UserController < ApplicationController
     if @user.update(user_params)
       render json: UserBlueprint.render(@user), status: :ok
     else
-      render json: { errors: @user.errors }, status: :unprocessable_entity
+      render json: { message: @user.errors }, status: :unprocessable_entity
     end
   end
 
@@ -50,6 +52,21 @@ class UserController < ApplicationController
 
   private
 
+  def set_permissions
+    @permissions = {
+      self: @user && @current_user && @user.id == @current_user.id,
+      admin: @current_user && @current_user.admin?,
+      staff_leader: @current_user && @current_user.staff_leader? && @current_user.runs_event?(@event),
+      staff: @current_user && @current_user.staff? && @current_user.runs_event?(@event),
+    }
+  end
+
+  def check_permissions(permissions)
+    allowed = false
+    permissions.each { |permission| allowed |= @permissions[permission] }
+    render json: { message: 'Não tem permissão para executar ação!' }, status: :unauthorized unless allowed
+  end
+
   def set_user
     @user = User.find(params[:id])
   end
@@ -58,12 +75,7 @@ class UserController < ApplicationController
     @event = Event.find_by(slug: params[:event_slug])
   end
 
-  def self_or_admin?
-    condition = @user.id == @current_user.id || @current_user.admin?
-    render json: { errors: 'Unauthorized' }, status: :unauthorized unless condition
-  end
-
   def user_params
-    params.permit(:name, :email, :dre, :password, :cpf, :ocupation, :institution)
+    params.permit(:name, :email, :dre, :password, :cpf, :ocupation, :institution, :permissions)
   end
 end
