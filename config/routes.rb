@@ -10,7 +10,6 @@ Rails.application.routes.draw do
     resources :category, only: %i[index create update destroy]
 
     resources :talks, only: %i[index]
-
     get '/speakers', to: 'speaker#event'
     get '/users', to: 'user#event'
     get '/audit', to: 'audit#search'
