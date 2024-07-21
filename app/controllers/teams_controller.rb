@@ -1,7 +1,7 @@
 class TeamsController < ApplicationController
   before_action :authenticate_user
   before_action :set_team, only: %i[show update destroy]
-  before_action :set_event_by_slug, only: %i[event]
+  before_action :set_event_by_slug, only: %i[event update]
 
   before_action :admin?, only: %i[index create destroy]
   before_action :admin_or_staff_leader?, only: %i[update]
