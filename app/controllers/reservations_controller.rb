@@ -48,7 +48,7 @@ class ReservationsController < ApplicationController
   end
 
   def reservation_params
-    params.permit(:user_id, :merch_id, :delivered, :size, :amount)
+    params.permit(:user_id, :merch_id, :delivered, :amount, options: {})
   end
 
   def event
