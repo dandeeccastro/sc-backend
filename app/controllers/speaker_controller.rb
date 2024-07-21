@@ -1,7 +1,8 @@
 class SpeakerController < ApplicationController
   before_action :authenticate_user
-  before_action :set_event, only: %i[event]
+  before_action :set_event, only: %i[event create update destroy]
   before_action :set_speaker, only: %i[update destroy]
+  before_action :admin_or_staff?, only: %i[create update destroy]
 
   after_action :log_data, only: %i[create update destroy]
 
@@ -44,10 +45,5 @@ class SpeakerController < ApplicationController
 
   def set_speaker
     @speaker = Speaker.find(params[:id])
-  end
-
-  def admin_or_staff?
-    criteria = @current_user.admin? || ( (@current_user.staff? || @current_user.staff_leader?) && @current_user.runs_event?(@event) )
-    render json: { message: 'Unauthorized' }, status: :unauthorized unless criteria
   end
 end
