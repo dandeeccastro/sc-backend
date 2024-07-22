@@ -1,6 +1,7 @@
 class TypeController < ApplicationController
   before_action :authenticate_user
   before_action :set_type, only: %i[update destroy]
+  before_action :admin?, only: %i[create update destroy]
 
   def index
     types = Type.all
