@@ -4,10 +4,14 @@ FactoryBot.define do
     description { "Descrição da palestra #{title}"}
     start_date { DateTime.now }
     end_date { 1.hour.from_now }
+    vacancy_limit { 50 }
 
-    association :event
-    association :location
-    association :speaker
-    association :type
+    factory :talk_with_event do
+      event
+      location
+      type
+
+      speaker { create(:speaker, event: event) } 
+    end
   end
 end

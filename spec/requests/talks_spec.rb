@@ -2,7 +2,7 @@ RSpec.describe '/talks', type: :request do
   context "Attendee" do
     let!(:user) { create(:attendee) }
     let!(:event) { create(:event) }
-    let!(:talk) { create(:talk, event: event, location: create(:location), speaker: create(:speaker, event: event), type: create(:type), categories: create_list(:category, 3, event: event)) }
+    let!(:talk) { create(:talk_with_event, event: event) }
 
     describe 'GET /show' do
       it 'renders a successful response' do

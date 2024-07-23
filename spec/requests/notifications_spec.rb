@@ -2,8 +2,8 @@ RSpec.describe "/notifications", type: :request do
   context 'as a staff member' do
     let!(:staff) { create(:staff) }
     let!(:event) { create(:event) }
-    let!(:talk) { create(:talk, event: event) }
-    let!(:notifications) { create_list(:notification, 3, user: staff, event: event)}
+    let!(:talk) { create(:talk_with_event, event: event) }
+    let!(:notifications) { create_list(:notification, 3, user: staff, event: event) }
 
     before do
       event.team.update users: [staff]

@@ -1,18 +1,18 @@
-require 'rails_helper'
-
 RSpec.describe '/vacancies', type: :request do
   context 'as staff' do
     let!(:staff) { create(:staff) }
     let!(:event) { create(:event) }
-    let!(:team) { create(:team, event: event, users: [staff]) }
-    let!(:talk) { create(:talk, event: event) }
-    let!(:vacancies) { create_list(:vacancy, 3, talk: talk) }
+    let!(:talk) { create(:talk_with_event, event: event) }
+    let!(:vacancies) { create_list(:vacancy, 3, talk: talk, user: create(:attendee)) }
 
-    before { @token = authenticate staff }
+    before do 
+      event.team.update users: [staff]
+      @headers = { Authorization: authenticate(staff) } 
+    end
 
     describe 'GET /vacancies' do
       it 'should list all vacancies ' do
-        get '/vacancies', headers: { Authorization: @token }, params: { talk_id: talk.id }
+        get '/vacancies', headers: @headers, params: { talk_id: talk.id }
         data = Oj.load response.body
 
         expect(response.status).to eq 200
@@ -23,7 +23,7 @@ RSpec.describe '/vacancies', type: :request do
 
     describe 'GET /vacancies/1' do
       it 'should show a single vacancy' do
-        get "/vacancies/#{vacancies.first.id}", headers: { Authorization: @token }, params: { talk_id: talk.id }
+        get "/vacancies/#{vacancies.first.id}", headers: @headers, params: { talk_id: talk.id }
         data = Oj.load response.body
 
         expect(response.status).to eq 200
@@ -33,7 +33,7 @@ RSpec.describe '/vacancies', type: :request do
 
     describe 'PUT /vacancies/1' do
       it 'should validate a presence on a vacancy' do
-        put "/vacancies/#{vacancies.first.id}", headers: { Authorization: @token }, params: { talk_id: talk.id, presence: true }
+        put "/vacancies/#{vacancies.first.id}", headers: @headers, params: { talk_id: talk.id, presence: true }
         data = Oj.load response.body
 
         expect(response.status).to eq 200
@@ -44,16 +44,15 @@ RSpec.describe '/vacancies', type: :request do
   end
 
   context 'as attendee' do
-    let!(:event) { create(:event) }
-    let!(:talk) { create(:talk, event: event) }
-    let!(:vacancies) { create_list(:vacancy, 3, talk: talk) }
     let!(:attendee) { create(:attendee) }
+    let!(:event) { create(:event) }
+    let!(:talk) { create(:talk_with_event, event: event) }
 
     before { @token = authenticate attendee }
 
     describe 'POST /vacancies' do
       it 'should create vacancy' do
-        post '/vacancies', headers: { Authorization: @token }, params: { talk_id: talk.id, user_id: attendee.id }
+        post '/vacancies', headers: @headers, params: { talk_id: talk.id, user_id: attendee.id }
         data = Oj.load response.body
 
         expect(response.status).to eq 201
