@@ -5,7 +5,7 @@ RSpec.describe "Auths", type: :request do
     let!(:user) { create(:user) }
 
     it 'should login with existing user' do
-      post '/login', params: { email: user.email, password: user.password }
+      post '/login', params: { cpf: user.cpf, password: user.password }
       data = Oj.load response.body
 
       expect(response.status).to eq 200
@@ -14,7 +14,7 @@ RSpec.describe "Auths", type: :request do
     end
 
     it 'should fail to authenticate without proper params' do
-      post '/login', params: { email: user.email, password: 'senha errada' }
+      post '/login', params: { cpf: user.cpf, password: 'senha errada' }
       data = Oj.load response.body
 
       expect(response.status).to eq 401

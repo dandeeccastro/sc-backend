@@ -2,7 +2,7 @@ class CategoryController < ApplicationController
   before_action :authenticate_user
   before_action :set_event
   before_action :set_category, only: %i[update]
-  before_action :admin_or_staff?, only: %i[destroy]
+  before_action :admin_or_staff?, only: %i[create update destroy]
 
   def index
     categories = Category.where(event_id: @event.id)
@@ -12,7 +12,7 @@ class CategoryController < ApplicationController
   def create
     @category = Category.new(category_params)
     if @category.save
-      render json: CategoryBlueprint.render(@category), status: :ok
+      render json: CategoryBlueprint.render(@category), status: :created
     else
       render json: { message: @category.errors }, status: :unprocessable_entity
     end
@@ -35,7 +35,7 @@ class CategoryController < ApplicationController
   private
 
   def category_params
-    params.permit(:name, :color, :event_id)
+    params.merge(event_id: @event.id).permit(:name, :color, :event_id)
   end
 
   def set_category

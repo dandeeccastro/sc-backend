@@ -24,7 +24,6 @@ class EventsController < ApplicationController
   end
 
   def update
-    puts "Eventício #{@event}"
     if @event.update(event_params)
       render json: EventBlueprint.render(@event), status: :ok
     else

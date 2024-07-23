@@ -5,11 +5,11 @@ RSpec.describe "Users", type: :request do
     let!(:admin) { create(:admin) }
     let!(:users) { create_list(:admin, 3) }
 
-    before { @token = authenticate admin }
+    before { @headers = { Authorization: authenticate(admin) } }
 
     describe 'GET /user' do
       it 'should list users when authenticated with admin' do
-        get '/user', headers: { Authorization: @token }
+        get '/user', headers: @headers
         data = Oj.load response.body
 
         expect(response.status).to eq 200
@@ -20,7 +20,7 @@ RSpec.describe "Users", type: :request do
 
     describe 'GET /user/1' do
       it 'should return user information when requester is admin' do
-        get "/user/#{admin.id}", headers: { Authorization: @token }
+        get "/user/#{admin.id}", headers: @headers
         data = Oj.load response.body
 
         expect(response.status).to eq 200
@@ -31,7 +31,7 @@ RSpec.describe "Users", type: :request do
 
     describe 'PUT /user/1' do
       it 'should update own user information' do
-        put "/user/#{admin.id}", headers: { Authorization: @token }, params: { name: 'Nome Alterado', email: 'email@alterado.com' }
+        put "/user/#{admin.id}", headers: @headers, params: { name: 'Nome Alterado', email: 'email@alterado.com' }
         data = Oj.load response.body
 
         expect(response.status).to eq 200
@@ -47,14 +47,14 @@ RSpec.describe "Users", type: :request do
 
     describe 'GET /user' do
       it 'should fail to list when user is not admin' do
-        get '/user', headers: { Authorization: @token }
+        get '/user', headers: @headers
         expect(response.status).to eq 401
       end
     end
 
     describe 'GET /user/1' do
       it "should show user's own information" do
-        get "/user/#{attendee.id}", headers: { Authorization: @token }
+        get "/user/#{attendee.id}", headers: @headers
         data = Oj.load response.body
 
         expect(response.status).to eq 200
@@ -65,7 +65,7 @@ RSpec.describe "Users", type: :request do
 
     describe 'PUT /user/1' do
       it 'should update oneself' do
-        put "/user/#{attendee.id}", headers: { Authorization: @token }, params: { name: 'Nome Alterado', email: 'email@alterado.com' }
+        put "/user/#{attendee.id}", headers: @headers, params: { name: 'Nome Alterado', email: 'email@alterado.com' }
         data = Oj.load response.body
 
         expect(response.status).to eq 200
@@ -75,7 +75,7 @@ RSpec.describe "Users", type: :request do
 
     describe 'DELETE /user/1' do
       it 'should delete given user' do
-        delete "/user/#{attendee.id}", headers: { Authorization: @token }
+        delete "/user/#{attendee.id}", headers: @headers
         data = Oj.load response.body
 
         expect(response.status).to eq 200
