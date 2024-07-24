@@ -1,14 +1,15 @@
 class UserController < ApplicationController
   before_action :authenticate_user, except: %i[create]
 
-  before_action :set_event, only: %i[event index update]
+  before_action :set_event, only: %i[event index show update]
   before_action :set_user, only: %i[show update destroy]
 
   before_action :set_permissions, except: %i[create]
   before_action only: %i[index] do check_permissions(%i[admin staff_leader]) end
-  before_action only: %i[event] do check_permissions(%i[admin staff]) end
   before_action only: %i[show] do check_permissions(%i[admin staff_leader self]) end
+  before_action only: %i[update] do check_permissions(%i[admin staff_leader self]) end
   before_action only: %i[destroy] do check_permissions(%i[admin self]) end
+  before_action only: %i[event] do check_permissions(%i[admin staff_leader staff]) end
 
   def index
     @users = User.all
@@ -29,7 +30,15 @@ class UserController < ApplicationController
   end
 
   def update
-    if @user.update(user_params)
+    if @permissions[:admin]
+      final_params = admin_params
+    elsif @permissions[:staff_leader]
+      final_params = staff_params
+    elsif @permissions[:self]
+      final_params = user_params
+    end
+
+    if @user.update(final_params)
       render json: UserBlueprint.render(@user), status: :ok
     else
       render json: { message: @user.errors }, status: :unprocessable_entity
@@ -38,7 +47,7 @@ class UserController < ApplicationController
 
   def destroy
     @user.destroy
-    render json: { message: 'User deleted!' }, status: :ok
+    render json: { message: 'Usuário deletado com sucesso!' }, status: :ok
   end
 
   def event
@@ -76,6 +85,15 @@ class UserController < ApplicationController
   end
 
   def user_params
+    params.permit(:id, :name, :email, :dre, :password, :cpf, :ocupation, :institution)
+  end
+
+  def admin_params
     params.permit(:id, :name, :email, :dre, :password, :cpf, :ocupation, :institution, :permissions)
+  end
+
+  def staff_params
+    filtered_permissions = params[:permissions].to_i & 0b01111
+    params.merge(permissions: filtered_permissions).permit(:permissions)
   end
 end

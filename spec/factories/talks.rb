@@ -11,6 +11,9 @@ FactoryBot.define do
       location
       type
 
+      start_date { event.start_date + 1.hour }
+      end_date { event.start_date + 2.hour }
+
       speaker { create(:speaker, event: event) } 
     end
   end

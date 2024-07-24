@@ -1,7 +1,7 @@
 class AuditController < ApplicationController
   before_action :authenticate_user
   before_action :set_event
-  before_action :staff_or_admin?
+  before_action :admin_or_staff?
 
   def search
     date = DateTime.parse(params[:date])
@@ -18,10 +18,5 @@ class AuditController < ApplicationController
 
   def set_event
     @event = Event.find_by(slug: params[:event_slug])
-  end
-
-  def staff_or_admin?
-    criteria = @current_user.admin? || (@current_user.runs_event?(@event) && (@current_user.staff? || @current_user.staff_member?))
-    render json: { message: 'Unauthorized' } unless criteria
   end
 end

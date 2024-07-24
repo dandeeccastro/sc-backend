@@ -2,9 +2,15 @@ class SpeakerController < ApplicationController
   before_action :authenticate_user
   before_action :set_event, only: %i[event create update destroy]
   before_action :set_speaker, only: %i[update destroy]
+
   before_action :admin_or_staff?, only: %i[create update destroy]
 
   after_action :log_data, only: %i[create update destroy]
+
+  def event
+    speakers = Speaker.where(event_id: @event.id)
+    render json: SpeakerBlueprint.render(speakers, view: :detailed)
+  end
 
   def create
     @speaker = Speaker.create(speaker_params)
@@ -21,11 +27,6 @@ class SpeakerController < ApplicationController
     else
       render json: { message: @peaker.errors }, status: :unprocessable_entity
     end
-  end
-
-  def event
-    speakers = Speaker.where(event_id: @event.id)
-    render json: SpeakerBlueprint.render(speakers, view: :detailed)
   end
 
   def destroy

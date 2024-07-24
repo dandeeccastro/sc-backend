@@ -1,12 +1,12 @@
 class VacanciesController < ApplicationController
   before_action :authenticate_user
 
-  before_action :set_vacancy, only: %i[show update destroy]
-  before_action :set_event, only: %i[participate destroy]
+  before_action :set_vacancy, only: %i[destroy]
+  before_action :set_event
 
   before_action :owns_vacancy?, only: %i[destroy]
-  before_action :admin_or_attendee?, only: %i[schedule create destroy]
-  before_action :admin_or_staff?, only: %i[index show update validate]
+  before_action :admin_or_attendee?, only: %i[schedule destroy]
+  before_action :admin_or_staff?, only: %i[validate]
 
   after_action :log_data, only: %i[create update destroy validate]
 
@@ -14,28 +14,6 @@ class VacanciesController < ApplicationController
     talks = Event.find_by(slug: params[:event_slug]).talks
     @vacancies = Vacancy.where(user_id: @current_user.id, talk_id: talks.map(&:id))
     render json: TalkFormatter.format_vacancies_into_schedule(@vacancies), status: :ok
-  end
-
-  def show
-    render json: VacancyBlueprint.render(@vacancy), status: :ok
-  end
-
-  def create
-    @vacancy = Vacancy.new(vacancy_params)
-
-    if @vacancy.save
-      render json: VacancyBlueprint.render(@vacancy), status: :created, location: @vacancy
-    else
-      render json: @vacancy.errors, status: :unprocessable_entity
-    end
-  end
-
-  def update
-    if @vacancy.update(vacancy_params)
-      render json: VacancyBlueprint.render(@vacancy)
-    else
-      render json: @vacancy.errors, status: :unprocessable_entity
-    end
   end
 
   def destroy
@@ -49,7 +27,6 @@ class VacanciesController < ApplicationController
     else
       vacancies_data = params[:talk_ids].map { |talk_id| { talk_id: talk_id, user_id: @current_user.id } }
       vacancies = Vacancy.create(vacancies_data)
-      vacancies.each { |v| puts v.errors.full_messages }
       render json: { 
         confirmed: VacancyBlueprint.render_as_json(vacancies.select { |v| v.valid? }),
         denied: VacancyBlueprint.render_as_json(vacancies.select { |v| v.invalid? }),
@@ -59,7 +36,7 @@ class VacanciesController < ApplicationController
 
   def validate
     talk = Talk.find(params[:talk_id])
-    if talk.start_date <= DateTime.now
+    if talk.end_date >= DateTime.now
       Vacancy.where(talk_id: params[:talk_id], user_id: params[:presence]).update_all(presence: true)
       Vacancy.where(talk_id: params[:talk_id], user_id: params[:absence]).update_all(presence: false)
       render json: { message: 'Presenças marcadas!' }, status: :ok

@@ -17,10 +17,6 @@ class TeamsController < ApplicationController
     render json: TeamBlueprint.render(@team), status: :ok
   end
 
-  def show
-    render json: TeamBlueprint.render(@team), status: :ok
-  end
-
   def create
     @team = Team.new(team_params)
 

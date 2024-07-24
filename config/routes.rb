@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   resources :user, except: %i[create]
   post '/register', to: 'user#create'
+  get '/admin', to: 'user#is_admin'
+
   post '/login', to: 'auth#login'
 
   resources :events, param: :slug, except: %i[update destroy] do
@@ -17,9 +19,9 @@ Rails.application.routes.draw do
 
   get '/events/:slug/staff', to: 'events#validate'
 
+  get '/vacancies/me', to: 'vacancies#schedule'
   post '/participate', to: 'vacancies#participate'
   post '/validate', to: 'vacancies#validate'
-  get '/vacancies/me', to: 'vacancies#schedule'
 
   resources :vacancies, only: %i[destroy]
 
@@ -30,21 +32,17 @@ Rails.application.routes.draw do
   get '/certificates', to: 'certificates#list'
   post '/certificates', to: 'certificates#emit'
 
-  resources :user, except: %i[create]
-  get '/admin', to: 'user#is_admin'
-
   resources :talks, except: %i[index]
 
   get "/teams/:slug", to: 'teams#event'
 
-  resources :teams
-  resources :vacancies, except: %i[index]
+  resources :teams, except: %i[show]
   resources :materials
   resources :events, only: %i[update destroy]
 
-  resources :speaker
+  resources :speaker, except: %i[index show]
   resources :type, except: %i[show]
-  resources :location, only: %i[index]
+  resources :location, except: %i[show]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")
