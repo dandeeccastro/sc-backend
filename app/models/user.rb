@@ -46,7 +46,7 @@ class User < ApplicationRecord
 
   def runs_event?(event)
     return false if event.nil?
-    event.team.users.find_by_id(id).present? && (staff? || staff_leader?)
+    event.team.users.find_by_id(id).present?
   end
 
   def cpf_valid?
