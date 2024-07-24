@@ -4,11 +4,11 @@ class UserController < ApplicationController
   before_action :set_event, only: %i[event index show update]
   before_action :set_user, only: %i[show update destroy]
 
-  before_action :set_permissions, except: %i[create]
+  before_action except: %i[create] do set_permissions(user_id: @user&.id) end
   before_action only: %i[index] do check_permissions(%i[admin staff_leader]) end
-  before_action only: %i[show] do check_permissions(%i[admin staff_leader self]) end
-  before_action only: %i[update] do check_permissions(%i[admin staff_leader self]) end
-  before_action only: %i[destroy] do check_permissions(%i[admin self]) end
+  before_action only: %i[show] do check_permissions(%i[admin staff_leader owns_resource]) end
+  before_action only: %i[update] do check_permissions(%i[admin staff_leader owns_resource]) end
+  before_action only: %i[destroy] do check_permissions(%i[admin owns_resource]) end
   before_action only: %i[event] do check_permissions(%i[admin staff_leader staff]) end
 
   def index
@@ -34,7 +34,7 @@ class UserController < ApplicationController
       final_params = admin_params
     elsif @permissions[:staff_leader]
       final_params = staff_params
-    elsif @permissions[:self]
+    elsif @permissions[:owns_resource]
       final_params = user_params
     end
 
@@ -60,21 +60,6 @@ class UserController < ApplicationController
   end
 
   private
-
-  def set_permissions
-    @permissions = {
-      self: @user && @current_user && @user.id == @current_user.id,
-      admin: @current_user && @current_user.admin?,
-      staff_leader: @current_user && @current_user.staff_leader? && @current_user.runs_event?(@event),
-      staff: @current_user && @current_user.staff? && @current_user.runs_event?(@event),
-    }
-  end
-
-  def check_permissions(permissions)
-    allowed = false
-    permissions.each { |permission| allowed |= @permissions[permission] }
-    render json: { message: 'Não tem permissão para executar ação!' }, status: :unauthorized unless allowed
-  end
 
   def set_user
     @user = User.find(params[:id])

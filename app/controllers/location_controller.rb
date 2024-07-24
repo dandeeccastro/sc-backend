@@ -1,7 +1,10 @@
 class LocationController < ApplicationController
   before_action :authenticate_user
   before_action :set_location, only: %i[update destroy]
-  before_action :admin_or_staff_leader_perms, only: %i[create update destroy]
+  before_action only: %i[create update destroy] do
+    set_permissions
+    check_permissions(%i[admin staff_leader_perm])
+  end
 
   def index
     locations = Location.all
@@ -38,9 +41,5 @@ class LocationController < ApplicationController
 
   def set_location
     @location = Location.find(params[:id])
-  end
-
-  def admin_or_staff_leader_perms
-    render json: { message: 'Sem permissão para criar local!' }, status: :unauthorized unless @current_user.admin? || @current_user.staff_leader?
   end
 end

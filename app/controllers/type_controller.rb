@@ -1,7 +1,8 @@
 class TypeController < ApplicationController
   before_action :authenticate_user
   before_action :set_type, only: %i[update destroy]
-  before_action :admin?, only: %i[create update destroy]
+  before_action :set_permissions, only: %i[create update destroy]
+  before_action only: %i[create update destroy] do check_permissions(%i[admin]) end
 
   def index
     types = Type.all

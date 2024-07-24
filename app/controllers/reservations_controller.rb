@@ -1,9 +1,11 @@
 class ReservationsController < ApplicationController
   before_action :authenticate_user
-  before_action :set_reservation, only: %i[show destroy update]
   before_action :set_event, only: %i[index show update create destroy]
-  before_action :admin_or_staff?, only: %i[index update]
-  before_action :superuser_or_owner?, only: %i[show destroy]
+  before_action :set_reservation, only: %i[show destroy update]
+
+  before_action do set_permissions(user_id: @reservation&.user_id) end
+  before_action only: %i[index update] do check_permissions(%i[admin staff_leader staff]) end
+  before_action only: %i[show destroy] do check_permissions(%i[admin staff_leader staff owns_resource]) end
 
   after_action :log_data, only: %i[create update destroy]
 

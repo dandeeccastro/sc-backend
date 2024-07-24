@@ -1,8 +1,12 @@
 class EventsController < ApplicationController
+  before_action :authenticate_user, only: %i[create update destroy validate]
   before_action :set_event_by_slug, only: %i[show validate]
   before_action :set_event, only: %i[update destroy]
-  before_action :authenticate_user, only: %i[create update destroy validate]
-  before_action :admin?, only: %i[create update destroy]
+
+  before_action only: %i[create update destroy] do
+    set_permissions
+    check_permissions(%i[admin])
+  end
 
   def index
     @events = Event.all

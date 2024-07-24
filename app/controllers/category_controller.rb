@@ -2,7 +2,10 @@ class CategoryController < ApplicationController
   before_action :authenticate_user
   before_action :set_event
   before_action :set_category, only: %i[update]
-  before_action :admin_or_staff?, only: %i[create update destroy]
+  before_action only: %i[create update destroy] do
+    set_permissions
+    check_permissions(%i[admin staff_leader staff])
+  end
 
   def index
     categories = Category.where(event_id: @event.id)

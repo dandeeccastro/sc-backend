@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::API
   include Authenticable
   include Loggable
+  include Permissions
 
   wrap_parameters false
   attr_reader :current_user

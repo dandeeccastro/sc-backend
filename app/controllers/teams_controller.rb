@@ -3,9 +3,10 @@ class TeamsController < ApplicationController
   before_action :set_team, only: %i[show update destroy]
   before_action :set_event_by_slug, only: %i[event update]
 
-  before_action :admin?, only: %i[index create destroy]
-  before_action :admin_or_staff_leader?, only: %i[update]
-  before_action :admin_or_staff?, only: %i[show event]
+  before_action :set_permissions
+  before_action only: %i[index create destroy] do check_permissions(%i[admin]) end
+  before_action only: %i[update] do check_permissions(%i[admin staff_leader]) end
+  before_action only: %i[show event] do check_permissions(%i[admin staff_leader staff]) end
 
   def index
     @teams = Team.all

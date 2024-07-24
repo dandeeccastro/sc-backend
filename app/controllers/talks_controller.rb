@@ -2,7 +2,9 @@ class TalksController < ApplicationController
   before_action :authenticate_user, only: %i[create update destroy status]
   before_action :set_talk, only: %i[show update destroy rate status staff_show]
   before_action :set_event, only: %i[index create destroy update]
-  before_action :authorized?, only: %i[create update destroy]
+
+  before_action :set_permissions, only: %i[index create update destroy]
+  before_action only: %i[create update destroy] do check_permissions(%i[admin staff_leader staff]) end
 
   def index
     talks = Talk.where(event_id: @event.id)

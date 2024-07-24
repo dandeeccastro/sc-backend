@@ -1,7 +1,9 @@
 class AuditController < ApplicationController
   before_action :authenticate_user
   before_action :set_event
-  before_action :admin_or_staff?
+
+  before_action :set_permissions
+  before_action do check_permissions(%i[admin staff_leader staff]) end
 
   def search
     date = DateTime.parse(params[:date])

@@ -1,8 +1,11 @@
 class CertificatesController < ActionController::Base
   include Authenticable
   include Loggable
+  include Permissions
 
   before_action :authenticate_user
+  before_action :set_event
+  before_action :set_permissions, only: %i[emit]
   before_action :set_variables
 
   after_action :log_data, only: %i[emit]
@@ -40,16 +43,19 @@ class CertificatesController < ActionController::Base
 
   private
 
-  def set_variables
+  def set_event
     @event = Event.find_by(slug: params[:event_slug])
+  end
+
+  def set_variables
     case params[:emit_from]
     when 'myself'
       @finder = CertificateFinder.new(user: @current_user, criteria: 'myself')
     when 'event'
-      admin_or_staff?
+      check_permissions(%i[admin staff_leader staff])
       @finder = CertificateFinder.new(event: @event, criteria: 'event')
     when 'user'
-      admin_or_staff?
+      check_permissions(%i[admin staff_leader staff])
       @user = User.find(params[:user_id])
       @finder = CertificateFinder.new(user: @user, event: @event, criteria: 'user')
     else
@@ -86,10 +92,5 @@ class CertificatesController < ActionController::Base
       idx += 1
     end
     attachments
-  end
-
-  def admin_or_staff?
-    criteria = @current_user.admin? || (@current_user.runs_event?(@event) && (@current_user.staff? || @current_user.staff_leader?))
-    render json: { message: 'Unauthorized' } unless criteria
   end
 end
