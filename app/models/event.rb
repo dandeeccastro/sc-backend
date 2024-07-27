@@ -29,6 +29,6 @@ class Event < ApplicationRecord
 
   def set_defaults
     self.slug = name.parameterize if slug.blank?
-    self.team = Team.create(event_id: id) if team_id.blank?
+    self.team_id = Team.create(event_id: id).id if team_id.blank?
   end
 end
