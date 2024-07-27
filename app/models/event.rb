@@ -1,7 +1,8 @@
 class Event < ApplicationRecord
   validate :invalidates_talks
 
-  before_save :set_defaults
+  before_save :set_slug
+  after_save :set_team
 
   validates :name, uniqueness: true
   validates :slug, uniqueness: true
@@ -27,8 +28,11 @@ class Event < ApplicationRecord
 
   private
 
-  def set_defaults
+  def set_slug
     self.slug = name.parameterize if slug.blank?
-    self.team_id = Team.create(event_id: id).id if team_id.blank?
+  end
+
+  def set_team
+    self.team = Team.create(event_id: id) if team_id.blank?
   end
 end
