@@ -47,7 +47,7 @@ class NotificationsController < ApplicationController
   end
 
   def notification_params
-    params.merge(user_id: @current_user.id).permit(:description, :user_id, :event_id, :talk_id, :title)
+    params.merge(user_id: @current_user.id, event_id: @event.id).permit(:description, :user_id, :event_id, :talk_id, :title)
   end
 
   def set_event

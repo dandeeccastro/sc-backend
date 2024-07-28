@@ -4,7 +4,7 @@ class TalksController < ApplicationController
   before_action :set_event, only: %i[index create destroy update]
 
   before_action :set_permissions, only: %i[index create update destroy]
-  before_action only: %i[create update destroy] do check_permissions(%i[admin staff_leader staff]) end
+  before_action only: %i[create update destroy staff_show] do check_permissions(%i[admin staff_leader staff]) end
 
   def index
     talks = Talk.where(event_id: @event.id)
@@ -43,13 +43,18 @@ class TalksController < ApplicationController
   end
 
   def rate
-    rating = Rating.find_by(user_id: @current_user.id, talk_id: @talk.id)
-    if rating
-      rating.update(score: params[:score])
-      render json: { message: 'Avaliação atualizada!' }, status: :ok
+    was_present = Vacancy.where(user_id: @current_user.id, talk_id: @talk.id, presence: true).exists?
+    if was_present
+      rating = Rating.find_by(user_id: @current_user.id, talk_id: @talk.id)
+      if rating
+        rating.update(score: params[:score])
+        render json: { message: 'Avaliação atualizada!' }, status: :ok
+      else
+        Rating.create(score: params[:score], user_id: @current_user.id, talk_id: @talk.id)
+        render json: { message: 'Avaliação registrada!' }, status: :ok
+      end
     else
-      Rating.create(score: params[:score], user_id: @current_user.id, talk_id: @talk.id)
-      render json: { message: 'Avaliação registrada!' }, status: :ok
+      render json: { message: 'Não pode avaliar palestra que não participou' }, status: :unprocessable_entity
     end
   end
 
@@ -76,10 +81,5 @@ class TalksController < ApplicationController
 
   def talk_params
     params.permit(:id, :title, :description, :start_date, :end_date, :vacancy_limit, :event_id, :location_id, :speaker_id, :type_id, category_ids: [])
-  end
-
-  def authorized?
-    criteria = @current_user.admin? || (@current_user.runs_event?(@event) && (@current_user.staff? || @current_user.staff_leader?))
-    render json: { message: 'Unauthorized' }, status: :unauthorized unless criteria
   end
 end

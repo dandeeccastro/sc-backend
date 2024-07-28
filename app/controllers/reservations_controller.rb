@@ -53,13 +53,4 @@ class ReservationsController < ApplicationController
   def reservation_params
     params.permit(:user_id, :merch_id, :delivered, :amount, options: {})
   end
-
-  def event
-    Event.find(params[:event_id])
-  end
-
-  def superuser_or_owner?
-    criteria = @current_user.admin? || (@current_user.runs_event?(@event) && (@current_user.staff? || @current_user.staff_leader?))
-    render json: { message: 'Unauthorized' }, status: :unauthorized unless criteria || @current_user.id == @reservation.user_id
-  end
 end

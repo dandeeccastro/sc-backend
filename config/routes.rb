@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  mount Rswag::Ui::Engine => '/api-docs'
+  mount Rswag::Api::Engine => '/api-docs'
   resources :user, except: %i[create]
   post '/register', to: 'user#create'
   get '/admin', to: 'user#is_admin'
@@ -9,7 +11,7 @@ Rails.application.routes.draw do
     resources :merches 
     resources :notifications
     resources :reservations
-    resources :category, only: %i[index create update destroy]
+    resources :category, except: %i[show]
 
     resources :talks, only: %i[index]
     get '/speakers', to: 'speaker#event'
@@ -37,7 +39,6 @@ Rails.application.routes.draw do
   get "/teams/:slug", to: 'teams#event'
 
   resources :teams, except: %i[show]
-  resources :materials
   resources :events, only: %i[update destroy]
 
   resources :speaker, except: %i[index show]
