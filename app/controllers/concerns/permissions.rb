@@ -1,12 +1,12 @@
 module Permissions
   def set_permissions(user_id:nil)
     @permissions = {
-      admin: @current_user.admin?,
-      staff_leader: @current_user.staff_leader? && @current_user.runs_event?(@event),
-      staff_leader_perm: @current_user.staff_leader?,
-      staff: @current_user.staff? && @current_user.runs_event?(@event),
-      owns_resource: @current_user.id == user_id,
-      attendee: @current_user.attendee?,
+      admin: @current_user && @current_user.admin?,
+      staff_leader: @current_user && @current_user.staff_leader? && @current_user.runs_event?(@event),
+      staff_leader_perm: @current_user && @current_user.staff_leader?,
+      staff: @current_user && @current_user.staff? && @current_user.runs_event?(@event),
+      owns_resource: @current_user && @current_user.id == user_id,
+      attendee: @current_user && @current_user.attendee?,
     }
   end
 

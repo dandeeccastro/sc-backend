@@ -9,7 +9,6 @@ class TalkBlueprint < Blueprinter::Base
   association :speaker, blueprint: SpeakerBlueprint, view: :detailed
 
   view :detailed do
-    fields :description
     field :rating do |talk| talk.rating end
     field :vacancy_count do |talk| talk.users.count end
   end

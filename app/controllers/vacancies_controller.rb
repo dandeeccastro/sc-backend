@@ -53,7 +53,11 @@ class VacanciesController < ApplicationController
   end
 
   def set_event
-    @event = Event.find_by(slug: params[:event_slug])
+    if params[:event_slug]
+      @event = Event.find_by(slug: params[:event_slug])
+    elsif params[:talk_id]
+      @event = Event.find(Talk.find(params[:talk_id]).event_id)
+    end
   end
 
   def vacancy_params
