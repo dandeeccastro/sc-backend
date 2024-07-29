@@ -3,10 +3,10 @@ class CertificatesController < ActionController::Base
   include Loggable
   include Permissions
 
-  before_action :authenticate_user
+  before_action :authenticate_user, except: %i[debug]
   before_action :set_event
   before_action :set_permissions, only: %i[emit]
-  before_action :set_variables
+  before_action :set_variables, except: %i[debug]
 
   after_action :log_data, only: %i[emit]
 
@@ -35,6 +35,24 @@ class CertificatesController < ActionController::Base
       ).certificate_email.deliver_now
     end
     render json: { message: 'Certificados emitidos com sucesso!' }, status: :ok
+  end
+
+  def debug
+    @event = Event.find_by(slug: params[:slug])
+    @current_user = User.find(1)
+    locals = {
+      event: @event,
+      user: @current_user,
+      email: @current_user.email,
+      type: :talk_participation,
+      title: "Certificado de Participação no evento #{@event.name}",
+      receiver: @current_user.name,
+      reason: @event.name,
+      dre: @current_user.dre,
+      hours: 4
+    }
+
+    render :event, locals: locals
   end
 
   def event; end
@@ -88,7 +106,7 @@ class CertificatesController < ActionController::Base
       when :staff_participation
         pdf_data = render_to_string :staff, locals: cert
       end
-      attachments["Certificado #{idx}.pdf"] = WickedPdf.new.pdf_from_string(pdf_data, { orientation: 'Landscape' })
+      attachments["Certificado #{idx}.pdf"] = WickedPdf.new.pdf_from_string(pdf_data, { orientation: 'Landscape', background: true })
       idx += 1
     end
     attachments

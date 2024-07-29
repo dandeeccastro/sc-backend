@@ -38,6 +38,8 @@ Rails.application.routes.draw do
 
   get "/teams/:slug", to: 'teams#event'
 
+  get '/debug/:slug', to: 'certificates#debug'
+
   resources :teams, except: %i[show]
   resources :events, only: %i[update destroy]
 

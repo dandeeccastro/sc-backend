@@ -12,6 +12,7 @@ class Event < ApplicationRecord
   has_one :team, dependent: :destroy
 
   has_one_attached :banner
+  has_one_attached :cert_background
 
   def invalidates_talks
     talks = Talk.where(event_id: id).where('start_date < :start_date OR end_date > :end_date', { start_date: start_date, end_date: end_date })
@@ -24,6 +25,10 @@ class Event < ApplicationRecord
 
   def banner_url
     banner.attached? ? Rails.application.routes.url_helpers.rails_blob_path(banner, only_path: true) : ''
+  end
+
+  def cert_background_url
+    cert_background.attached? ? ActiveStorage::Blob.service.path_for(cert_background.key) : ''
   end
 
   private

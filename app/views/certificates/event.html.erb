@@ -1,3 +1,25 @@
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<h1><%= title %></h1>
-<p>Declaro por meio deste a participação de <%= receiver %>, DRE <%= dre %>, da participação no evento <%= reason %></p>
+<style lang='css'>
+h1, p {
+  color: black;
+}
+
+div {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-image: url('file://<%= event.cert_background_url %>')
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+</style>
+<div>
+  <h1><%= title %></h1>
+  <p>Declaro por meio deste a participação de <%= receiver %>, DRE <%= dre %>, da participação no evento <%= reason %></p>
+</div>
