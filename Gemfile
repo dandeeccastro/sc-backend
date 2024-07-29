@@ -44,6 +44,7 @@ gem 'jwt'
 # PDF Generation
 gem 'wicked_pdf'
 gem 'wkhtmltopdf-binary'
+gem 'sprockets-rails', :require => 'sprockets/railtie'
 
 gem 'cpf_cnpj'
 

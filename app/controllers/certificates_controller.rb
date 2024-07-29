@@ -106,7 +106,19 @@ class CertificatesController < ActionController::Base
       when :staff_participation
         pdf_data = render_to_string :staff, locals: cert
       end
-      attachments["Certificado #{idx}.pdf"] = WickedPdf.new.pdf_from_string(pdf_data, { orientation: 'Landscape', background: true })
+      attachments["Certificado #{idx}.pdf"] = WickedPdf.new.pdf_from_string(pdf_data, {
+        orientation: 'Landscape',
+        page_size: 'A4',
+        margin: {
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+        },
+        # page_width: 1920,
+        # page_height: 1080,
+        background: true
+      })
       idx += 1
     end
     attachments
