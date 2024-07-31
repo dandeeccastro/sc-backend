@@ -5,7 +5,20 @@
 #
 #   movies = Movie.create([{ name: "Star Wars" }, { name: "Lord of the Rings" }])
 #   Character.create(name: "Luke", movie: movies.first)
-event = Event.create(name: 'Semana da Computação', start_date: DateTime.now, end_date: 2.weeks.from_now, registration_start_date: DateTime.now)
+User.create(
+  name: 'Administrador',
+  email: 'admin@ic.ufrj.br',
+  password: 'senha123',
+  permissions: User::ADMIN,
+  cpf: '316.643.966-83',
+)
+
+event = Event.create(
+  name: 'Semana da Computação',
+  start_date: DateTime.now,
+  end_date: 2.weeks.from_now,
+  registration_start_date: DateTime.now
+)
 
 locations = Location.create([
   { name: 'Roxinho' },
@@ -27,9 +40,7 @@ categories = Category.create([
 ])
 
 speakers = Speaker.create([
-  { name: 'Dr C Mohan', bio: 'Um doutor muito importante', email: 'c.mohan@mohan', event: event },
-  { name: 'Linus Torvalds', bio: 'Um desenvolvedor muito bom', email: 'linus.torvalds@linux.org', event: event },
-  { name: 'Satoshi Nakamoto', bio: 'O cara que criou bitcoin', email: 'satoshi@anon.com', event: event },
+  { name: 'Dr C Mohan', bio: 'Especialista em criptomoedas e smart contracts, Dr C. Mohan é conhecido por sua contribuição para o Ethereum.', email: 'c.mohan@mohan', event: event },
 ])
 
 Talk.create([
