@@ -6,7 +6,6 @@ class Talk < ApplicationRecord
 
   belongs_to :event
   belongs_to :location
-  belongs_to :speaker
   belongs_to :type
 
   has_many :materials
@@ -14,6 +13,8 @@ class Talk < ApplicationRecord
   has_many :users, through: :vacancies
   has_many :ratings
   has_many :notifications, dependent: :destroy
+
+  has_and_belongs_to_many :speakers
   has_and_belongs_to_many :categories
 
   def rating
