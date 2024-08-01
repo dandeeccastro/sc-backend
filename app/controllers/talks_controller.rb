@@ -80,6 +80,6 @@ class TalksController < ApplicationController
   end
 
   def talk_params
-    params.permit(:id, :title, :description, :start_date, :end_date, :vacancy_limit, :event_id, :location_id, :speaker_ids, :type_id, category_ids: [])
+    params.permit(:id, :title, :description, :start_date, :end_date, :vacancy_limit, :event_id, :location_id, speaker_ids: [], :type_id, category_ids: [])
   end
 end
