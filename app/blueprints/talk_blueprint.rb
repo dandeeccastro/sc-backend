@@ -1,6 +1,20 @@
 class TalkBlueprint < Blueprinter::Base
-  fields :title, :description, :start_date, :end_date
+  identifier :id
+  fields :title, :start_date, :end_date, :description, :vacancy_limit
+  field :participants do |talk| talk.participants end
 
-  association :event, blueprint: EventBlueprint
+  association :type, blueprint: TypeBlueprint
+  association :categories, blueprint: CategoryBlueprint
   association :location, blueprint: LocationBlueprint
+  association :speaker, blueprint: SpeakerBlueprint, view: :detailed
+
+  view :detailed do
+    field :rating do |talk| talk.rating end
+    field :vacancy_count do |talk| talk.users.count end
+  end
+
+  view :staff do
+    include_view :detailed
+    field :users do |talk| UserBlueprint.render_as_hash(talk.users) end
+  end
 end

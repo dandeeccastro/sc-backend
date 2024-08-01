@@ -1,5 +1,6 @@
 class MerchBlueprint < Blueprinter::Base
-  fields :name, :price
+  identifier :id
+  fields :name, :price, :stock, :custom_fields
 
-  association :event, blueprint: EventBlueprint
+  field :image_url do |merch| merch.image_url end
 end

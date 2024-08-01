@@ -19,8 +19,10 @@ class User < ApplicationRecord
 
   # Attendee
   has_many :talks, through: :vacancies
+  has_many :vacancies
 
   has_many :merches, through: :reservations
+  has_many :ratings
 
   def admin?
     (permissions & ADMIN).positive?
@@ -43,7 +45,8 @@ class User < ApplicationRecord
   end
 
   def runs_event?(event)
-    event.team.users.find_by_id(id)
+    return false if event.nil?
+    event.team.users.find_by_id(id).present?
   end
 
   def cpf_valid?

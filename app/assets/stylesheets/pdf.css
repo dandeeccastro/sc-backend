@@ -1,0 +1,26 @@
+h1, p {
+  color: black;
+}
+
+h1 {
+  position: relative;
+  top: 40%;
+  left: 10%;
+}
+
+p {
+  position: relative;
+  top: 40%;
+  left: 10%;
+}
+
+body {
+  width: 297mm;
+  height: 210mm;
+  margin: 0;
+  padding: 0;
+  page-break-before: always;
+  page-break-inside: avoid;
+  page-break-after: always;
+}
+

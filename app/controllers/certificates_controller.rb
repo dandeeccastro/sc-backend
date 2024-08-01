@@ -1,19 +1,58 @@
 class CertificatesController < ActionController::Base
+  include Authenticable
+  include Loggable
+  include Permissions
+
+  before_action :authenticate_user, except: %i[debug]
+  before_action :set_event
+  before_action :set_permissions, only: %i[emit]
+  before_action :set_variables, except: %i[debug]
+
+  after_action :log_data, only: %i[emit]
+
   def list
-    finder = CertificateFinder.new(user_id: params[:user_id], event_id: params[:event_id])
-    certificates = finder.all
+    certificates = @finder.find
     render json: certificates, status: :ok
   end
 
   def emit
-    finder = CertificateFinder.new(user_id: params[:user_id], event_id: params[:event_id])
-    certificates = finder.all
-    attachments = generate_certificate_files certificates
-    CertificateMailer.with(
-      event: Event.find(params[:event_id]),
-      user: User.find(params[:user_id]),
-      attachments: attachments
-    ).certificate_email.deliver_now
+    certificates = @finder.find
+    attachments = generate_certificate_files(certificates)
+    case params[:emit_from]
+    when 'event'
+      emit_event(certificates)
+    when 'user'
+      CertificateMailer.with(
+        event: @event,
+        user: @user,
+        attachments: attachments
+      ).certificate_email.deliver_now
+    when 'myself'
+      CertificateMailer.with(
+        event: @event,
+        user: @current_user,
+        attachments: attachments
+      ).certificate_email.deliver_now
+    end
+    render json: { message: 'Certificados emitidos com sucesso!' }, status: :ok
+  end
+
+  def debug
+    @event = Event.find_by(slug: params[:slug])
+    @current_user = User.find(1)
+    locals = {
+      event: @event,
+      user: @current_user,
+      email: @current_user.email,
+      type: :talk_participation,
+      title: "Certificado de Participação no evento #{@event.name}",
+      receiver: @current_user.name,
+      reason: @event.name,
+      dre: @current_user.dre,
+      hours: 4
+    }
+
+    render :event, locals: locals
   end
 
   def event; end
@@ -22,9 +61,37 @@ class CertificatesController < ActionController::Base
 
   private
 
-  def set_variables_from_params
-    @event = Event.find(params[:event_id])
-    @user = User.find(params[:user_id])
+  def set_event
+    @event = Event.find_by(slug: params[:event_slug])
+  end
+
+  def set_variables
+    case params[:emit_from]
+    when 'myself'
+      @finder = CertificateFinder.new(user: @current_user, criteria: 'myself')
+    when 'event'
+      check_permissions(%i[admin staff_leader staff])
+      @finder = CertificateFinder.new(event: @event, criteria: 'event')
+    when 'user'
+      check_permissions(%i[admin staff_leader staff])
+      @user = User.find(params[:user_id])
+      @finder = CertificateFinder.new(user: @user, event: @event, criteria: 'user')
+    else
+      render json: { message: 'Parâmetro emit_from inválido!' }, status: :unprocessable_entity
+    end
+  end
+
+  def emit_event(certificates)
+    email_to_cert = Hash[certificates.map{|c|c[:email]}.uniq.collect{|c| [c,[]]}]
+    certificates.each { |cert| email_to_cert[cert[:email]] << cert }
+    email_to_cert.each do |email, cert|
+      attachments = generate_certificate_files(cert)
+      CertificateMailer.with(
+        event: cert.first[:event],
+        user: cert.first[:user],
+        attachments: attachments
+      ).certificate_email.deliver_now
+    end
   end
 
   def generate_certificate_files(certificate_data)
@@ -39,7 +106,19 @@ class CertificatesController < ActionController::Base
       when :staff_participation
         pdf_data = render_to_string :staff, locals: cert
       end
-      attachments["Certificado #{idx}.pdf"] = WickedPdf.new.pdf_from_string(pdf_data)
+      attachments["Certificado #{idx}.pdf"] = WickedPdf.new.pdf_from_string(pdf_data, {
+        orientation: 'Landscape',
+        page_size: 'A4',
+        margin: {
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+        },
+        # page_width: 1920,
+        # page_height: 1080,
+        background: true
+      })
       idx += 1
     end
     attachments

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_06_15_154152) do
+ActiveRecord::Schema[7.0].define(version: 2024_07_03_013858) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -39,6 +39,13 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_15_154152) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "categories", force: :cascade do |t|
+    t.string "name"
+    t.string "color"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "events", force: :cascade do |t|
     t.string "name"
     t.integer "team_id"
@@ -47,6 +54,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_15_154152) do
     t.string "slug"
     t.datetime "start_date"
     t.datetime "end_date"
+    t.datetime "registration_start_date"
     t.index ["team_id"], name: "index_events_on_team_id"
   end
 
@@ -70,6 +78,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_15_154152) do
     t.integer "event_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "stock"
     t.index ["event_id"], name: "index_merches_on_event_id"
   end
 
@@ -80,9 +89,20 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_15_154152) do
     t.integer "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "title"
     t.index ["event_id"], name: "index_notifications_on_event_id"
     t.index ["talk_id"], name: "index_notifications_on_talk_id"
     t.index ["user_id"], name: "index_notifications_on_user_id"
+  end
+
+  create_table "ratings", force: :cascade do |t|
+    t.integer "score"
+    t.integer "user_id", null: false
+    t.integer "talk_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["talk_id"], name: "index_ratings_on_talk_id"
+    t.index ["user_id"], name: "index_ratings_on_user_id"
   end
 
   create_table "reservations", force: :cascade do |t|
@@ -92,6 +112,13 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_15_154152) do
     t.datetime "updated_at", null: false
     t.index ["merch_id"], name: "index_reservations_on_merch_id"
     t.index ["user_id"], name: "index_reservations_on_user_id"
+  end
+
+  create_table "speakers", force: :cascade do |t|
+    t.string "name"
+    t.text "bio"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "talks", force: :cascade do |t|
@@ -104,8 +131,14 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_15_154152) do
     t.integer "location_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "speaker_id"
+    t.integer "type_id"
+    t.integer "category_id"
+    t.index ["category_id"], name: "index_talks_on_category_id"
     t.index ["event_id"], name: "index_talks_on_event_id"
     t.index ["location_id"], name: "index_talks_on_location_id"
+    t.index ["speaker_id"], name: "index_talks_on_speaker_id"
+    t.index ["type_id"], name: "index_talks_on_type_id"
   end
 
   create_table "teams", force: :cascade do |t|
@@ -124,6 +157,13 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_15_154152) do
     t.index ["user_id"], name: "index_teams_users_on_user_id"
   end
 
+  create_table "types", force: :cascade do |t|
+    t.string "name"
+    t.string "color"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "name"
     t.string "email"
@@ -136,6 +176,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_15_154152) do
     t.datetime "updated_at", null: false
     t.integer "role", default: 1
     t.string "cpf"
+    t.string "ocupation"
+    t.string "institution"
     t.index ["talk_id"], name: "index_users_on_talk_id"
     t.index ["team_id"], name: "index_users_on_team_id"
   end
@@ -158,10 +200,15 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_15_154152) do
   add_foreign_key "notifications", "events"
   add_foreign_key "notifications", "talks"
   add_foreign_key "notifications", "users"
+  add_foreign_key "ratings", "talks"
+  add_foreign_key "ratings", "users"
   add_foreign_key "reservations", "merches"
   add_foreign_key "reservations", "users"
+  add_foreign_key "talks", "categories"
   add_foreign_key "talks", "events"
   add_foreign_key "talks", "locations"
+  add_foreign_key "talks", "speakers"
+  add_foreign_key "talks", "types"
   add_foreign_key "teams", "events"
   add_foreign_key "users", "talks"
   add_foreign_key "users", "teams"

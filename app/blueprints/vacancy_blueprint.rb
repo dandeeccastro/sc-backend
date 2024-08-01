@@ -1,5 +1,9 @@
 class VacancyBlueprint < Blueprinter::Base
-  fields :presence
-  association :user, blueprint: UserBlueprint
+  identifier :id
   association :talk, blueprint: TalkBlueprint
+
+  view :staff do
+    fields :presence
+    association :user, blueprint: UserBlueprint
+  end
 end

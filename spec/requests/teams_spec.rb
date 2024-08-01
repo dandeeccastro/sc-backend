@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe '/teams', type: :request do
   context 'as an admin' do
     let!(:admin) { create(:admin) }
-    let!(:team) { create(:team) }
+    let!(:event) { create(:event) }
     let!(:staffs) { create_list(:staff, 3) }
 
     before { @token = authenticate admin }
@@ -18,9 +18,9 @@ RSpec.describe '/teams', type: :request do
       end
     end
 
-    describe 'GET /teams/1' do
-      it 'should show a given team' do
-        get "/teams/#{team.id}", headers: { Authorization: @token }
+    describe 'GET /teams/slug' do
+      it 'should show a team from an event' do
+        get "/teams/#{event.slug}", headers: { Authorization: @token }
         data = Oj.load response.body
 
         expect(response).to be_successful
@@ -40,7 +40,7 @@ RSpec.describe '/teams', type: :request do
 
     describe 'PUT /team/1' do
       it 'should update an existing team' do
-        put "/teams/#{team.id}", headers: { Authorization: @token }, params: { user_ids: staffs.map(&:id) }
+        put "/teams/#{event.team.id}", headers: { Authorization: @token }, params: { slug: event.slug, user_ids: staffs.map(&:id) }
         data = Oj.load response.body
 
         expect(response.status).to eq 201
@@ -51,7 +51,7 @@ RSpec.describe '/teams', type: :request do
 
     describe 'DELETE /team/1' do
       it 'should delete a team' do
-        delete "/teams/#{team.id}", headers: { Authorization: @token }
+        delete "/teams/#{event.team.id}", headers: { Authorization: @token }
         data = Oj.load response.body
         expect(response.status).to eq 200
         expect(data).to have_key 'message'
@@ -62,10 +62,12 @@ RSpec.describe '/teams', type: :request do
   context 'as a staff leader' do
     let!(:event) { create(:event) }
     let!(:staff) { create(:staff_leader) }
-    let!(:team) { create(:team, users: [staff], event: event) }
     let!(:staffs) { create_list(:staff, 3) }
 
-    before { @token = authenticate staff }
+    before do 
+      event.team.update users: [staff]
+      @token = authenticate staff 
+    end
 
     describe 'GET /teams' do
       it 'should fail to show all teams' do
@@ -74,12 +76,12 @@ RSpec.describe '/teams', type: :request do
       end
     end
 
-    describe 'GET /teams/1' do
+    describe 'GET /teams/slug' do
       it 'should show a given team' do
-        get "/teams/#{team.id}", headers: { Authorization: @token }
+        get "/teams/#{event.slug}", headers: { Authorization: @token }
         data = Oj.load response.body
 
-        expect(response).to be_successful
+        expect(response).to have_http_status(:ok)
         expect(data).to have_key 'users'
       end
     end
@@ -93,7 +95,7 @@ RSpec.describe '/teams', type: :request do
 
     describe 'PUT /team/1' do
       it 'should update an existing team' do
-        put "/teams/#{team.id}", headers: { Authorization: @token }, params: { user_ids: staffs.map(&:id) }
+        put "/teams/#{event.team.id}", headers: { Authorization: @token }, params: { slug: event.slug, user_ids: staffs.map(&:id) }
         data = Oj.load response.body
 
         expect(response.status).to eq 201
@@ -103,7 +105,7 @@ RSpec.describe '/teams', type: :request do
 
     describe 'DELETE /team/1' do
       it 'should delete a team' do
-        delete "/teams/#{team.id}", headers: { Authorization: @token }
+        delete "/teams/#{event.team.id}", headers: { Authorization: @token }
         expect(response.status).to eq 401
       end
     end
@@ -111,7 +113,7 @@ RSpec.describe '/teams', type: :request do
 
   context 'unauthenticated' do
     let!(:staff) { create(:staff) }
-    let!(:team) { create(:team) }
+    let!(:event) { create(:event) }
     let!(:staffs) { create_list(:staff, 3) }
 
     before { @token = authenticate staff }
@@ -123,9 +125,9 @@ RSpec.describe '/teams', type: :request do
       end
     end
 
-    describe 'GET /teams/1' do
+    describe 'GET /teams/slug' do
       it 'should show a given team' do
-        get "/teams/#{team.id}", headers: { Authorization: @token }
+        get "/teams/#{event.slug}", headers: { Authorization: @token }
         expect(response.status).to eq 401
       end
     end
@@ -139,14 +141,14 @@ RSpec.describe '/teams', type: :request do
 
     describe 'PUT /team/1' do
       it 'should update an existing team' do
-        put "/teams/#{team.id}", headers: { Authorization: @token }, params: { user_ids: staffs.map(&:id) }
+        put "/teams/#{event.team.id}", headers: { Authorization: @token }, params: { slug: event.slug, user_ids: staffs.map(&:id) }
         expect(response.status).to eq 401
       end
     end
 
     describe 'DELETE /team/1' do
       it 'should delete a team' do
-        delete "/teams/#{team.id}", headers: { Authorization: @token }
+        delete "/teams/#{event.team.id}", headers: { Authorization: @token }
         expect(response.status).to eq 401
       end
     end

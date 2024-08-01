@@ -1,4 +1,8 @@
 class NotificationBlueprint < Blueprinter::Base
-  fields :description
-  association :user, blueprint: UserBlueprint
+  identifier :id
+  fields :description, :created_at, :title
+
+  view :detailed do
+    association :talk, blueprint: TalkBlueprint
+  end
 end

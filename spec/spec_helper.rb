@@ -14,6 +14,7 @@
 #
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 require './spec/support/requests/authenticator'
+require 'rails_helper'
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate

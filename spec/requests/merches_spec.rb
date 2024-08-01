@@ -1,17 +1,19 @@
 require 'rails_helper'
 
-RSpec.describe '/merches', type: :request do
+RSpec.describe "Merches", type: :request do
   context 'as staff leader' do
     let!(:staff) { create(:staff_leader) }
     let!(:event) { create(:event) }
-    let!(:team) { create(:team, event: event, users: [staff]) }
-    let!(:merches) { create_list(:merch, 3) }
+    let!(:merches) { create_list(:merch, 3, event: event) }
 
-    before { @token = authenticate staff }
+    before do 
+      event.team.update(users: [staff])
+      @headers = { Authorization: authenticate(staff) }
+    end
 
     describe 'GET /merches' do
       it 'should get all merches' do
-        get '/merches', headers: { Authorization: @token }
+        get "/events/#{event.slug}/merches", headers: @headers
         data = Oj.load response.body
 
         expect(response.status).to eq 200
@@ -21,7 +23,7 @@ RSpec.describe '/merches', type: :request do
 
     describe 'GET /merches/1' do
       it 'should show a single merch' do
-        get "/merches/#{merches.first.id}", headers: { Authorization: @token }
+        get "/events/#{event.slug}/merches/#{merches.first.id}", headers: @headers
         data = Oj.load response.body
 
         expect(data).to have_key 'name'
@@ -31,7 +33,7 @@ RSpec.describe '/merches', type: :request do
 
     describe 'POST /merches' do
       it 'should create a new merch' do
-        post '/merches', headers: { Authorization: @token }, params: { name: 'Example Merch', price: 9999, event_id: event.id }
+        post "/events/#{event.slug}/merches", headers: @headers, params: { name: 'Example Merch', price: 9999, event_id: event.id }
         data = Oj.load response.body
 
         expect(response.status).to eq 201
@@ -42,7 +44,7 @@ RSpec.describe '/merches', type: :request do
 
     describe 'PUT /merches/1' do
       it 'should update existing merch' do
-        put '/merches/1', headers: { Authorization: @token }, params: { price: 1999, event_id: event.id }
+        put "/events/#{event.slug}/merches/#{merches[0].id}", headers: @headers, params: { price: 1999, event_id: event.id }
         data = Oj.load response.body
 
         expect(response.status).to eq 200
@@ -53,7 +55,7 @@ RSpec.describe '/merches', type: :request do
 
     describe 'DELETE /merches/1' do
       it 'should delete a merch' do
-        delete '/merches/1', headers: { Authorization: @token }, params: { event_id: event.id }
+        delete "/events/#{event.slug}/merches/#{merches[0].id}", headers: @headers, params: { event_id: event.id }
         data = Oj.load response.body
 
         expect(response.status).to eq 200
@@ -66,13 +68,13 @@ RSpec.describe '/merches', type: :request do
     let!(:attendee) { create(:attendee) }
     let!(:event) { create(:event) }
     let!(:team) { create(:team, event: event) }
-    let!(:merches) { create_list(:merch, 3) }
+    let!(:merches) { create_list(:merch, 3, event: event) }
 
     before { @token = authenticate attendee }
 
     describe 'GET /merches' do
       it 'should get all merches' do
-        get '/merches', headers: { Authorization: @token }
+        get "/events/#{event.slug}/merches", headers: @headers
         data = Oj.load response.body
 
         expect(response.status).to eq 200
@@ -82,7 +84,7 @@ RSpec.describe '/merches', type: :request do
 
     describe 'GET /merches/1' do
       it 'should show a single merch' do
-        get "/merches/#{merches.first.id}", headers: { Authorization: @token }
+        get "/events/#{event.slug}/merches/#{merches.first.id}", headers: @headers
         data = Oj.load response.body
 
         expect(data).to have_key 'name'
@@ -92,7 +94,7 @@ RSpec.describe '/merches', type: :request do
 
     describe 'POST /merches' do
       it 'should not authorize to create a new merch' do
-        post '/merches', headers: { Authorization: @token }, params: { name: 'Example Merch', price: 9999, event_id: event.id }
+        post "/events/#{event.slug}/merches", headers: @headers, params: { name: 'Example Merch', price: 9999, event_id: event.id }
 
         expect(response.status).to eq 401
       end
@@ -100,7 +102,7 @@ RSpec.describe '/merches', type: :request do
 
     describe 'PUT /merches/1' do
       it 'should update existing merch' do
-        put '/merches/1', headers: { Authorization: @token }, params: { price: 1999, event_id: event.id }
+        put "/events/#{event.slug}/merches/#{merches[0].id}", headers: @headers, params: { price: 1999, event_id: event.id }
 
         expect(response.status).to eq 401
       end
@@ -108,7 +110,7 @@ RSpec.describe '/merches', type: :request do
 
     describe 'DELETE /merches/1' do
       it 'should delete a merch' do
-        delete '/merches/1', headers: { Authorization: @token }, params: { event_id: event.id }
+        delete "/events/#{event.slug}/merches/#{merches[0].id}", headers: @headers, params: { event_id: event.id }
         expect(response.status).to eq 401
       end
     end

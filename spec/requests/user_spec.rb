@@ -1,105 +1,133 @@
-require 'rails_helper'
-
 RSpec.describe "Users", type: :request do
-  context 'as an admin' do
-    let!(:admin) { create(:admin) }
-    let!(:users) { create_list(:admin, 3) }
+  context 'as staff leader' do
+    let!(:staff_leader) { create(:staff_leader) }
+    let!(:event) { create(:event) }
+    let!(:talk) { create(:talk_with_event, event: event)}
+    let!(:vacancies) { create_list(:vacancy_with_user, 4, talk: talk) }
+    let!(:users) { create_list(:attendee, 3)}
 
-    before { @token = authenticate admin }
+    before do
+      event.team.update users: [staff_leader]
+      @headers = { Authorization: authenticate(staff_leader) }
+    end
 
     describe 'GET /user' do
       it 'should list users when authenticated with admin' do
-        get '/user', headers: { Authorization: @token }
-        data = Oj.load response.body
+        get '/user', headers: @headers, params: { event_slug: event.slug }
+        data = Oj.load(response.body)
 
-        expect(response.status).to eq 200
-        expect(data).to be_an_instance_of Array
-        expect(data.length).to eq 4
+        expect(response.status).to eq(200)
+        expect(data).to be_an_instance_of(Array)
+        expect(data.length).to eq(8)
       end
     end
 
     describe 'GET /user/1' do
-      it 'should return user information when requester is admin' do
-        get "/user/#{admin.id}", headers: { Authorization: @token }
-        data = Oj.load response.body
+      it 'should get info from a single user' do
+        get "/user/#{users.first.id}", headers: @headers, params: { event_slug: event.slug }
+        data = Oj.load(response.body)
 
-        expect(response.status).to eq 200
-        expect(data).to have_key 'email'
-        expect(data['id']).not_to eq admin.id
+        expect(response.status).to eq(200)
+        expect(data).to be_an_instance_of(Hash)
+      end
+    end
+    
+    describe 'PUT /user/1' do
+      it 'should be able to update user permissions' do
+        put "/user/#{users.first.id}", headers: @headers, params: { event_slug: event.slug, permissions: User::ATTENDEE | User::STAFF, name: 'Another name' }
+        data = Oj.load(response.body)
+
+        expect(response).to have_http_status(:ok)
+        expect(data['permissions']).to eq(User::ATTENDEE | User::STAFF)
+        expect(data['name']).not_to eq('Another name')
+      end
+
+      it 'should fail to do priviledge escalation' do
+        put "/user/#{users.first.id}", headers: @headers, params: { event_slug: event.slug, permissions: User::ADMIN | User::STAFF }
+        data = Oj.load(response.body)
+
+        expect(response).to have_http_status(:ok)
+        expect(data['permissions'].to_i & User::ADMIN).to eq(0)
       end
     end
 
-    describe 'PUT /user/1' do
-      it 'should update own user information' do
-        put "/user/#{admin.id}", headers: { Authorization: @token }, params: { name: 'Nome Alterado', email: 'email@alterado.com' }
-        data = Oj.load response.body
+    describe 'GET /events/:slug/users' do
+      it 'should list users from event' do
+        get "/events/#{event.slug}/users", headers: @headers
+        data = Oj.load(response.body)
 
-        expect(response.status).to eq 200
-        expect(data['email']).to eq 'email@alterado.com'
+        expect(response).to have_http_status(:ok)
+        expect(data).to be_an_instance_of(Array)
+        expect(data.length).to eq(4)
+      end
+    end
+
+    describe 'GET /admin' do
+      it 'should check if user is admin' do
+        get '/admin', headers: @headers
+        data = Oj.load(response.body)
+        expect(response).to have_http_status(:ok)
+        expect(data).to eq(false)
+      end
+    end
+
+    describe 'DELETE /user' do
+      it 'should fail to delete another users data' do
+        delete "/user/#{users.first.id}", headers: { Authorization: authenticate(users.second) }
+        data = Oj.load(response.body)
+        expect(response).to have_http_status(:unauthorized)
+        expect(data).to be_an_instance_of(Hash)
+        expect(data['message']).to eq('Não tem permissão para executar ação!')
       end
     end
   end
 
-  context 'normal user' do
-    let!(:attendee) { create(:attendee) }
-
-    before { @token = authenticate attendee }
+  context 'as regular user' do
+    let!(:users) { create_list(:attendee, 2) }
+    let!(:event) { create(:event) }
 
     describe 'GET /user' do
-      it 'should fail to list when user is not admin' do
-        get '/user', headers: { Authorization: @token }
-        expect(response.status).to eq 401
+      it 'should fail to list users when attendee' do
+        get '/user', headers: { Authorization: authenticate(users.first) }
+        expect(response).to have_http_status(:unauthorized)
       end
     end
 
     describe 'GET /user/1' do
-      it "should show user's own information" do
-        get "/user/#{attendee.id}", headers: { Authorization: @token }
-        data = Oj.load response.body
+      it 'should get info from oneself' do
+        get "/user/#{users.first.id}", headers: { Authorization: authenticate(users.first) }
+        data = Oj.load(response.body)
 
-        expect(response.status).to eq 200
-        expect(data).to have_key 'email'
-        expect(data['email']).to eq attendee.email
+        expect(response.status).to eq(200)
+        expect(data).to be_an_instance_of(Hash)
       end
     end
 
     describe 'PUT /user/1' do
-      it 'should update oneself' do
-        put "/user/#{attendee.id}", headers: { Authorization: @token }, params: { name: 'Nome Alterado', email: 'email@alterado.com' }
-        data = Oj.load response.body
+      it 'should be able to update own data except permissions' do
+        put "/user/#{users.first.id}", headers: { Authorization: authenticate(users.first)}, params: { permissions: User::ADMIN, name: 'Another name' }
+        data = Oj.load(response.body)
 
-        expect(response.status).to eq 200
-        expect(data['email']).to eq 'email@alterado.com'
+        expect(response).to have_http_status(:ok)
+        expect(data['permissions']).not_to eq(User::ADMIN)
+        expect(data['name']).to eq('Another name')
       end
     end
 
-    describe 'DELETE /user/1' do
-      it 'should delete given user' do
-        delete "/user/#{attendee.id}", headers: { Authorization: @token }
-        data = Oj.load response.body
-
-        expect(response.status).to eq 200
-        expect(data).to have_key 'message'
-      end
-    end
-  end
-
-  context 'unauthenticated' do
-    describe 'POST /register' do
-      it 'should create user with params' do
-        post '/register', params: { name: 'Danilo', email: 'user@gmail.com', password: 'senha123' }
-        data = Oj.load response.body
-
-        expect(response.status).to eq 200
-        expect(data).to have_key 'email'
+    describe 'DELETE /user' do
+      it 'should delete self' do
+        delete "/user/#{users.first.id}", headers: { Authorization: authenticate(users.first) }
+        data = Oj.load(response.body)
+        expect(data).to be_an_instance_of(Hash)
+        expect(data['message']).to eq('Usuário deletado com sucesso!')
       end
 
-      it 'should fail to create without required params' do
-        post '/register', params: { email: 'user@gmail.com', password: 'senha123' }
-        data = Oj.load response.body
-
-        expect(response.status).to eq 422
-        expect(data).to have_key 'errors'
+      it 'should fail to delete another users data' do
+        delete "/user/#{users.first.id}", headers: { Authorization: authenticate(users.second) }
+        data = Oj.load(response.body)
+        expect(response).to have_http_status(:unauthorized)
+        expect(data).to be_an_instance_of(Hash)
+        expect(data['message']).to eq('Não tem permissão para executar ação!')
       end
     end
   end

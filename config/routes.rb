@@ -1,33 +1,51 @@
 Rails.application.routes.draw do
+  mount Rswag::Ui::Engine => '/api-docs'
+  mount Rswag::Api::Engine => '/api-docs'
+  resources :user, except: %i[create]
   post '/register', to: 'user#create'
+  get '/admin', to: 'user#is_admin'
+
   post '/login', to: 'auth#login'
 
-  get  '/events/:slug/talks', to: 'events#talks'
+  resources :events, param: :slug, except: %i[update destroy] do
+    resources :merches 
+    resources :notifications
+    resources :reservations
+    resources :category, except: %i[show]
 
-  get '/events/:event_id/notifications', to: 'notifications#event'
-  get '/talks/:talk_id/notifications', to: 'notifications#talk'
+    resources :talks, only: %i[index]
+    get '/speakers', to: 'speaker#event'
+    get '/users', to: 'user#event'
+    get '/audit', to: 'audit#search'
+  end
 
-  get  '/events/:event_id/certificates/:user_id', to: 'certificates#list'
-  post '/events/:event_id/certificates/:user_id', to: 'certificates#emit'
+  get '/events/:slug/staff', to: 'events#validate'
 
-  get '/events/:event_id/talks/:talk_id/vacancies', to: 'vacancies#talk'
-  get '/user/:user_id/vacancies', to: 'vacancies#user'
+  get '/vacancies/me', to: 'vacancies#schedule'
+  post '/participate', to: 'vacancies#participate'
+  post '/validate', to: 'vacancies#validate'
 
-  resources :merches
-  resources :reservations, except: %i[update]
-  resources :talks
-  resources :materials
-  resources :notifications
-  resources :vacancies, except: :index
+  resources :vacancies, only: %i[destroy]
 
-  resources :events, except: %i[show]
-  get '/events/:slug', to: 'events#show'
+  get '/talks/:id/staff', to: 'talks#staff_show'
+  get '/talks/:id/status', to: 'talks#status'
+  post '/talks/:id/rate', to: 'talks#rate'
 
-  resources :user, except: %i[create]
-  resources :talks
+  get '/certificates', to: 'certificates#list'
+  post '/certificates', to: 'certificates#emit'
 
-  resources :teams
-  resources :user, except: %i[create]
+  resources :talks, except: %i[index]
+
+  get "/teams/:slug", to: 'teams#event'
+
+  get '/debug/:slug', to: 'certificates#debug'
+
+  resources :teams, except: %i[show]
+  resources :events, only: %i[update destroy]
+
+  resources :speaker, except: %i[index show]
+  resources :type, except: %i[show]
+  resources :location, except: %i[show]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")

@@ -1,7 +1,9 @@
 class EventBlueprint < Blueprinter::Base
-  fields :id, :name, :slug, :start_date, :end_date
+  identifier :id
+  fields :name, :slug, :start_date, :end_date, :registration_start_date
+  field :banner_url do |event| event.banner_url end
 
   view :event do
-    association :talks, blueprint: TalkBlueprint
+    field :talks do |event| event.schedule end
   end
 end

@@ -1,3 +1,4 @@
 class UserBlueprint < Blueprinter::Base
-  fields :name, :email, :dre
+  identifier :id
+  fields :name, :email, :dre, :permissions, :ocupation, :institution
 end
