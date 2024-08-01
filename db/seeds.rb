@@ -16,19 +16,19 @@ User.create(
 events = Event.create([
   {
     name: 'Semana da Computação',
-    start_date: DateTime.now,
+    start_date: DateTime.current.change(hour: 01),
     end_date: 2.weeks.from_now,
     registration_start_date: DateTime.now
   },
   {
     name: '1a Semana das Licenciaturas da EBA',
-    start_date: DateTime.now,
+    start_date: DateTime.current.change(hour: 01),
     end_date: 3.days.from_now,
     registration_start_date: DateTime.now
   },
   {
     name: 'Semana da Química - 30ª edição',
-    start_date: DateTime.now,
+    start_date: DateTime.current.change(hour: 01),
     end_date: 1.day.from_now,
     registration_start_date: DateTime.now
   },
@@ -145,6 +145,7 @@ Talk.create([
     type: types.first,
     categories: [categories.first],
   },
+
   {
     title: 'Desafios para a Educação Inclusiva na formação da docência em Artes Visuais e Expressão Gráfica',
     description: 'Participação de Maria Clara Machado, Marcelo Cucco, Leila Gross e Rodolfo Tavares',
@@ -299,6 +300,7 @@ Talk.create([
     speakers: [Speaker.find_or_create_by(name: 'Gabrielle Carvalho e Jorge Marcelo Alves')],
     event: events.second,
   },
+
   {
     start_date: DateTime.current.change(hour: 11),
     end_date: DateTime.current.change(hour: 12),
