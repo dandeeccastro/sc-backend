@@ -5,13 +5,29 @@
 #
 #   movies = Movie.create([{ name: "Star Wars" }, { name: "Lord of the Rings" }])
 #   Character.create(name: "Luke", movie: movies.first)
-User.create(
-  name: 'Administrador',
-  email: 'admin@ic.ufrj.br',
-  password: 'senha123',
-  permissions: User::ADMIN,
-  cpf: '316.643.966-83',
-)
+users = User.create([
+  {
+    name: 'Administrador',
+    email: 'admin@ic.ufrj.br',
+    password: 'senha123',
+    permissions: User::ADMIN,
+    cpf: '316.643.966-83',
+  },
+  {
+    name: 'Lider de equipe',
+    email: 'lider@ic.ufrj.br',
+    password: 'senha123',
+    permissions: User::STAFF_LEADER,
+    cpf: '162.519.663-60',
+  },
+  {
+    name: 'Membro de equipe',
+    email: 'membro@ic.ufrj.br',
+    password: 'senha123',
+    permissions: User::STAFF,
+    cpf: '932.212.519-55',
+  },
+])
 
 events = Event.create([
   {
@@ -33,6 +49,8 @@ events = Event.create([
     registration_start_date: DateTime.now
   },
 ])
+
+events.first.team.update(users: [users.second, users.third])
 
 locations = Location.create([
   { name: 'Roxinho' },
