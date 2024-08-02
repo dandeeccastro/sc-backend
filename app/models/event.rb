@@ -14,6 +14,12 @@ class Event < ApplicationRecord
   has_one_attached :banner
   has_one_attached :cert_background
 
+  before_save do
+    self.start_date = start_date.change(sec: 0, usec: 0)
+    self.end_date = end_date.change(sec: 0, usec: 0)
+    self.registration_start_date = registration_start_date.change(sec: 0, usec: 0)
+  end
+
   def invalidates_talks
     talks = Talk.where(event_id: id).where('start_date < :start_date OR end_date > :end_date', { start_date: start_date, end_date: end_date })
     errors.add(:invalidated_talks, "Existem #{talks.count} palestras que conflitam com o horário do evento") unless talks.empty?

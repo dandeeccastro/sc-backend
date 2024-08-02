@@ -14,7 +14,7 @@ FactoryBot.define do
       start_date { event.start_date + 1.hour }
       end_date { event.start_date + 2.hour }
 
-      speaker { create(:speaker, event: event) } 
+      speakers { [create(:speaker, event: event)] } 
     end
   end
 end

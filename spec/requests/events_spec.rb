@@ -20,7 +20,12 @@ RSpec.describe '/events', type: :request do
 
     describe 'POST /event' do
       it 'should create event' do
-        post '/events', headers: @headers, params: { name: 'Test event' }
+        post '/events', headers: @headers, params: {
+          name: 'Test event',
+          start_date: DateTime.current,
+          end_date: 1.week.from_now,
+          registration_start_date: DateTime.current,
+        }
         data = Oj.load response.body
 
         expect(response).to have_http_status(:created)

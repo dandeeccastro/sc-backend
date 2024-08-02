@@ -50,6 +50,25 @@ events = Event.create([
   },
 ])
 
+Merch.create([
+  {
+    name: 'Caneca da Semana da Computação',
+    price: 1200,
+    stock: 50,
+    custom_fields: {},
+    event: events.first,
+  },
+])
+
+Notification.create([
+  {
+    title: 'Semana da Computação chegou! 🥳',
+    description: 'Depois de muita espera e ansiedade, estamos orgulhosos de afirmar que a Semana da Computação está com as inscrições abertas!',
+    event: events.first,
+    user: users.second,
+  },
+])
+
 events.first.team.update(users: [users.second, users.third])
 
 locations = Location.create([
@@ -92,6 +111,7 @@ speakers = Speaker.create([
   { name: 'Dr C Mohan', bio: 'Especialista em criptomoedas e smart contracts, Dr C. Mohan é conhecido por sua contribuição para o Ethereum.', email: 'c.mohan@mohan', event: events.first },
   { name: 'SmartThis', bio: 'Empresa de tecnologia especializada na área de RPA.', email: 'smartthis@gmail.com', event: events.first },
   { name: 'Bradesco', bio: 'Banco que passou por uma transformação digital e vem para o evento contar sua trajetória de renovação!', email: 'bra@des.co', event: events.first },
+  { name: 'Danilo Collares', bio: 'Aluno da UFRJ, desenvolvedor da plataforma Venti e entusiasta de tecnologias obscuras!', email: 'danilo@collares.de.castro', event: events.first },
 
   { name: 'Wilson Cardoso', bio: '', event: events.second },
   { name: 'Marina Menezes', bio: '', event: events.second },
@@ -215,8 +235,7 @@ Talk.create([
     location: Location.find_or_create_by(name: 'Auditório Salão Nobre'),
     type: Type.find_or_create_by(name: 'Mesa'),
     title: 'Saberes e fazeres na formação para a docência de Artes Visuais e Expressão Gráfica na educação formal e não forma',
-    description: 'Participação de Jorge Paulino, Marcelo Bueno, Cristina Pierre, Sandra Barata e Mariana Maia',
-    speakers: [Speaker.find_or_create_by(name: 'Alexandre Palma')],
+    description: 'Participação de Jorge Paulino, Marcelo Bueno, Cristina Pierre, Sandra Barata e Mariana Maia', speakers: [Speaker.find_or_create_by(name: 'Alexandre Palma')],
     event: events.second,
   },
   {

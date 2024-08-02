@@ -31,16 +31,28 @@ class Talk < ApplicationRecord
     start_date.strftime('%d/%m/%y')
   end
 
+  before_save do
+    self.start_date = start_date.change(sec: 0, usec: 0)
+    self.end_date = end_date.change(sec: 0, usec: 0)
+  end
+
   def overlaps_with_other_talk
-    overlapping_talks = Talk.where(
-      'id != :id AND location_id = :location_id AND event_id = :event_id AND ((start_date >= :start_date AND end_date <= :start_date) OR (start_date >= :end_date AND end_date <= :end_date))',
-      { start_date: start_date, end_date: end_date, location_id: location_id, event_id: event_id, id: id }
-    )
-    errors.add(:overlap, 'Horário sobrepõe com outra palestra!') unless overlapping_talks.empty?
+    overlapping_talks = Talk
+      .where.not(id: id)
+      .where(location_id: location_id)
+      .where(
+        '(:start_date <= start_date AND start_date < :end_date) OR (:start_date < end_date AND end_date <= :end_date) OR (start_date <= :start_date AND :end_date <= end_date)',
+        {start_date: start_date, end_date: end_date})
+    
+    errors.add(:overlap, "Horário de #{start_date} até #{end_date} sobrepõe com as seguintes palestras: #{overlapping_talks.join(', ')}") unless overlapping_talks.empty?
   end
 
   def outside_event_bounds
     not_in_event = event.start_date > start_date || event.end_date < end_date
     errors.add(:out_of_bounds, 'Horário não está dentro do evento!') if not_in_event
+  end
+
+  def to_s
+    "#{title}: De #{start_date} até #{end_date}"
   end
 end
