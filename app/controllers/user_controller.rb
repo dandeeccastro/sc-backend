@@ -15,6 +15,10 @@ class UserController < ApplicationController
     render json: UserBlueprint.render(@users), status: :ok
   end
 
+  def me
+    render json: UserBlueprint.render(@current_user), status: :ok
+  end
+
   def show
     render json: UserBlueprint.render(@user), status: :ok
   end

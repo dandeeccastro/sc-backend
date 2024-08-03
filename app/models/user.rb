@@ -24,6 +24,10 @@ class User < ApplicationRecord
   has_many :merches, through: :reservations
   has_many :ratings
 
+  before_save do
+    self.cpf = cpf.gsub(/[\D]/,'')
+  end
+
   def admin?
     (permissions & ADMIN).positive?
   end

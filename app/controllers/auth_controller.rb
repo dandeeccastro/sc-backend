@@ -1,6 +1,6 @@
 class AuthController < ApplicationController
   def login
-    @user = User.find_by(cpf: auth_params[:cpf])
+    @user = User.find_by(cpf: auth_params[:cpf].gsub(/\D/,''))
     if @user&.authenticate(auth_params[:password])
       token = encode(uid: @user.id)
       time = Time.now + 24.hours.to_i

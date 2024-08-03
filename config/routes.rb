@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   resources :user, except: %i[create]
   post '/register', to: 'user#create'
   get '/admin', to: 'user#is_admin'
+  get '/me', to: 'user#me'
 
   post '/login', to: 'auth#login'
 
