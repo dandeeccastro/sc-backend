@@ -69,7 +69,7 @@ Merch.create([
     name: 'Caneca da Semana da Computação',
     price: 1200,
     stock: 50,
-    custom_fields: {},
+    custom_fields: nil,
     event: events.first,
   },
 ])
