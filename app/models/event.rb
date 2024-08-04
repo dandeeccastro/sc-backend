@@ -34,6 +34,10 @@ class Event < ApplicationRecord
   end
 
   def cert_background_url
+    cert_background.attached? ? Rails.application.routes.url_helpers.rails_blob_path(cert_background, only_path:true) : ''
+  end
+
+  def cert_background_wicked_url
     cert_background.attached? ? ActiveStorage::Blob.service.path_for(cert_background.key) : ''
   end
 
