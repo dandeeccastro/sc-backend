@@ -6,4 +6,8 @@ class VacancyBlueprint < Blueprinter::Base
     fields :presence
     association :user, blueprint: UserBlueprint
   end
+
+  view :errors do
+    field :errors do |vacancy| vacancy.errors end
+  end
 end
