@@ -10,9 +10,11 @@ Rails.application.routes.draw do
 
   resources :events, param: :slug, except: %i[update destroy] do
     resources :merches 
-    resources :notifications
+    resources :notifications, except: %i[show]
     resources :reservations
     resources :category, except: %i[show]
+
+    get '/notifications/staff', to: 'notifications#staff'
 
     resources :talks, only: %i[index]
     get '/speakers', to: 'speaker#event'

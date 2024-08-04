@@ -17,6 +17,11 @@ class NotificationsController < ApplicationController
     render json: NotificationBlueprint.render(notifications, view: :detailed)
   end
 
+  def staff
+    notifications = Notification.where(event_id: @event.id).order(created_at: :desc)
+    render json: NotificationBlueprint.render(notifications, view: :detailed)
+  end
+
   def talk
     @notifications = Notification.where('talk_id = :talk_id', { talk_id: notification_params[:talk_id] })
     render json: NotificationBlueprint.render(@notifications)
