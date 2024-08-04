@@ -9,12 +9,13 @@ Rails.application.routes.draw do
   post '/login', to: 'auth#login'
 
   resources :events, param: :slug, except: %i[update destroy] do
+    get '/notifications/staff', to: 'notifications#staff'
+
     resources :merches 
-    resources :notifications, except: %i[show]
+    resources :notifications
     resources :reservations
     resources :category, except: %i[show]
 
-    get '/notifications/staff', to: 'notifications#staff'
 
     resources :talks, only: %i[index]
     get '/speakers', to: 'speaker#event'
