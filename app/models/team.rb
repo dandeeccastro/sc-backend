@@ -3,9 +3,10 @@ class Team < ApplicationRecord
   has_and_belongs_to_many :users
 
   before_save do
-    user_ids.each do |user_id|
-      user = User.find(user_id)
-      user.update(permissions: user.permissions | User::STAFF)
+    users = User.find(user_ids)
+    users.each do |user|
+      user.update(permissions: user.permissions | User::STAFF) if user.permissions & 0b11100 == 0
     end
+    self.user_ids = user_ids
   end
 end

@@ -30,7 +30,7 @@ class TeamsController < ApplicationController
 
   def update
     if @team.update(team_params)
-      render json: TeamBlueprint.render(@team), status: :created
+      render json: TeamBlueprint.render(@team), status: :ok
     else
       render json: { error: @team.errors }, status: :unprocessable_entity
     end

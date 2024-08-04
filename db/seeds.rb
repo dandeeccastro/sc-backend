@@ -27,6 +27,20 @@ users = User.create([
     permissions: User::STAFF,
     cpf: '932.212.519-55',
   },
+  {
+    name: 'Danilo Collares',
+    email: 'danilo@c.castro',
+    password: 'senha123',
+    permissions: User::ATTENDEE,
+    cpf: '317.691.815-12'
+  },
+  {
+    name: 'Stephanie Orazem',
+    email: 'sorazem@alternex.com',
+    password: 'senha123',
+    permissions: User::ATTENDEE,
+    cpf: '944.728.544-90',
+  }
 ])
 
 events = Event.create([
