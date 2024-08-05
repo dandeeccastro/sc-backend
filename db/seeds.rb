@@ -1,6 +1,5 @@
 # This file should contain all the record creation needed to seed the database with its default values.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
 # Examples:
 #
 #   movies = Movie.create([{ name: "Star Wars" }, { name: "Lord of the Rings" }])
@@ -104,8 +103,8 @@ types = Type.create([
   { name: 'Minicurso', color: 'orange' },
   { name: 'Oficina', color: 'blue' },
 
-  { name: 'Mesa de Abertura', color: 'yellow' },
-  { name: 'Mesa', color: 'yellow' },
+  { name: 'Mesa de Abertura', color: '#009933' },
+  { name: 'Mesa', color: '#009966' },
 ])
 
 categories = Category.create([
@@ -330,9 +329,7 @@ Talk.create([
     event: events.second,
   },
   {
-    start_date: 2.days.from_now.change(hour: 10, minute: 30),
-    end_date: 2.days.from_now.change(hour: 12),
-    vacancy_limit: 50,
+    start_date: 2.days.from_now.change(hour: 10, minute: 30), end_date: 2.days.from_now.change(hour: 12), vacancy_limit: 50,
     location: Location.find_or_create_by(name: 'Auditório Salão Nobre'),
     type: Type.find_or_create_by(name: 'Mesa'),
     title: 'PIBID UFRJ - Formação inicial e pesquisa docente',
@@ -380,7 +377,7 @@ Talk.create([
     end_date: 1.day.from_now.change(hour: 11),
     vacancy_limit: 50,
     location: Location.find_or_create_by(name: 'Auditório - Centro de Tecnologia - Bloco A - UFRJ'),
-    type: Type.find_or_create_by(name: 'Curso'),
+    type: Type.find_or_create_by(name: 'Curso', color: '#ff0066'),
     title: 'CONHECENDO A QUÍMICA FORENSE: O CSI DA VIDA REAL',
     description: 'A química forense é o ramo das ciências forenses voltado para a produção de provas materiais para a justiça, através de análise de substâncias em matrizes diversas, tais como drogas lícitas e ilícitas, venenos, acelerantes e resíduos de incêndio, explosivos, resíduos de disparo de armas de fogo, combustíveis, tintas, fibras, dentre outros. Embora a química forense seja um tema muito importante e que desperte cada vez mais interesse perante a sociedade científica, a sua aplicação no campo da criminalística ainda constitui uma nova linha de pesquisa no Brasil. Desta forma, o curso tem como objetivo apresentar os principais conceitos relacionados a Química Forense em três grandes áreas: balística, documentoscopia e drogas de abuso, e como a Química pode auxiliar na resolução de crimes, o funcionamento do IML (Instituto Médico Legal) e dar o suporte analítico necessário nesta área. Para ilustrar as aplicações da Química Forense, o curso também contará com a participação de um perito legista toxicologista da Secretaria de Polícia Civil do Estado do Rio de Janeiro e Diretor do Centro de Estudos e Pesquisas Forenses, que apresentará um poco da sua vivência no dia a dia da rotina de trabalho.',
     speakers: [Speaker.find_or_create_by(name: 'Dra. Ananda da Silva Antonio', event: events.third)],
@@ -391,10 +388,23 @@ Talk.create([
     end_date: DateTime.current.change(hour: 12),
     vacancy_limit: 50,
     location: Location.find_or_create_by(name: 'Sala 633 - Instituto de Química - UFRJ'),
-    type: Type.find_or_create_by(name: 'Workshop'),
+    type: Type.find_or_create_by(name: 'Cozinha'),
     title: 'GASTRONOMIA MOLECULAR: A ARTE DE COZINHAR COM CIÊNCIA',
     description: 'O workshop irá apresentar a evolução histórica da ciência na cozinha, até culminar no que conhecemos hoje como gastronomia molecular. Serão apresentadas as principais técnicas e ingredientes utilizados nas cozinhas profissionais do século XXI, desenvolvidas dentro do âmbito de “cozinha molecular”. Por fim, teremos a apresentação e degustação de esferas, espumas e géis comestíveis.',
     speakers: [Speaker.find_or_create_by(name: 'Luiara Rosa Cavalcanti', event: events.third)],
     event: events.third,
   },
+])
+
+Vacancy.create([
+  {
+    user: users.last,
+    talk: Talk.find_by(name: 'Desenvolvimento web é fácil'),
+    presence: false,
+  },
+  {
+    user: users[3],
+    talk: Talk.find_by(name: 'Desenvolvimento web é fácil'),
+    presence: false,
+  }
 ])
