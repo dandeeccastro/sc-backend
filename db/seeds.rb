@@ -159,7 +159,7 @@ speakers = Speaker.create([
   { name: 'João Carlos', bio: 'Pesquisador de química', email: 'joao.carlos@ufrj.br', event: events.third },
 ])
 
-Talk.create([
+talks = Talk.create([
   { 
     title: 'Desvendando Blockchain',
     description: 'Blockchain é algo muito complicado. Vamos entender?',
@@ -388,7 +388,7 @@ Talk.create([
     end_date: DateTime.current.change(hour: 12),
     vacancy_limit: 50,
     location: Location.find_or_create_by(name: 'Sala 633 - Instituto de Química - UFRJ'),
-    type: Type.find_or_create_by(name: 'Cozinha'),
+    type: Type.find_or_create_by(name: 'Workshop'),
     title: 'GASTRONOMIA MOLECULAR: A ARTE DE COZINHAR COM CIÊNCIA',
     description: 'O workshop irá apresentar a evolução histórica da ciência na cozinha, até culminar no que conhecemos hoje como gastronomia molecular. Serão apresentadas as principais técnicas e ingredientes utilizados nas cozinhas profissionais do século XXI, desenvolvidas dentro do âmbito de “cozinha molecular”. Por fim, teremos a apresentação e degustação de esferas, espumas e géis comestíveis.',
     speakers: [Speaker.find_or_create_by(name: 'Luiara Rosa Cavalcanti', event: events.third)],
@@ -399,12 +399,12 @@ Talk.create([
 Vacancy.create([
   {
     user: users.last,
-    talk: Talk.find_by(title: 'Desenvolvimento web é fácil'),
+    talk: talks.third,
     presence: false,
   },
   {
     user: users[3],
-    talk: Talk.find_by(title: 'Desenvolvimento web é fácil'),
+    talk: talks.third,
     presence: false,
   }
 ])
