@@ -399,12 +399,12 @@ Talk.create([
 Vacancy.create([
   {
     user: users.last,
-    talk: Talk.find_by(name: 'Desenvolvimento web é fácil'),
+    talk: Talk.find_by(title: 'Desenvolvimento web é fácil'),
     presence: false,
   },
   {
     user: users[3],
-    talk: Talk.find_by(name: 'Desenvolvimento web é fácil'),
+    talk: Talk.find_by(title: 'Desenvolvimento web é fácil'),
     presence: false,
   }
 ])
