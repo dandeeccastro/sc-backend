@@ -39,7 +39,7 @@ class TalksController < ApplicationController
 
   def destroy
     @talk.destroy
-    render json: { message: 'Palestra excluída' }, status: :ok
+    render json: { message: 'Atividade excluída' }, status: :ok
   end
 
   def rate
@@ -54,7 +54,7 @@ class TalksController < ApplicationController
         render json: { message: 'Avaliação registrada!' }, status: :ok
       end
     else
-      render json: { message: 'Não pode avaliar palestra que não participou' }, status: :unprocessable_entity
+      render json: { message: 'Não pode avaliar atividade que não participou' }, status: :unprocessable_entity
     end
   end
 

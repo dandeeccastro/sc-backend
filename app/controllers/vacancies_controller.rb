@@ -42,7 +42,7 @@ class VacanciesController < ApplicationController
       Vacancy.where(talk_id: params[:talk_id], user_id: params[:absence]).update_all(presence: false)
       render json: { message: 'Presenças marcadas!' }, status: :ok
     else
-      render json: { message: 'Proibído marcar presença de palestra que ainda não começou!' }, status: :unprocessable_entity
+      render json: { message: 'Proibído marcar presença de atividade que ainda não começou!' }, status: :unprocessable_entity
     end
   end
 

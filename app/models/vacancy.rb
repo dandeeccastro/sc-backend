@@ -8,6 +8,6 @@ class Vacancy < ApplicationRecord
 
   def under_talk_limit
     vacancies_by_talk = Vacancy.where('talk_id = :talk_id AND id != :id', { talk_id: talk_id, id: id })
-    errors.add(:full, 'Essa palestra já está cheia!') unless vacancies_by_talk.length < talk.vacancy_limit
+    errors.add(:full, 'Essa atividade já está cheia!') unless vacancies_by_talk.length < talk.vacancy_limit
   end
 end

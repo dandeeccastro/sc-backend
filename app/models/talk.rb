@@ -44,7 +44,7 @@ class Talk < ApplicationRecord
         '(:start_date <= start_date AND start_date < :end_date) OR (:start_date < end_date AND end_date <= :end_date) OR (start_date <= :start_date AND :end_date <= end_date)',
         {start_date: start_date, end_date: end_date})
     
-    errors.add(:overlap, "Horário de #{start_date} até #{end_date} sobrepõe com as seguintes palestras: #{overlapping_talks.join(', ')}") unless overlapping_talks.empty?
+    errors.add(:overlap, "Horário de #{start_date} até #{end_date} sobrepõe com as seguintes atividades: #{overlapping_talks.join(', ')}") unless overlapping_talks.empty?
   end
 
   def outside_event_bounds

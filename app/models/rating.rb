@@ -8,7 +8,7 @@ class Rating < ApplicationRecord
 
   def user_participated_in_talk
     vacancy = Vacancy.where('user_id = :user_id AND talk_id = :talk_id AND presence = true', { user_id: user_id, talk_id: talk_id })
-    errors.add(:cant_rate, 'Usuário não assistiu a palestra!') if vacancy.empty?
+    errors.add(:cant_rate, 'Usuário não assistiu a atividade!') if vacancy.empty?
   end
 
   def score_in_range
@@ -17,6 +17,6 @@ class Rating < ApplicationRecord
 
   def not_scored_yet
     ratings = Rating.where('user_id = :user_id AND talk_id = :talk_id AND id != :id', { user_id: user_id, talk_id: talk_id, id: id })
-    errors.add(:already_scored, 'Usuário já avaliou a palestra!') unless ratings.empty?
+    errors.add(:already_scored, 'Usuário já avaliou a atividade!') unless ratings.empty?
   end
 end
