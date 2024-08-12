@@ -1,12 +1,16 @@
 Rails.application.routes.draw do
   mount Rswag::Ui::Engine => '/api-docs'
   mount Rswag::Api::Engine => '/api-docs'
+
   resources :user, except: %i[create]
   post '/register', to: 'user#create'
+
   get '/admin', to: 'user#is_admin'
   get '/me', to: 'user#me'
 
   post '/login', to: 'auth#login'
+  post '/forget', to: 'auth#forget'
+  post '/reset', to: 'auth#reset'
 
   resources :events, param: :slug, except: %i[update destroy] do
     get '/notifications/staff', to: 'notifications#staff'

@@ -1,0 +1,2 @@
+<h1> Olá, <%= @user.name %> </h1>
+<p> Uma solicitação de redefinição de senha foi feita para seu email. Se não foi você, pode ignorar essa mensagem! Mas caso queira redefinir a sua senha, pode fazê-lo <a href="<%= ENV['FRONTEND_URL'] || 'http://localhost:8080'%>/redefinir-senha?token=<%=@token%>">com esse link</a></p>

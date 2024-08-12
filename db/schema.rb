@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_07_03_013858) do
+ActiveRecord::Schema[7.0].define(version: 2024_08_01_162251) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -44,6 +44,17 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_03_013858) do
     t.string "color"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "event_id", null: false
+    t.index ["event_id"], name: "index_categories_on_event_id"
+  end
+
+  create_table "categories_talks", force: :cascade do |t|
+    t.integer "category_id", null: false
+    t.integer "talk_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_categories_talks_on_category_id"
+    t.index ["talk_id"], name: "index_categories_talks_on_talk_id"
   end
 
   create_table "events", force: :cascade do |t|
@@ -79,13 +90,14 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_03_013858) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "stock"
+    t.text "custom_fields"
     t.index ["event_id"], name: "index_merches_on_event_id"
   end
 
   create_table "notifications", force: :cascade do |t|
     t.text "description"
     t.integer "talk_id"
-    t.integer "event_id", null: false
+    t.integer "event_id"
     t.integer "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -110,6 +122,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_03_013858) do
     t.integer "merch_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "delivered", default: false
+    t.integer "amount"
+    t.text "options"
     t.index ["merch_id"], name: "index_reservations_on_merch_id"
     t.index ["user_id"], name: "index_reservations_on_user_id"
   end
@@ -119,6 +134,18 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_03_013858) do
     t.text "bio"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "event_id"
+    t.string "email"
+    t.index ["event_id"], name: "index_speakers_on_event_id"
+  end
+
+  create_table "speakers_talks", force: :cascade do |t|
+    t.integer "speaker_id", null: false
+    t.integer "talk_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["speaker_id"], name: "index_speakers_talks_on_speaker_id"
+    t.index ["talk_id"], name: "index_speakers_talks_on_talk_id"
   end
 
   create_table "talks", force: :cascade do |t|
@@ -183,7 +210,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_03_013858) do
   end
 
   create_table "vacancies", force: :cascade do |t|
-    t.boolean "presence"
+    t.boolean "presence", default: false
     t.integer "user_id", null: false
     t.integer "talk_id", null: false
     t.datetime "created_at", null: false
@@ -194,6 +221,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_03_013858) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "categories", "events"
+  add_foreign_key "categories_talks", "categories"
+  add_foreign_key "categories_talks", "talks"
   add_foreign_key "events", "teams"
   add_foreign_key "materials", "talks"
   add_foreign_key "merches", "events"
@@ -204,6 +234,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_03_013858) do
   add_foreign_key "ratings", "users"
   add_foreign_key "reservations", "merches"
   add_foreign_key "reservations", "users"
+  add_foreign_key "speakers", "events"
+  add_foreign_key "speakers_talks", "speakers"
+  add_foreign_key "speakers_talks", "talks"
   add_foreign_key "talks", "categories"
   add_foreign_key "talks", "events"
   add_foreign_key "talks", "locations"
