@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>Declaro por meio deste a participação de <%= receiver %> na atividade <%= reason %></p>
+  </body>
+<%= wicked_pdf_stylesheet_link_tag "pdf" -%>
+<style>
+body {
+  background-image: url("file://<%= event.cert_background_wicked_url %>");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+</style>
+

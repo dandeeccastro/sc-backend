@@ -105,6 +105,8 @@ class CertificatesController < ActionController::Base
         pdf_data = render_to_string :event, locals: cert
       when :staff_participation
         pdf_data = render_to_string :staff, locals: cert
+      when :speaker_participation
+        pdf_data = render_to_string :speaker, locals: cert
       end
       attachments["Certificado #{idx}.pdf"] = WickedPdf.new.pdf_from_string(pdf_data, {
         orientation: 'Landscape',
