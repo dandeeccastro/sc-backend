@@ -50,7 +50,8 @@ class CertificateFinder
 
   def user_speaker_participation
     speaker = Speaker.find_by(email: @user.email)
-    speaker.talks.map { |talk| speaker_certificate_hash(speaker: speaker, talk: talk, event: talk.event) }
+    speaker.talks.map { |talk| speaker_certificate_hash(speaker: speaker, talk: talk, event: talk.event) } if speaker
+    []
   end
 
   def event_attendee_participation
@@ -74,7 +75,6 @@ class CertificateFinder
     talks.inject([]) do |acc, talk|
       acc.concat(talk.speakers.map{|speaker| speaker_certificate_hash(speaker: speaker, talk: talk, event: talk.event)})
     end
-    # talks.inject([]) { |acc, talk| talk.speakers.map { |speaker| speaker_certificate_hash(speaker: speaker, talk: talk, event: talk.event) } }
   end
 
   def event_and_user_attendee_participation
