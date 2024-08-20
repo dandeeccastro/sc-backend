@@ -5,6 +5,10 @@ class CertificateFinder
     @criteria = criteria
   end
 
+  def self.find_by(email:nil,slug:nil,talk_id:nil)
+    []
+  end
+
   def find
     return find_by_user if @criteria == 'myself'
     return find_by_event if @criteria == 'event'
