@@ -1,11 +1,12 @@
 class CertificateMailer < ApplicationMailer
   def certificate_email
-    @event =        params[:event]
-    @user  =        params[:user]
+    @subject  = params[:subject]
+    @receiver = params[:receiver]
+    @reason   = params[:reason]
 
-    params[:attachments].each_key do |filename|
-      attachments[filename] = params[:attachments][filename]
+    params[:attachments].each do |data|
+      attachments[data[:filename]] = data[:data]
     end
-    mail(to: @user.email, subject: "Certificado do Evento #{@event.name}")
+    mail(to: params[:email], subject: params[:subject])
   end
 end

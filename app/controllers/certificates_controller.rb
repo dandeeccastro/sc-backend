@@ -16,30 +16,37 @@ class CertificatesController < ActionController::Base
   end
 
   def emit
-    certificates = @finder.find
-    attachments = generate_certificate_files(certificates)
-    case params[:emit_from]
-    when 'event'
-      emit_event(certificates)
-    when 'user'
-      CertificateMailer.with(
-        event: @event,
-        user: @user,
-        attachments: attachments
-      ).certificate_email.deliver_now
-    when 'myself'
-      CertificateMailer.with(
-        event: @event,
-        user: @current_user,
-        attachments: attachments
-      ).certificate_email.deliver_now
-    end
+    EmitCertificatesJob.perform_now(email: params[:email], talk_id: params[:talk_id], slug: params[:event_slug])
     render json: { message: 'Certificados emitidos com sucesso!' }, status: :ok
   end
+
+  # def emit
+  #   certificates = @finder.find
+  #   attachments = generate_certificate_files(certificates)
+  #   case params[:emit_from]
+  #   when 'event'
+  #     emit_event(certificates)
+  #   when 'user'
+  #     CertificateMailer.with(
+  #       event: @event,
+  #       user: @user,
+  #       attachments: attachments
+  #     ).certificate_email.deliver_now
+  #   when 'myself'
+  #     CertificateMailer.with(
+  #       event: @event,
+  #       user: @current_user,
+  #       attachments: attachments
+  #     ).certificate_email.deliver_now
+  #   end
+  #   render json: { message: 'Certificados emitidos com sucesso!' }, status: :ok
+  # end
 
   def debug
     @event = Event.find_by(slug: params[:slug])
     @current_user = User.find(1)
+    user = @current_user
+    event = @event
     locals = {
       event: @event,
       user: @current_user,
@@ -49,6 +56,8 @@ class CertificatesController < ActionController::Base
       receiver: @current_user.name,
       reason: @event.name,
       dre: @current_user.dre,
+      background_image: "",
+      description: "Declaro por meio deste a participação de #{user.name}, portador do DRE #{user.dre}, no evento #{event.name}, realizado na Universidade Federal do Rio de Janeiro entre os dias #{event.start_date.strftime("%d/%m/%Y")} e #{event.end_date.strftime("%d/%m/%Y")}",
       hours: 4
     }
 

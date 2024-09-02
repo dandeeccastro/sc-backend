@@ -1,74 +1,81 @@
 class EmitCertificatesJob < ApplicationJob
   queue_as :default
+  self.queue_adapter = :sidekiq
 
-  def perform(*params)
-    # Pegando os parâmetros
-    set_variables
-    # Pegando os certificados pelo Finder
-    certificate_data = @finder.find
-    attachments = generate_certificate_files(certificate_data)
-    case params[:emit_from]
-    when 'event'
-      emit_event(certificates)
-    when 'user'
-      CertificateMailer.with(
-        event: @event,
-        user: @user,
-        attachments: attachments
-      ).certificate_email.deliver_now
-    when 'myself'
-      CertificateMailer.with(
-        event: @event,
-        user: @current_user,
-        attachments: attachments
-      ).certificate_email.deliver_now
+  def perform(email:,talk_id:,slug:)
+    certificate_data = CertificateFinder.find_by(
+      email: email,
+      talk_id: talk_id,
+      slug: slug
+    )
+    cert_map = generate_certificate_map(certificate_data)
+    # email_to_attachments = cert_map.each { |key, val| cert_map[key] = create_attachments(val) }
+    cert_map.each { |email, attachments| CertificateMailer.with(
+      email: email,
+      attachments: attachments.map{ |a| a[:file] },
+      subject: attachments.first[:subject],
+      receiver: attachments.first[:receiver],
+      reason: attachments.first[:reason]
+    ).certificate_email.deliver_now}
+  end
+
+  def create_pdf_data(cert)
+    {
+      filename: "#{cert[:title]}.pdf",
+      data: create_pdf_file(cert)
+    }
+  end
+
+  def generate_certificate_map(cert_data)
+    cert_data.reduce({}) do |acc, cert|
+      cert[:file] = create_pdf_data(cert)
+      if acc[cert[:email]]
+        acc[cert[:email]] << cert
+      else
+        acc[cert[:email]] = [cert]
+      end
+      acc
     end
   end
 
-  def generate_certificate_files(certificate_data)
-    idx = 0
-    attachments = {}
-    certificate_data.each do |cert|
-      case cert[:type]
-      when :talk_participation
-        pdf_data = render_to_string CertificateController.talk, locals: cert
-      when :attendee_participation
-        pdf_data = render_to_string :event, locals: cert
-      when :staff_participation
-        pdf_data = render_to_string :staff, locals: cert
-      when :speaker_participation
-        pdf_data = render_to_string :speaker, locals: cert
-      end
-      attachments["Certificado #{idx}.pdf"] = WickedPdf.new.pdf_from_string(pdf_data, {
-        orientation: 'Landscape',
-        page_size: 'A4',
-        margin: {
-          top: 0,
-          bottom: 0,
-          left: 0,
-          right: 0,
-        },
-        # page_width: 1920,
-        # page_height: 1080,
-        background: true
-      })
+  def create_pdf_file(cert_data)
+    ac = ActionController::Base.new
+    pdf_data = ac.render_to_string 'certificates/event', locals: cert_data
+    # case cert_data[:type]
+    # when :talk_participation
+    #   pdf_data = ac.render_to_string 'certificates/talk', locals: cert_data
+    # when :attendee_participation
+    #   pdf_data = ac.render_to_string 'certificates/event', locals: cert_data
+    # when :staff_participation
+    #   pdf_data = ac.render_to_string 'certificates/staff', locals: cert_data
+    # when :speaker_participation
+    #   pdf_data = ac.render_to_string 'certificates/speaker', locals: cert_data
+    # end
+    puts pdf_data
+    WickedPdf.new.pdf_from_string(pdf_data, pdf_options)
+  end
+
+  def create_attachments(certs)
+    idx = 1
+    certs.reduce({}) do |acc, cert|
+      acc["Certificado #{idx}"] = create_pdf_file(cert)
       idx += 1
     end
-    attachments
   end
 
-  def set_variables
-    @event = Event.find_by(slug: params[:event_slug])
-    case params[:emit_from]
-    when 'myself'
-      @finder = CertificateFinder.new(user: @current_user, criteria: 'myself')
-    when 'event'
-      check_permissions(%i[admin staff_leader staff])
-      @finder = CertificateFinder.new(event: @event, criteria: 'event')
-    when 'user'
-      check_permissions(%i[admin staff_leader staff])
-      @user = User.find(params[:user_id])
-      @finder = CertificateFinder.new(user: @user, event: @event, criteria: 'user')
-    end
+  def pdf_options
+    {
+      orientation: 'Landscape',
+      page_size: 'A4',
+      margin: {
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+      },
+      # page_width: 1920,
+      # page_height: 1080,
+      background: true
+    }
   end
 end
