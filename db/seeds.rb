@@ -17,6 +17,7 @@ users = User.create([
     email: 'lider@ic.ufrj.br',
     password: 'senha123',
     permissions: User::STAFF_LEADER,
+    dre: '117081524',
     cpf: '162.519.663-60',
   },
   {
@@ -24,6 +25,7 @@ users = User.create([
     email: 'membro@ic.ufrj.br',
     password: 'senha123',
     permissions: User::STAFF,
+    dre: '117081523',
     cpf: '932.212.519-55',
   },
   {
@@ -31,6 +33,7 @@ users = User.create([
     email: 'danilo@c.castro',
     password: 'senha123',
     permissions: User::ATTENDEE,
+    dre: '117081521',
     cpf: '317.691.815-12'
   },
   {
@@ -38,6 +41,7 @@ users = User.create([
     email: 'sorazem@alternex.com',
     password: 'senha123',
     permissions: User::ATTENDEE,
+    dre: '117081522',
     cpf: '944.728.544-90',
   }
 ])
@@ -109,8 +113,8 @@ types = Type.create([
 
 categories = Category.create([
   { name: 'Blockchain', color: 'green', event_id: events.first.id },
-  { name: 'IA', color: 'blue', event_id: events.first.id },
-  { name: 'Ciência de Dados', color: 'red', event_id: events.first.id },
+  { name: 'Game Dev', color: 'blue', event_id: events.first.id },
+  { name: 'Web', color: 'red', event_id: events.first.id },
 
   { name: 'Ciência da Computação', color: 'blue', event_id: events.second.id },
   { name: 'Matemática', color: 'red', event_id: events.second.id },
@@ -180,21 +184,21 @@ talks = Talk.create([
     vacancy_limit: 50,
     event: events.first,
     location: locations.first,
-    speakers: [speakers.first],
+    speakers: [speakers.second],
     type: types.first,
-    categories: [categories.first],
+    categories: [categories.second],
   },
   { 
     title: 'Desenvolvimento web é fácil',
-    description: 'Disse ninguém, nunca',
+    description: 'Como podemos fazer desenvolvimento web tranquilo para iniciantes?',
     start_date: 2.hours.from_now,
     end_date: 3.hours.from_now,
     vacancy_limit: 50,
     event: events.first,
     location: locations.first,
-    speakers: [speakers.first],
+    speakers: [speakers.third],
     type: types.first,
-    categories: [categories.first],
+    categories: [categories.third],
   },
 
   {
