@@ -5,7 +5,7 @@ class VacanciesController < ApplicationController
   before_action :set_event
 
   before_action do set_permissions(user_id: @vacancy&.user_id) end
-  before_action only: %i[destroy] do check_permissions(%i[admin owns_resource]) end
+  before_action only: %i[destroy] do check_permissions(%i[admin staff_leader staff owns_resource]) end
   # before_action only: %i[schedule] do check_permissions(%i[admin owns_resource attendee]) end
   before_action only: %i[validate] do check_permissions(%i[admin staff_leader staff]) end
 

@@ -1,155 +1,133 @@
-require 'rails_helper'
+require 'swagger_helper'
 
-RSpec.describe '/teams', type: :request do
-  context 'as an admin' do
-    let!(:admin) { create(:admin) }
-    let!(:event) { create(:event) }
-    let!(:staffs) { create_list(:staff, 3) }
+describe 'Teams API' do
+  path '/teams' do
+    get 'listar times' do
+      tags 'Equipe'
+      security [token: []]
+      consumes 'application/json'
+      produces 'application/json'
 
-    before { @token = authenticate admin }
+      response '200', 'lista equipes cadastradas no Venti' do
+        let(:Authorization) { authenticate(create(:admin)) }
+        run_test!
+      end
 
-    describe 'GET /teams' do
-      it 'should show all teams' do
-        get '/teams', headers: { Authorization: @token }
-        data = Oj.load response.body
-
-        expect(response).to be_successful
-        expect(data).to be_an_instance_of Array
+      response '401', 'sem permissão para listar equipes' do
+        schema '$ref': '#/components/schemas/error'
+        let(:Authorization) { '' }
+        run_test!
       end
     end
 
-    describe 'GET /teams/slug' do
-      it 'should show a team from an event' do
-        get "/teams/#{event.slug}", headers: { Authorization: @token }
-        data = Oj.load response.body
+    post 'criar time' do
+      tags 'Equipe'
+      security [token: []]
+      consumes 'application/json'
+      produces 'application/json'
 
-        expect(response).to be_successful
-        expect(data).to have_key 'users'
+      parameter name: :team, in: :body, schema: {
+        type: :object,
+        properties: {
+          user_ids: { type: :array, items: { type: :integer } }
+        }
+      }
+
+      response '201', 'equipe criada com sucesso' do
+        let(:Authorization) { authenticate(create(:admin)) }
+        let!(:people) { create_list(:attendee, 3) }
+        let(:team) { { user_ids: [1,2,3]} }
+        run_test!
       end
-    end
 
-    describe 'POST /team' do
-      it 'should create a new team' do
-        post '/teams', headers: { Authorization: @token }, params: { user_ids: staffs.map(&:id) }
-        data = Oj.load response.body
-
-        expect(response.status).to eq 201
-        expect(data).to have_key 'users'
-      end
-    end
-
-    describe 'PUT /team/1' do
-      it 'should update an existing team' do
-        put "/teams/#{event.team.id}", headers: { Authorization: @token }, params: { slug: event.slug, user_ids: staffs.map(&:id) }
-        data = Oj.load response.body
-
-        expect(response.status).to eq 201
-        expect(data).to have_key 'users'
-        expect(data['users'].length).to eq 3
-      end
-    end
-
-    describe 'DELETE /team/1' do
-      it 'should delete a team' do
-        delete "/teams/#{event.team.id}", headers: { Authorization: @token }
-        data = Oj.load response.body
-        expect(response.status).to eq 200
-        expect(data).to have_key 'message'
+      response '401', 'sem permissão para criar equipe' do
+        schema '$ref': '#/components/schemas/error'
+        let(:Authorization) { '' }
+        let(:team) { { user_ids: [1,2,3]} }
+        run_test!
       end
     end
   end
 
-  context 'as a staff leader' do
-    let!(:event) { create(:event) }
-    let!(:staff) { create(:staff_leader) }
-    let!(:staffs) { create_list(:staff, 3) }
+  path '/teams/{slug}' do
+    get 'mostrar equipe do evento' do
+      tags 'Equipe'
+      consumes 'application/json'
+      produces 'application/json'
 
-    before do 
-      event.team.update users: [staff]
-      @token = authenticate staff 
-    end
+      parameter name: :slug, in: :path, type: :string
 
-    describe 'GET /teams' do
-      it 'should fail to show all teams' do
-        get '/teams', headers: { Authorization: @token }
-        expect(response.status).to eq 401
+      response '200', 'equipe mostrada com sucesso' do
+        let(:event) { create(:event)}
+        let(:slug) { event.slug }
       end
-    end
 
-    describe 'GET /teams/slug' do
-      it 'should show a given team' do
-        get "/teams/#{event.slug}", headers: { Authorization: @token }
-        data = Oj.load response.body
-
-        expect(response).to have_http_status(:ok)
-        expect(data).to have_key 'users'
-      end
-    end
-
-    describe 'POST /team' do
-      it 'should create a new team' do
-        post '/teams', headers: { Authorization: @token }, params: { user_ids: staffs.map(&:id) }
-        expect(response.status).to eq 401
-      end
-    end
-
-    describe 'PUT /team/1' do
-      it 'should update an existing team' do
-        put "/teams/#{event.team.id}", headers: { Authorization: @token }, params: { slug: event.slug, user_ids: staffs.map(&:id) }
-        data = Oj.load response.body
-
-        expect(response.status).to eq 201
-        expect(data).to have_key 'users'
-      end
-    end
-
-    describe 'DELETE /team/1' do
-      it 'should delete a team' do
-        delete "/teams/#{event.team.id}", headers: { Authorization: @token }
-        expect(response.status).to eq 401
+      response '401', 'sem permissão para mostrar equipe' do
+        schema '$ref': '#/components/schemas/error'
+        let(:event) { create(:event)}
+        let(:slug) { event.slug }
+        let(:Authorization) { '' }
+        run_test!
       end
     end
   end
 
-  context 'unauthenticated' do
-    let!(:staff) { create(:staff) }
-    let!(:event) { create(:event) }
-    let!(:staffs) { create_list(:staff, 3) }
+  path '/teams/{id}' do
+    put 'atualizar equipe' do
+      tags 'Equipe'
+      security [token: []]
+      consumes 'application/json'
+      produces 'application/json'
 
-    before { @token = authenticate staff }
+      parameter name: :id, in: :path, type: :integer
+      parameter name: :team, in: :body, schema: {
+        type: :object,
+        properties: {
+          id: { type: :integer },
+          user_ids: { type: :array, items: { type: :integer } }
+        }
+      }
 
-    describe 'GET /teams' do
-      it 'should show all teams' do
-        get '/teams', headers: { Authorization: @token }
-        expect(response.status).to eq 401
+      response '200', 'equipe atualizada com sucesso' do
+        let(:Authorization) { authenticate(create(:admin))}
+        let!(:people) { create_list(:attendee, 3) }
+        let(:event) { create(:event) }
+        let(:id) { event.team.id }
+        let(:team) { { user_ids: [1,2], id: event.team.id } }
+        run_test!
+      end
+
+      response '401', 'sem permissão para atualizar equipe' do
+        schema '$ref': '#/components/schemas/error'
+        let(:Authorization) { '' }
+        let(:event) { create(:event) }
+        let(:id) { event.team.id }
+        let(:team) { { user_ids: [1,2], id: event.team.id } }
+        run_test!
       end
     end
 
-    describe 'GET /teams/slug' do
-      it 'should show a given team' do
-        get "/teams/#{event.slug}", headers: { Authorization: @token }
-        expect(response.status).to eq 401
-      end
-    end
+    delete 'deletar equipe' do
+      tags 'Equipe'
+      security [token: []]
+      consumes 'application/json'
+      produces 'application/json'
 
-    describe 'POST /team' do
-      it 'should create a new team' do
-        post '/teams', headers: { Authorization: @token }, params: { user_ids: staffs.map(&:id) }
-        expect(response.status).to eq 401
-      end
-    end
+      parameter name: :id, in: :path, type: :integer
 
-    describe 'PUT /team/1' do
-      it 'should update an existing team' do
-        put "/teams/#{event.team.id}", headers: { Authorization: @token }, params: { slug: event.slug, user_ids: staffs.map(&:id) }
-        expect(response.status).to eq 401
+      response '200', 'equipe deletada com sucesso' do
+        let(:Authorization) { authenticate(create(:admin)) }
+        let(:event) { create(:event) }
+        let(:id) { event.team.id }
+        run_test!
       end
-    end
 
-    describe 'DELETE /team/1' do
-      it 'should delete a team' do
-        delete "/teams/#{event.team.id}", headers: { Authorization: @token }
-        expect(response.status).to eq 401
+      response '401', 'sem permissão para deletar equipe' do
+        schema '$ref': '#/components/schemas/error'
+        let(:Authorization) { '' }
+        let(:event) { create(:event) }
+        let(:id) { event.team.id }
+        run_test!
       end
     end
   end

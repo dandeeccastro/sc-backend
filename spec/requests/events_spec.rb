@@ -1,106 +1,134 @@
 require 'rails_helper'
+require 'swagger_helper'
 
-RSpec.describe '/events', type: :request do
-  context 'as an authenticated admin' do
-    let!(:user) { create(:admin) }
-    let!(:events) { create_list(:event, 3) }
-
-    before { @headers = { Authorization: authenticate(user) } }
-
-    describe 'GET /event' do
-      it 'should list all events' do
-        get '/events', headers: @headers
-        data = Oj.load response.body
-
-        expect(response).to have_http_status(:ok)
-        expect(data).to be_an_instance_of Array
-        expect(data.length).to eq 3
+describe 'Events API' do
+  path '/events' do
+    get 'listar eventos' do
+      tags 'Eventos'
+      response '200', 'listar todos os eventos' do
+        let!(:events) { create_list(:event, 3) }
+        run_test!
       end
     end
+     
+    post 'criar evento' do
+      tags 'Eventos'
+      security [token: []]
+      consumes 'application/json'
+      parameter name: :event, in: :body, schema: {
+        type: :object,
+        properties: {
+          name: { type: :string },
+          slug: { type: :string },
+          start_date: { type: :string },
+          end_date: { type: :string },
+          registration_start_date: { type: :string },
+          banner_url: { type: :file },
+        },
+        required: %w[name start_date end_date]
+      }
 
-    describe 'POST /event' do
-      it 'should create event' do
-        post '/events', headers: @headers, params: {
-          name: 'Test event',
-          start_date: DateTime.current,
-          end_date: 1.week.from_now,
-          registration_start_date: DateTime.current,
-        }
-        data = Oj.load response.body
-
-        expect(response).to have_http_status(:created)
-        expect(data).to have_key 'name'
+      response '201', 'evento criado com sucesso' do
+        let(:event) { { name: 'Evento teste', slug: 'evento-teste', start_date: DateTime.now, end_date: 1.week.from_now, registration_start_date: DateTime.now, banner_url: '' } }
+        let(:Authorization) { authenticate(create(:admin))}
+        run_test!
       end
-    end
 
-    describe 'PUT /event/1' do
-      let!(:event) { create(:event) }
-      it 'should update event' do
-        put "/events/#{event.id}", headers: @headers, params: { name: 'Semana da Química' }
-        data = Oj.load response.body
-
-        expect(response).to have_http_status(:ok)
-        expect(data).to have_key 'name'
-        expect(data['name']).to eq 'Semana da Química'
+      response '401', 'sem permissão para criar evento' do
+        let(:event) { { name: 'Evento teste', slug: 'evento-teste', start_date: DateTime.now, end_date: 1.week.from_now, registration_start_date: DateTime.now, banner_url: '' } }
+        let(:Authorization) { authenticate(create(:attendee))}
+        run_test!
       end
-    end
 
-    describe 'DELETE /event/1' do
-      let!(:event) { create(:event) }
-      it 'should delete event' do
-        delete "/events/#{event.id}", headers: @headers
-        data = Oj.load(response.body)
-
-        expect(response).to have_http_status(:ok)
-        expect(data).to have_key 'message'
+      response '422', 'parâmetros inválidos' do
+        let(:event) { { name: 'Evento teste', slug: 'evento-teste', end_date: 1.week.from_now, registration_start_date: DateTime.now, banner_url: '' } }
+        let(:Authorization) { authenticate(create(:admin))}
+        run_test!
       end
     end
   end
 
-  context 'as an attendee' do
-    let!(:attendee) { create(:attendee) }
+  path '/events/{id}' do
+    put 'atualizar evento' do
+      tags 'Eventos'
+      security [token: []]
+      parameter name: :id, in: :path, type: :string
+      parameter name: :event, in: :body, schema: {
+        type: :object,
+        properties: {
+          id: { type: :integer },
+          name: { type: :string },
+          slug: { type: :string },
+          start_date: { type: :string },
+          end_date: { type: :string },
+          registration_start_date: { type: :string },
+          banner_url: { type: :file },
+        },
+        required: %w[id]
+      }
 
-    describe 'GET /event' do
-      it 'should list all events' do
-        get '/events', headers: @headers
-        expect(response).to have_http_status(:ok)
+      response '200', 'evento atualizado com sucesso' do
+        let(:id) { create(:event).id }
+        let(:Authorization) { authenticate(create(:admin))}
+        let(:event) { { name: 'Outro Nome', slug: 'mudei-o-slug' } }
+        run_test!
+      end
+
+      response '401', 'sem permissão para atualizar evento' do
+        let(:id) { create(:event).id }
+        let(:Authorization) { authenticate(create(:attendee))}
+        let(:event) { { name: 'Outro Nome', slug: 'mudei-o-slug' } }
+        run_test!
       end
     end
 
-    describe 'POST /event' do
-      it 'should create event' do
-        post '/events', headers: @headers, params: { name: 'Semana da Computação 2024' }
-        expect(response).to have_http_status(:unauthorized)
-      end
-    end
+    delete 'deleta evento' do
+      tags 'Eventos'
+      security [token: []]
+      parameter name: :id, in: :path, type: :string
 
-    describe 'PUT /event/1' do
-      let!(:event) { create(:event) }
-      it 'should update event' do
-        put "/events/#{event.id}", headers: @headers, params: { name: 'Semana da Química' }
-        expect(response).to have_http_status(:unauthorized)
+      response '200', 'evento deletado com sucesso' do
+        let(:id) { create(:event).id }
+        let(:Authorization) { authenticate(create(:admin))}
+        run_test!
       end
-    end
 
-    describe 'DELETE /event/1' do
-      let!(:event) { create(:event) }
-      it 'should delete event' do
-        delete "/events/#{event.id}", headers: @headers
-        expect(response).to have_http_status(:unauthorized)
+      response '401', 'sem permissão para remover evento' do
+        let(:id) { create(:event).id }
+        let(:Authorization) { authenticate(create(:attendee))}
+        run_test!
       end
     end
   end
 
-  context 'unauthenticated' do
-    let!(:event) { create(:event) }
+  path '/events/{slug}' do
+    get 'mostra evento' do
+      tags 'Eventos'
+      parameter name: :slug, in: :path, type: :string
 
-    describe 'GET /event/1' do
-      it 'should show a single event' do
-        get "/events/#{event.slug}"
-        data = Oj.load response.body
+      response '200', 'mostra evento com sucesso' do
+        let(:slug) { create(:event).slug }
+        run_test!
+      end
+    end
+  end
 
-        expect(response).to have_http_status(:ok)
-        expect(data).to have_key 'name'
+  path '/events/{slug}/users' do
+    get 'lista usuários do evento' do
+      tags %w[Eventos Usuários]
+      security [token: []]
+      parameter name: :slug, in: :path, type: :string
+
+      response '200', 'lista usuários do evento com sucesso' do
+        let(:slug) { create(:event).slug }
+        let(:Authorization) { authenticate(create(:admin)) }
+        run_test!
+      end
+
+      response '401', 'sem permissão para executar a ação' do
+        let(:slug) { create(:event).slug }
+        let(:Authorization) { authenticate(create(:attendee)) }
+        run_test!
       end
     end
   end

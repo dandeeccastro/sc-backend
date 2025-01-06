@@ -1,153 +1,20 @@
-openapi: 3.1.0
+---
+openapi: 3.0.1
 info:
-  title: Venti API
-  description: Documentação da API do gerenciador de eventos Venti
+  title: API V1
+  version: v1
 paths:
-  /user:
-    get:
-      summary: Lista usuários.
-      description: Retorna uma lista de usuários do sistema. Precisa estar logado como administrador ou líder de equipe.
-      security:
-        - Auth: Token de Autenticação
-      parameters:
-        - $ref: '#/components/parameters/event_slug'
-      tags:
-        - Usuário
-      responses:
-        200:
-          description: Lista de usuários
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User/ReturnedUser'
-        401:
-          $ref: '#/components/responses/401'
-  /user/{id}:
-    get:
-      summary: Mostra um usuário
-      description: Retorna informações de um usuário. Quando logado como admin ou líder de equipe, qualquer usuário pode ser acessado. Caso contrário, só é possível acessar a informação do próprio usuário logado.
-      tags:
-        - Usuário
-      security:
-        - Auth: Token de Autenticação
-      parameters:
-        - $ref: '#/components/parameters/event_slug'
-      responses:
-        200:
-          description: Lista de usuários
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User/ReturnedUser'
-        401:
-          $ref: '#/components/responses/401'
-    put:
-      summary: Atualiza um usuário.
-      description: Retorna o usuário atualizado. É necessário estar logado no sistema. Administradores podem atualizar qualquer informações de qualquer usuário. Líderes de equipe só podem atualizar as permissões do usuário para líder ou membro de equipe. Usuários comuns podem alterar suas informações exceto permissões.
-      tags:
-        - Usuário
-      security:
-        - Auth: Token de Autenticação
-      parameters:
-        - $ref: '#/components/parameters/event_slug'
-      requestBody:
-        description: Parâmetros do usuário.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User/NewUser'
-      responses:
-        200:
-          description: Usuário atualizado.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User/ReturnedUser'
-        401:
-          $ref: '#/components/responses/401'
-    delete:
-      summary: Remove um usuário.
-      description: Deleta o usuário selecionado. Administrador podem deletar qualquer usuário. Usuários comuns podem deletar seus próprios dados 
-      tags:
-        - Usuário
-      security:
-        - Auth: Token de Autenticação
-      responses:
-        200:
-          description: Mensagem de confirmação.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RegularMessage'
-        401:
-          $ref: '#/components/responses/401'
-  /register:
+  "/login":
     post:
-      summary: Cadastra um usuário.
-      description: Cadastra um usuário no sistema. Por padrão, as permissões serão setadas como Participante, podendo ser alteradas posteriormente pela rota de atualização.
+      summary: faz o login do usuário
       tags:
-        - Autenticação
-      requestBody:
-        description: Parâmetros do usuário.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User/CreateUser'
+      - Autenticação
+      parameters: []
       responses:
-        200:
-          description: Usuário cadastrado.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User/ReturnedUser'
-        401:
-          $ref: '#/components/responses/401'
-  /admin:
-    get:
-      summary: Verifica se usuário é admin.
-      description: Retorna um booleano indicando se usuário cadastrado é admin.
-      tags:
-        - Usuário
-      security:
-        - Auth: Token de Autenticação
-      responses:
-        200:
-          description: Retorna um booleano
-          content:
-            application/json:
-              schema:
-                type: boolean
-        401:
-          $ref: '#/components/responses/401'
-  /events/{event_slug}/users:
-    get:
-      summary: Lista usuários do evento.
-      description: Lista participantes do evento. O participante é de um evento X se ele tiver pelo menos uma inscrição em uma palestra do evento X.
-      security:
-        - Auth: Token
-      tags: 
-        - Eventos
-      responses:
-        200:
-          description: Lista de usuários do evento.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  - $ref: '#/components/schemas/User/NewUser'
-        401:
-          $ref: '#/components/requests/401'
-  /login:
-    post:
-      summary: Autentica o usuário.
-      description: Autentica o usuário usando CPF e senha.
-      tags:
-        - Autenticação
+        '200':
+          description: usuário logado com sucesso
+        '401':
+          description: credenciais incorretas
       requestBody:
         content:
           application/json:
@@ -158,1463 +25,277 @@ paths:
                   type: string
                 password:
                   type: string
-      responses:
-        200:
-          description: Retorna token de autenticação para uso como Bearer Token, assim como o tempo de expiração do token e os dados do usuário logado.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                  exp:
-                    type: string
-                  user:
-                    type: object
-        401:
-          $ref: '#/components/responses/401'
-  /events/{event_slug}/merches:
+              required:
+              - cpf
+              - password
+  "/events":
     get:
-      summary: Lista mercadorias do evento.
-      description: Retorna uma lista de mercadorias do evento.
+      summary: listar eventos
       tags:
-        - Mercadorias
-      security:
-        - Auth: true
+      - Eventos
       responses:
-        200:
-          description: Lista de mercadorias do evento.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Merch/ReturnedMerch'
-        401:
-          $ref: '#/components/responses/401'
+        '200':
+          description: listar todos os eventos
     post:
-      summary: Cria uma mercadoria de evento.
-      description: Cria uma mercadoria de evento. Somente permitido para admins ou membros de equipe.
+      summary: criar evento
       tags:
-        - Mercadorias
+      - Eventos
       security:
-        - Auth: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Merch/NewMerch'
+      - token: []
+      parameters: []
       responses:
-        200:
-          description: Mercadoria atualizada.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Merch/ReturnedMerch'
-        401:
-          $ref: '#/components/responses/401'
-  /events/{event_slug}/merches/{id}:
-    get:
-      summary: Mostra uma mercadoria do evento.
-      description: Retorna uma mercadoria do evento.
-      tags:
-        - Mercadorias
-      security:
-        - Auth: true
-      responses:
-        200:
-          description: Mercadoria do evento.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Merch/ReturnedMerch'
-        401:
-          $ref: '#/components/responses/401'
-    put:
-      summary: Atualiza uma mercadoria de evento.
-      description: Atualiza uma mercadoria de evento. Somente permitido para admins ou membros de equipe.
-      tags:
-        - Mercadorias
-      security:
-        - Auth: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Merch/NewMerch'
-      responses:
-        200:
-          description: Mercadoria atualizada.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Merch/ReturnedMerch'
-        401:
-          $ref: '#/components/responses/401'
-    delete:
-      summary: Deleta uma mercadoria do evento.
-      description: Remove uma mercadoria do evento. Somente permitido para admins e membros de equipe.
-      tags:
-        - Mercadorias
-      security:
-        - Auth: true
-      responses:
-        200:
-          $ref: '#/components/responses/ConfirmationMessage'
-        401:
-          $ref: '#/components/responses/401'
-  /events/{event_slug}/notifications:
-    get:
-      summary: Lista notificações do evento.
-      description: Lista notificações do evento.
-      tags:
-        - Notificações
-      security:
-        - Auth: true
-      responses:
-        200:
-          description: Lista de notificações.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Notification'
-        401:
-          $ref: '#/components/responses/401'
-    post:
-      summary: Cria notificação do evento.
-      description: Cria notificação do evento. Somente para admins ou membros de equipe.
-      tags:
-        - Notificações
-      security:
-        - Auth: true
-      responseBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schema/NewNotification'
-      responses:
-        200:
-          description: Notificação.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Notification'
-        401:
-          $ref: '#/components/responses/401'
-  /events/{event_slug}/notifications/{id}:
-    get:
-      summary: Mostra notificação do evento.
-      description: Mostra notificação do evento.
-      tags:
-        - Notificações
-      security:
-        - Auth: true
-      responses:
-        200:
-          description: Notificação.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Notification'
-        401:
-          $ref: '#/components/responses/401'
-    put:
-      summary: Atualiza notificação do evento.
-      description: Atualiza notificação do evento. Somente para admins ou membros de equipe.
-      tags:
-        - Notificações
-      security:
-        - Auth: true
-      responseBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schema/NewNotification'
-      responses:
-        200:
-          description: Notificação.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Notification'
-        401:
-          $ref: '#/components/responses/401'
-    delete:
-      summary: Deleta notificação do evento.
-      description: Deleta notificação do evento. Somente para admins ou membros de equipe.
-      tags:
-        - Notificações
-      security:
-        - Auth: true
-      responses:
-        200:
-          $ref: '#/components/responses/ConfirmationMessage'
-        401:
-          $ref: '#/components/responses/401'
-  /events/{event_slug}/reservations:
-    get:
-      summary: Lista reservas de mercadoria.
-      description: Lista reservas de mercadoria. Precisa ser admin ou membro de equipe.
-      tags:
-        - Reservas
-      security:
-        - Auth: true
-      responses:
-        200:
-          description: Lista de reservas.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ReturnedReservation'
-        401:
-          $ref: '#/components/responses/401'
-    post:
-      summary: Cria reserva de mercadoria.
-      description: Cria reserva de mercadoria.
-      tags:
-        - Reservas
-      security:
-        - Auth: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Reservation'
-      responses:
-        200:
-          description: Reserva.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ReturnedReservation'
-        401:
-          $ref: '#/components/responses/401'
-  /events/{event_slug}/reservations/{id}:
-    get:
-      summary: Mostra reserva de mercadoria.
-      description: Mostra reserva de mercadoria. Precisa ser admin, membro de equipe ou dono da reserva.
-      tags:
-        - Reservas
-      security:
-        - Auth: true
-      responses:
-        200:
-          description: Reserva.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ReturnedReservation'
-        401:
-          $ref: '#/components/responses/401'
-    put:
-      summary: Atualiza reserva de mercadoria.
-      description: Atualiza reserva de mercadoria. Precisa ser admin, membro de equipe ou dono da reserva.
-      tags:
-        - Reservas
-      security:
-        - Auth: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Reservation'
-      responses:
-        200:
-          description: Reserva.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ReturnedReservation'
-        401:
-          $ref: '#/components/responses/401'
-    delete:
-      summary: Deleta reserva de mercadoria.
-      description: Deleta reserva de mercadoria. Precisa ser admin, membro de equipe ou dono da reserva.
-      tags:
-        - Reservas
-      security:
-        - Auth: true
-      responses:
-        200:
-          $ref: '#/components/responses/ConfirmationResponse'
-        401:
-          $ref: '#/components/responses/401'
-  /events/{event_slug}/category:
-    get:
-      summary: Lista categorias do evento.
-      description: Lista categorias do evento.
-      tags:
-        - Categorias
-      security:
-        - Auth: true
-      responses:
-        200:
-          description: Categorias
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Category'
-        401:
-          $ref: '#/components/responses/401'
-    post:
-      summary: Cria categoria do evento.
-      description: Cria categoria do evento. Somente para admins ou membros de equipe.
-      tags:
-        - Categorias
-      security:
-        - Auth: true
-      responses:
-        200:
-          description: Categoria criada.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Category'
-        401:
-          $ref: '#/components/responses/401'
-  /events/{event_slug}/category/{id}:
-    put:
-      summary: Atualiza categoria do evento.
-      description: Atualiza categoria do evento. Somente para admins ou membros de equipe.
-      tags:
-        - Categorias
-      security:
-        - Auth: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Category'
-      responses:
-        200:
-          description: Categoria atualizada.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Category'
-        401:
-          $ref: '#/components/responses/401'
-    delete:
-      summary: Deleta categoria do evento.
-      description: Deleta categoria do evento. Somente para admins ou membros de equipe.
-      tags:
-        - Categorias
-      security:
-        - Auth: true
-      responses:
-        200:
-          $ref: '#/components/responses/ConfirmationMessage'
-        401:
-          $ref: '#/components/responses/401'
-  /events/{event_slug}/talks:
-    get:
-      summary: Lista palestras do evento.
-      description: Lista palestras do evento.
-      tags:
-        - Palestras
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ReturnedTalk'
-  /events/{event_slug}/speakers:
-    get:
-      summary: Lista palestrantes do evento.
-      description: Lista palestrantes do evento.
-      tags:
-        - Palestrante
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Speaker/NewSpeaker'
-  /events/{event_slug}/audit:
-    get:
-      summary: Recupera logs do evento
-      description: Retorna os logs do evento baseado na data escolhida.
-      tags:
-        - Auditoria
-      parameters:
-        - name: date
-          required: true
-          description: Data da qual se deseja acessar os logs
-          schema:
-            type: datetime
-      security:
-        - Auth: true
-      responses:
-        200:
-          description: Logs do dia escolhido para o evento.
-          content: 
-            text/plain:
-              schema:
-                type: string
-        401:
-          $ref: '#/components/responses/401'
-  /events:
-    get:
-      summary: Lista eventos.
-      description: Lista eventos.
-      tags:
-        - Eventos
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ReturnedEvent'
-    post:
-      summary: Cria eventos.
-      description: Cria eventos. Somente administradores.
-      tags:
-        - Eventos
-      security:
-        - Auth: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Event'
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ReturnedEvent'
-        401:
-          $ref: '#/components/responses/401'
-  /events/{slug}:
-    get:
-      summary: Mostra detalhes do evento.
-      description: Mostra detalhes do evento.
-      tags:
-        - Eventos
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DetailedEvent'
-  /events/{slug}/staff:
-    get:
-      summary: Verifica se usuário é membro de equipe do evento.
-      description: Retorna um booleano que indica se usuário é membro de equipe do evento.
-      tags:
-        - Equipes
-      security:
-        - Auth: true
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DetailedEvent'
-        401:
-          $ref: '#/components/responses/401'
-  /vacancies/me:
-    get:
-      summary: Mostra agenda do usuário
-      description: Lista palestras que o usuário está inscrito. O retorno é em JSON, onde as chaves são os dias que tem palestra e os valores são a lista de palestras do dia.
-      tags:
-        - Vagas
-      security:
-        - Auth: true
-      responses:
-        200:
-          description: HashMap de datas para palestras
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  date:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Talk'
-        401:
-          $ref: '#/components/responses/401'
-  /participate:
-    post:
-      summary: Inscreve usuário em palestras.
-      description: Recebe uma lista de IDs das palestras e inscreve usuário logado atualmente nelas.
-      tags:
-        - Vagas
-      security:
-        - Auth: true
+        '201':
+          description: evento criado com sucesso
+        '401':
+          description: sem permissão para criar evento
+        '422':
+          description: parâmetros inválidos
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                event_slug:
+                name:
                   type: string
-                talk_ids:
-                  type: array
-                  items:
-                    type: id
-      responses:
-        200:
-          description: Objeto com as palestras nas quais o usuário conseguiu vaga e com as que não conseguiu.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  confirmed:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Talk'
-                  denied:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Talk'
-        422:
-          description: Erro quando o evento ainda não abriu as inscrições
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RegularMessage'
-        401:
-          $ref: '#/components/requests/401'
-  /validate:
-    post:
-      summary: Valida presenças em palestra.
-      description: Recebe os IDs dos usuários que estão na palestra e dos que estão ausentes e marca as presenças de acordo. Pode ser feito só por admins ou membros de equipe.
-      tags:
-        - Vagas
-      security:
-        - Auth: true
-      parameters:
-        - name: talk_id
-          description: ID da Palestra que terá as presenças marcadas
-        - name: event_slug
-          description: Slug do evento que o membro da equipe faz parte
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                presence:
-                  type: array
-                  items:
-                    type: integer
-                absence:
-                  type: array
-                  items:
-                    type: integer
-      responses:
-        200:
-          description: Mensagem de confirmação de validação de presenças.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RegularMessage'
-        422:
-          description: Mensagem de erro quando se tenta marcar presença de uma palestra que não começou ainda.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RegularMessage'
-        401:
-          $ref: '#/components/responses/401'
-  /vacancies/{id}:
-    delete:
-      summary: Remove inscrição em palestra.
-      description: Remove inscrição do usuário na palestra.
-      tags:
-        - Vagas
-      security:
-        - Auth: true
-      responses:
-        200:
-          $ref: '#/components/responses/ConfirmationMessage'
-        401:
-          $ref: '#/components/responses/401'
-  /talks/{id}/staff:
-    get:
-      summary: Mostra detalhes da palestra do evento.
-      description: Mostra palestra do evento com a lista de usuários inscritos nela. Somente admins ou membros de equipe.
-      security:
-        - Auth: true
-      tags:
-        - Palestras
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DetailedTalk'
-        401:
-          $ref: '#/components/responses/401'
-  /talks/{id}/status:
-    get:
-      summary: Verifica a situação de um usuário na palestra.
-      description: Verifica a situação de um usuário na palestra. Retorna um objeto que indica se ele está inscrito (_enrolled_) e se já participou dela (_participated_)
-      tags:
-        - Vagas
-      security:
-        - Auth: true
-      responses:
-        200:
-          description: Objeto com informações de inscrição.
-          content:
-            application/json:
-              type: object
-              properties:
-                enrolled:
-                  type: boolean
-                participated:
-                  type: boolean
-        401:
-          $ref: '#/components/responses/401'
-  /talks/{id}/rate:
-    post:
-      summary: Avalia palestra.
-      description: Avalia palestra na qual o usuário foi.
-      tags:
-        - Palestras
-      security:
-        - Auth: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                score:
-                  type: integer
-      responses:
-        200:
-          $ref: '#/components/responses/ConfirmationMessage'
-        422:
-          description: Retorna mensagem de erro caso o usuário não tenha presença marcada na palestra.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RegularMessage'
-        401:
-          $ref: '#/components/responses/401'
-  /certificates:
-    get:
-      summary: Lista certificados do usuário.
-      description: Lista certificados baseado no critério selecionado pelos parâmetros. Precisa estar logado e as permissões de acesso são dependentes dos parâmetros passados.
-      tags:
-        - Certificados
-      security:
-        - Auth: true
-      parameters:
-        - name: emit_from
-          required: true
-          description: O tipo de seleção de certificados a ser feita. Pode ter os valores _myself_ (para selecionar os do usuário logado), _user_ (para selecionar os de outro usuário) e _event_ (para selecionar os de um evento). Todas as opções exceto _myself_ requerem um admin ou membro de equipe logado.
-        - name: event_slug
-          description: Slug do evento cujos certificados se deseja selecionar. Obrigatório quando emit_from é event.
-        - name: user_id
-          description: ID do usuário cujos certificados se deseja selecionar. Obrigatório quando emit_from é user.
-      responses:
-        200:
-          description: Lista de informações de certificados.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CertificateData'
-        401:
-          $ref: '#/components/responses/401'
-    post:
-      summary: Emitir certificados por email.
-      description: Emite certificados baseado no critério selecionado pelos parâmetros. Precisa estar logado como admin ou membro da equipe do evento selecionado.
-      tags:
-        - Certificados
-      security:
-        - Auth: true
-      parameters:
-        - name: emit_from
-          required: true
-          description: O tipo de seleção de certificados a ser feita. Pode ter os valores 'myself' (para selecionar os do usuário logado), 'user' (para selecionar os de outro usuário) e 'event' (para selecionar os de um evento). Todas as opções exceto 'myself' requerem um admin ou membro de equipe logado.
-        - name: event_slug
-          required: true
-          description: Slug do evento cujos certificados se deseja selecionar. Obrigatório por motivos de auditoria.
-        - name: user_id
-          description: ID do usuário cujos certificados se deseja selecionar. Obrigatório quando emit_from é user.
-      responses:
-        200:
-          $ref: '#/components/responses/ConfirmationMessage'
-        401:
-          $ref: '#/components/responses/401'
-  /talks:
-    post:
-      summary: Cria palestra do evento.
-      description: Cria palestra do evento. Somente para admins e membros de equipe.
-      tags:
-        - Palestras
-      security:
-        - Auth: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Talk'
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DetailedTalk'
-        401:
-          $ref: '#/components/responses/401'
-  /talks/{id}:
-    get:
-      summary: Mostra palestra do evento.
-      description: Mostra palestra do evento.
-      tags:
-        - Palestras
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DetailedTalk'
+                slug:
+                  type: string
+                start_date:
+                  type: string
+                end_date:
+                  type: string
+                registration_start_date:
+                  type: string
+                banner_url:
+                  type: file
+              required:
+              - name
+              - start_date
+              - end_date
+  "/events/{id}":
     put:
-      summary: Atualiza palestra do evento.
-      description: Atualiza palestra do evento. Somente para admins e membros de equipe.
+      summary: atualizar evento
       tags:
-        - Palestras
+      - Eventos
       security:
-        - Auth: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Talk'
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DetailedTalk'
-        401:
-          $ref: '#/components/responses/401'
-    delete:
-      summary: Remove palestra do evento.
-      description: Remove palestra do evento. Somente para admins e membros de equipe.
-      tags:
-        - Palestras
-      security:
-        - Auth: true
-      responses:
-        200:
-          $ref: '#/components/responses/ConfirmationMessage'
-        401:
-          $ref: '#/components/responses/401'
-  /teams/{slug}:
-    get:
-      summary: Mostra a equipe do evento
-      description: Retorna a equipe do evento com o slug da rota. Somente para admins ou membros de equipe.
-      security:
-        - Auth: true
-      tags:
-        - Equipes
-      responses:
-        200:
-          description: Equipe do evento.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schema/Team'
-        401:
-          $ref: '#/components/responses/401'
-  /teams:
-    get:
-      summary: Lista as equipes no sistema.
-      description: Retorna uma lista de equipes. Somente para admins.
-      security:
-        - Auth: true
-      tags:
-        - Equipes
-      responses:
-        200:
-          description: Lista de equipes.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schema/Team'
-        401:
-          $ref: '#/components/responses/401'
-  /teams/{id}:
-    put:
-      summary: Atualiza membros da equipe.
-      description: Recebe uma lista de IDs de usuários e a coloca como novos membros da equipe. Somente para admin ou líder de equipe.
-      security:
-        - Auth: true
-      tags:
-        - Equipes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                user_ids:
-                  type: array
-                  items:
-                    type: number
-      responses:
-        200:
-          description: Equipe atualizada
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schema/Team'
-        401:
-          $ref: '#/components/responses/401'
-    delete:
-      summary: Deleta a equipe.
-      description: Remove a equipe do sistema. Somente para admins.
-      security:
-        - Auth: true
-      tags:
-        - Equipes
-      responses:
-        200:
-          $ref: '#/components/responses/ConfirmationMessage'
-        401:
-          $ref: '#/components/responses/401'
-  /events/{id}:
-    put:
-      summary: Atualiza evento.
-      description: Atualiza evento. Somente administradores.
-      tags:
-        - Eventos
-      security:
-        - Auth: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Event'
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ReturnedEvent'
-        401:
-          $ref: '#/components/responses/401'
-    delete:
-      summary: Remove evento.
-      description: Remove evento. Somente administradores.
-      tags:
-        - Eventos
-      security:
-        - Auth: true
-      responses:
-        200:
-          $ref: '#/components/responses/ConfirmationMessage'
-        401:
-          $ref: '#/components/responses/401'
-  /speaker:
-    post:
-      summary: Cria um novo palestrante.
-      description: Cria um novo palestrante no evento. Pode ser feito por admins ou membros da equipe do evento.
-      tags:
-        - Palestrante
+      - token: []
       parameters:
-        - $ref: '#/components/parameters/event_slug'
-      security:
-        - Auth: true
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Speaker/SpeakerParams'
-      responses:
-        200:
-          description: Palestrante criado.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Speaker/NewSpeaker'
-        401:
-          $ref: '#/components/responses/401'
-  /speaker/{id}:
-    put:
-      summary: Atualiza palestrante.
-      description: Atualiza um palestrante com novas informações. Pode ser feito por admins ou membros da equipe do evento.
-      parameters:
-        - $ref: '#/components/parameters/event_slug'
-      tags:
-        - Palestrante
-      security:
-        - Auth: true
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Speaker/SpeakerParams'
-      responses:
-        200:
-          description: Palestrante atualizado.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Speaker/NewSpeaker'
-        401:
-          $ref: '#/components/responses/401'
-    delete:
-      summary: Remove um palestrante.
-      description: Remove um palestante do evento. Pode ser feito por admins ou membros da equipe do evento.
-      parameters:
-        - $ref: '#/components/parameters/event_slug'
-      tags:
-        - Palestrante
-      security:
-        - Auth: true
-      responses:
-        200:
-          $ref: '#/components/responses/ConfirmationMessage'
-        401:
-          $ref: '#/components/responses/401'
-  /type:
-    get:
-      summary: Lista os tipos de palestras.
-      description: Lista os tipos de palestras cadastrados no sistema.
-      security:
-        - Auth: Token de Autenticação
-      tags:
-        - Tipo
-      responses:
-        200:
-          description: Lista de tipos
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Type'
-        401:
-          $ref: '#/components/responses/401'
-    post:
-      summary: Cria um novo tipo no sistema.
-      tags:
-        - Tipo
-      requestBody:
-        description: Novo tipo a ser adicionado no sistema
+      - name: id
+        in: path
         required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Type'
+        schema:
+          type: string
       responses:
-        200:
-          description: Retorna o tipo criado.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Type'
-        401:
-          $ref: '#/components/responses/401'
-  /type/{id}:
-    put:
-      summary: Atualiza tipo de palestra.
-      description: Atualiza um tipo de palestra. Administradores somente.
-      security:
-        - Auth: true
-      tags:
-        - Tipo
-      requestBody:
-        description: Informações novas do tipo a ser atualizado.
-        required: true,
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Type'
-      responses:
-        200:
-          description: Retorna o tipo atualizado.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Type'
-        401:
-          $ref: '#/components/responses/401'
+        '200':
+          description: evento atualizado com sucesso
+        '401':
+          description: sem permissão para atualizar evento
     delete:
-      summary: Remove um tipo.
-      description: Deleta um tipo do sistema. Somente para administradores.
-      security:
-        - Auth: true
+      summary: deleta evento
       tags:
-        - Tipo
+      - Eventos
+      security:
+      - token: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
-        200:
-          $ref: '#/components/responses/ConfirmationMessage'
-        401:
-          $ref: '#/components/responses/401'
-  /location:
+        '200':
+          description: evento deletado com sucesso
+        '401':
+          description: sem permissão para remover evento
+  "/events/{slug}":
     get:
-      summary: Lista as localizações.
-      description: Lista as localizações disponíveis no sistema. 
-      security:
-        - Auth: true
+      summary: mostra evento
       tags:
-        - Localização
+      - Eventos
+      parameters:
+      - name: slug
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
-        200:
-          description: Lista das localizações no sistema.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Location'
-        401:
-          $ref: '#/components/responses/401'
+        '200':
+          description: mostra evento com sucesso
+  "/type":
     post:
-      summary: Cria uma localização.
-      description: Cria uma nova localização. Somente administradores ou líderes de equipe podem fazê-lo.
-      security:
-        - Auth: true
+      summary: criar tipo
       tags:
-        - Localização
+      - Tipos
+      security:
+      - token: []
+      parameters: []
+      responses:
+        '201':
+          description: tipo criado com sucesso
+        '401':
+          description: sem permissão para criar tipo
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+        '422':
+          description: parâmetros inválidos
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Location'
-      responses:
-        200:
-          description: Nova localização.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Location'
-        401:
-          $ref: '#/components/responses/401'
-  /location/{id}:
+              type: object
+              properties:
+                name:
+                  type: string
+                color:
+                  type: string
+              required:
+              - name
+              - color
+  "/type/{id}":
     put:
-      summary: Atualiza uma localização.
-      description: Atualiza uma localização. Somente administradores ou líderes de equipe podem fazê-lo.
-      security:
-        - Auth: true
+      summary: atualizar tipo
       tags:
-        - Localização
+      - Tipos
+      security:
+      - token: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: tipo atualizado com sucesso
+        '401':
+          description: sem permissão para atualizar tipo
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Location'
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                color:
+                  type: string
+              required:
+              - id
+              - name
+              - color
+    delete:
+      summary: deletar tipo
+      tags:
+      - Tipos
+      security:
+      - token: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
-        200:
-          description: Localização atualizada.
+        '200':
+          description: tipo deletado com sucesso
+        '401':
+          description: sem permissão para remover tipo
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Location'
-        401:
-          $ref: '#/components/responses/401'
-    delete:
-      summary: Remove uma localização.
-      description: Remove uma localização. Somente administradores ou líderes de equipe podem fazê-lo.
-      security:
-        - Auth: true
+                "$ref": "#/components/schemas/error"
+  "/user":
+    get:
+      summary: listar usuários
       tags:
-        - Localização
+      - Usuário
+      security:
+      - token: []
       responses:
-        200:
-          $ref: '#/components/responses/ConfirmationMessage'
-        401:
-          $ref: '#/components/responses/401'
+        '200':
+          description: listagem de usuários com sucesso
+        '401':
+          description: sem permissão para listar
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/user/{id}":
+    get:
+      summary: mostrar usuário
+      tags:
+      - Usuário
+      security:
+      - token: []
+      responses:
+        '401':
+          description: sem permissão para listar
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    put:
+      summary: atualizar usuário
+      tags:
+      - Usuário
+      security:
+      - token: []
+      responses:
+        '401':
+          description: sem permissão para listar
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+    delete:
+      summary: remover usuário
+      tags:
+      - Usuário
+      security:
+      - token: []
+      responses:
+        '401':
+          description: sem permissão para listar
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/error"
+  "/admin":
+    get:
+      summary: verifica se usuário é admin
+      tags:
+      - Usuário
+      security:
+      - token: []
+      responses:
+        '200':
+          description: retorna boolean de verificação
+servers:
+- url: https://{defaultHost}
+  variables:
+    defaultHost:
+      default: www.example.com
 components:
-  parameters:
-    event_slug:
-      name: event_slug
-      description: Slug do evento do qual o líder ou membro de equipe faz parte.
-      schema:
-        type: string
-  responses:
-    ConfirmationMessage:
-      description: Retorna uma mensagem de confirmação.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/RegularMessage'
-    401:
-      description: Erro de autorização.
-      content:
-        application/json:
-          schema:
-            type: object
-            properies:
-              message:
-                type: string
   schemas:
-    CertificateData:
-      type: object
-      properties:
-        email:
-          type: string
-        type:
-          type: string
-        title: 
-          type: string
-        receiver: 
-          type: string
-        reason: 
-          type: string
-        dre: 
-          type: string
-        hours:
-          type: integer
-    Speaker:
-      SpeakerParams:
-        type: object
-        properties:
-          name:
-            type: string
-          bio:
-            type: string
-          email:
-            type: string
-          event_id:
-            type: integer
-          avatar:
-            type: file
-      NewSpeaker:
-        type: object
-        properties:
-          name:
-            type: string
-          bio:
-            type: string
-          email:
-            type: string
-          event_id:
-            type: integer
-          avatar_url:
-            type: string
-    User:
-      CreateUser:
-        type: object
-        required:
-          - name
-          - email
-          - cpf
-          - ocupation
-          - institution
-        properties:
-          name:
-            type: string
-          email:
-            type: string
-          cpf:
-            type: string
-          dre: 
-            type: string
-          ocupation:
-            type: string
-          institution:
-            type: string
-      NewUser:
-        type: object
-        properties:
-          name:
-            type: string
-          email:
-            type: string
-          cpf:
-            type: string
-          dre: 
-            type: string
-          permissions:
-            type: string
-          ocupation:
-            type: string
-          institution:
-            type: string
-      ReturnedUser:
-        type: object
-        properties:
-          name:
-            type: string
-          email:
-            type: string
-          dre: 
-            type: string
-          permissions:
-            type: string
-          ocupation:
-            type: string
-          institution:
-            type: string
-    Category:
-      type: object
-      required:
-        - name
-      properties:
-        name: 
-          type: string
-        color:
-          type: string
-    Type:
-      type: object
-      required:
-        - name
-      properties:
-        name: 
-          type: string
-        color:
-          type: string
-    RegularMessage:
+    error:
       type: object
       properties:
         message:
           type: string
-    Location:
-      type: object
-      properties:
-        name:
-          type: string
-    Team:
-      type: object
-      properties:
-        users:
-          type: array
-          items:
-            $ref: '#/components/schema/User/ReturnedUser'
-    Merch:
-      NewMerch:
-        type: object
-        properties:
-          name:
-            type: string
-          price:
-            type: integer
-          stock:
-            type: integer
-          image:
-            type: file
-          custom_fields:
-            type: object
-            properties:
-              key:
-                type: array
-                items:
-                  type: string
-      ReturnedMerch:
-        type: object
-        properties:
-          name:
-            type: string
-          price:
-            type: integer
-          stock:
-            type: integer
-          image_url:
-            type: string
-          custom_fields:
-            type: object
-            properties:
-              key:
-                type: string
-    Notification:
-      type: object
-      properties:
-        description:
-          type: string
-        created_at:
-          type: string
-        title:
-          type: string
-    NewNotification:
-      type: object
-      properties:
-        description:
-          type: string
-        created_at:
-          type: string
-        title:
-          type: string
-        talk_id:
-          type: integer
-    Reservation:
-      type: object
-      properties:
-        delivered:
-          type: boolean
-        amount:
-          type: integer
-        options:
-          type: object
-          properties:
-            key:
-              type: string
-        user_id:
-          type: integer
-        merch_id:
-          type: integer
-    ReturnedReservation:
-      type: object
-      properties:
-        delivered:
-          type: boolean
-        amount:
-          type: integer
-        options:
-          type: object
-          properties:
-            key:
-              type: string
-        user:
-          $ref: '#/components/schemas/User/ReturnedUser'
-        merch:
-          $ref: '#/components/schemas/ReturnedMerch'
-    Talk:
-      type: object
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        start_date:
-          type: datetime
-        end_date:
-          type: datetime
-        vacancy_limit:
-          type: integer
-        event_id:
-          type: integer
-        location_id:
-          type: integer
-        speaker_id:
-          type: integer
-        type_id:
-          type: integer
-        category_ids:
-          type: array
-          items:
-            type: integer
-    ReturnedTalk:
-      type: object
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        start_date:
-          type: datetime
-        end_date:
-          type: datetime
-        vacancy_limit:
-          type: integer
-        location:
-          $ref: '#/components/schemas/Location'
-        speaker:
-          $ref: '#/components/schemas/Speaker/NewSpeaker'
-        type:
-          $ref: '#/components/schemas/Type'
-        categories:
-          type: array
-          items:
-            $ref: '#/components/schemas/Category'
-    DetailedTalk:
-      type: object
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        start_date:
-          type: datetime
-        end_date:
-          type: datetime
-        vacancy_limit:
-          type: integer
-        rating:
-          type: float
-        vacancy_count:
-          type: integer
-        location:
-          $ref: '#/components/schemas/Location'
-        speaker:
-          $ref: '#/components/schemas/Speaker/NewSpeaker'
-        type:
-          $ref: '#/components/schemas/Type'
-        categories:
-          type: array
-          items:
-            $ref: '#/components/schemas/Category'
-    Event:
-      type: object
-      properties:
-        name:
-          type: string
-        slug:
-          type: string
-        start_date:
-          type: string
-        end_date:
-          type: string
-        registration_start_date:
-          type: string
-        banner_url:
-          type: file
-    ReturnedEvent:
-      type: object
-      properties:
-        name:
-          type: string
-        slug:
-          type: string
-        start_date:
-          type: string
-        end_date:
-          type: string
-        registration_start_date:
-          type: string
-        banner_url:
-          type: string
-    DetailedEvent:
-      type: object
-      properties:
-        name:
-          type: string
-        slug:
-          type: string
-        start_date:
-          type: string
-        end_date:
-          type: string
-        registration_start_date:
-          type: string
-        banner_url:
-            type: string
-        users:
-          type: array
-          items:
-            $ref: '#/components/schemas/User/ReturnedUser'
   securitySchemes:
-    Auth:
+    token:
       type: apiKey
-      description: Autenticação da API
-      name: Bearer
+      name: Authorization
       in: header
-      scheme: Bearer

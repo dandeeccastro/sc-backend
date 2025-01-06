@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_08_01_162251) do
+ActiveRecord::Schema[7.0].define(version: 2024_10_17_114944) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -91,6 +91,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_01_162251) do
     t.datetime "updated_at", null: false
     t.integer "stock"
     t.text "custom_fields"
+    t.integer "limit"
     t.index ["event_id"], name: "index_merches_on_event_id"
   end
 
@@ -130,12 +131,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_01_162251) do
   end
 
   create_table "speakers", force: :cascade do |t|
-    t.string "name"
+    t.string "name", null: false
     t.text "bio"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "event_id"
-    t.string "email"
+    t.string "email", null: false
     t.index ["event_id"], name: "index_speakers_on_event_id"
   end
 

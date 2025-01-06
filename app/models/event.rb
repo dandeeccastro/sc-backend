@@ -4,7 +4,8 @@ class Event < ApplicationRecord
   before_save :set_slug
   after_save :set_team
 
-  validates :name, uniqueness: true
+  validates :name, presence: true, uniqueness: true
+  validates :start_date, presence: true
   validates :slug, uniqueness: true
 
   has_many :merches, dependent: :destroy

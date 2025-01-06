@@ -1,74 +1,97 @@
-RSpec.describe "Types", headers: @headers, type: :request do
-  context 'Admin' do
-    let!(:event) { create(:event) }
-    let!(:admin) { create(:admin)}
-    let!(:type) { create(:type) }
+require 'swagger_helper'
 
-    before { @headers = { Authorization: authenticate(admin) } }
+describe 'Types API' do
+  let!(:admin) { create(:admin) }
+  before { @token = authenticate(admin) }
 
-    describe 'POST /type' do
-      it 'should create new type as admin' do
-        post "/type", headers: @headers, params: { name: 'Testing', color: 'orange' }
-        type = Oj.load response.body
-        expect(response).to have_http_status(:created)
-        expect(type).to have_key('name')
-        expect(type).to have_key('color')
+  path '/type' do
+    post 'criar tipo' do
+      tags 'Tipos'
+      security [token: []]
+      consumes 'application/json'
+      produces 'application/json'
+
+      parameter name: :type, in: :body, schema: {
+        type: :object,
+        properties: {
+          name: { type: :string },
+          color: { type: :string }
+        },
+        required: %w[name color]
+      }
+
+      response '201', 'tipo criado com sucesso' do
+        let(:Authorization) { @token }
+        let(:type) { { name: 'Testing', color: 'orange' } }
+        run_test!
       end
-    end
 
-    describe 'PUT /type/1' do
-      it 'should update existing type' do
-        put "/type/#{type.id}", headers: @headers, params: { id: type.id, name: 'Another Name' }
-        type = Oj.load(response.body)
-        expect(response).to have_http_status(:ok)
-        expect(type['name']).to eq('Another Name')
+      response '401', 'sem permissão para criar tipo' do
+        schema '$ref': '#/components/schemas/error'
+        let(:Authorization) { '' }
+        let(:type) { { name: 'Testing', color: 'orange' } }
+        run_test!
       end
-    end
 
-    describe 'DELETE /type/1' do
-      it 'should delete existing type' do
-        delete "/type/#{type.id}", headers: @headers, params: { id: type.id }
-        data = Oj.load(response.body)
-        expect(response).to have_http_status(:ok)
-        expect(data).to have_key('message')
+      response '422', 'parâmetros inválidos' do
+        schema '$ref': '#/components/schemas/error'
+        let(:type) { { color: 'orange' } }
+        let(:Authorization) { @token }
+        run_test!
       end
     end
   end
 
-  context 'Regular User' do
-    let(:event) { create(:event) }
-    let(:type) { create(:type) }
-    let(:user) { create(:attendee) }
+  path '/type/{id}' do
+    put 'atualizar tipo' do
+      tags 'Tipos'
+      security [token: []]
+      consumes 'application/json'
+      produces 'application/json'
+      parameter name: :id, in: :path, type: :string
+      parameter name: :type,in: :body, schema: {
+        type: :object,
+        properties: {
+          id: { type: :integer },
+          name: { type: :string },
+          color: { type: :string }
+        },
+        required: %w[id name color]
+      }
 
-    before { @headers = { Authorization: authenticate(user) } }
+      response '200', 'tipo atualizado com sucesso' do
+        let(:id) { Type.create(name: 'Testing', color: 'orange').id }
+        let(:type) { { id:, name: 'Changed', color: 'purple' } }
+        let(:Authorization) { @token }
+        run_test!
+      end
 
-    describe 'GET /type' do
-      it 'should list types as regular user' do
-        get "/type", headers: @headers
-        types = Oj.load response.body
-        expect(response).to have_http_status(200)
-        expect(types.length).to eq(0)
+      response '401', 'sem permissão para atualizar tipo' do
+        schema '$ref': '#/components/schemas/error'
+        let(:id) { Type.create(name: 'Testing', color: 'orange').id }
+        let(:type) { { id:, name: 'Changed', color: 'purple' } }
+        let(:Authorization) { authenticate(create(:attendee)) }
+        run_test!
       end
     end
 
-    describe 'POST /type' do
-      it 'should fail to create type as regular user' do
-        post "/type", headers: @headers, params: { name: 'Testing', color: 'orange' }
-        expect(response).to have_http_status(:unauthorized)
-      end
-    end
+    delete 'deletar tipo' do
+      tags 'Tipos'
+      security [token: []]
+      parameter name: :id, in: :path, type: :string
+      produces 'application/json'
 
-    describe 'PUT /type/1' do
-      it 'should update existing type' do
-        put "/type/#{type.id}", headers: @headers, params: { id: type.id, name: 'Another Name' }
-        expect(response).to have_http_status(:unauthorized)
+      response '200', 'tipo deletado com sucesso' do
+        let(:id) { Type.create(name: 'Testing', color: 'orange').id }
+        let(:Authorization) { @token }
+        run_test!
       end
-    end
 
-    describe 'DELETE /type/1' do
-      it 'should delete existing type' do
-        delete "/type/#{type.id}", headers: @headers, params: { id: type.id }
-        expect(response).to have_http_status(:unauthorized)
+      response '401', 'sem permissão para remover tipo' do
+        schema '$ref': '#/components/schemas/error'
+        let(:id) { Type.create(name: 'Testing', color: 'orange').id }
+        let(:Authorization) { authenticate(create(:attendee)) }
+        run_test!
       end
     end
   end

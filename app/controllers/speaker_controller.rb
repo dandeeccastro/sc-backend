@@ -1,7 +1,7 @@
 class SpeakerController < ApplicationController
   before_action :authenticate_user
-  before_action :set_event, only: %i[event create update destroy]
   before_action :set_speaker, only: %i[update destroy]
+  before_action :set_event, only: %i[event create update destroy]
 
   before_action only: %i[create update destroy] do
     set_permissions
@@ -16,8 +16,8 @@ class SpeakerController < ApplicationController
   end
 
   def create
-    @speaker = Speaker.create(speaker_params)
-    if @speaker
+    @speaker = Speaker.new(speaker_params)
+    if @speaker.save
       render json: SpeakerBlueprint.render(@speaker), status: :created
     else
       render json: { errors: @speaker.errors }, status: :unprocessable_entity
@@ -28,7 +28,7 @@ class SpeakerController < ApplicationController
     if @speaker.update(speaker_params)
       render json: SpeakerBlueprint.render(@speaker), status: :ok
     else
-      render json: { message: @peaker.errors }, status: :unprocessable_entity
+      render json: { message: @speaker.errors }, status: :unprocessable_entity
     end
   end
 

@@ -12,7 +12,7 @@ class AuditController < ApplicationController
       log_data = AuditLogger.get_log(@event)
       render plain: log_data, status: :ok
     else
-      render json: { message: "Log não encontrado para o dia #{params[:date]}!" }, status: 404
+      render json: { message: "Log não encontrado para o dia #{params[:date]}!" }, status: :not_found
     end
   end
 

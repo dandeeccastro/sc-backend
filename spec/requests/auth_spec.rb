@@ -1,24 +1,31 @@
 require 'rails_helper'
+require 'swagger_helper'
 
-RSpec.describe "Auths", type: :request do
-  describe "POST /login" do
-    let!(:user) { create(:user) }
+describe 'Auth API' do
+  path '/login' do
+    post 'faz o login do usuário' do
+      tags 'Autenticação'
+      consumes 'application/json'
 
-    it 'should login with existing user' do
-      post '/login', params: { cpf: user.cpf, password: user.password }
-      data = Oj.load response.body
+      parameter name: :user, in: :body, schema: {
+        type: :object,
+        properties: {
+          cpf: { type: :string },
+          password: { type: :string },
+        },
+        required: %w[cpf password]
+      }
 
-      expect(response.status).to eq 200
-      expect(data).to have_key 'token'
-      expect(data).to have_key 'exp'
-    end
+      response '200', 'usuário logado com sucesso' do
+        let(:my_user) { create(:user) }
+        let(:user) { { cpf: my_user.cpf, password: my_user.password }}
+        run_test!
+      end
 
-    it 'should fail to authenticate without proper params' do
-      post '/login', params: { cpf: user.cpf, password: 'senha errada' }
-      data = Oj.load response.body
-
-      expect(response.status).to eq 401
-      expect(data).to have_key 'errors'
+      response '401', 'credenciais incorretas' do
+        let(:user) { { cpf: '11111111111', password: 'senha123' }}
+        run_test!
+      end
     end
   end
 end

@@ -1,4 +1,7 @@
 class Speaker < ApplicationRecord
+  validates :name, presence: true
+  validates :email, presence: true
+
   has_one_attached :image
   belongs_to :event
 

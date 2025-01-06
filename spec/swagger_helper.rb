@@ -31,7 +31,24 @@ RSpec.configure do |config|
             }
           }
         }
-      ]
+      ],
+      components: {
+        schemas: {
+          error: {
+            type: 'object',
+            properties: {
+              message: { type: :string }
+            }
+          }
+        },
+        securitySchemes: {
+          token: {
+            type: :apiKey,
+            name: 'Authorization',
+            in: :header
+          }
+        }
+      }
     }
   }
 

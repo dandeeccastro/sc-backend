@@ -1,0 +1,8 @@
+pt:
+  date:
+    month_names: [~, Janeiro,Fevereiro,Março,Abril,Maio,Junho,Julho,Agosto,Setembro,Outubro,Novembro,Dezembro]  
+  time:
+    formats:
+      default: "%d de %B de %Y"
+      long: "%d de %B de %Y"
+  hello: "Olá"
