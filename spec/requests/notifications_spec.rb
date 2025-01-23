@@ -1,65 +1,150 @@
-RSpec.describe "/notifications", type: :request do
-  context 'as a staff member' do
-    let!(:staff) { create(:staff) }
-    let!(:event) { create(:event) }
-    let!(:talk) { create(:talk_with_event, event: event) }
-    let!(:notifications) { create_list(:notification, 3, user: staff, event: event) }
+require 'swagger_helper'
 
-    before do
-      event.team.update users: [staff]
-      @headers = { Authorization: authenticate(staff) }
-    end
+describe 'Notifications API' do
+  let!(:admin) { create(:admin) }
+  let!(:event) { create(:event) }
+  before { @token = authenticate(admin) }
 
-    describe 'POST /notifications' do
-      it 'should create a new event notification' do
-        post "/events/#{event.slug}/notifications", headers: @headers, params: { title: 'Titulo', description: 'Notificação teste', event_id: event.id }
-        data = Oj.load response.body
-        expect(response.status).to eq 201
-        expect(data).to have_key('title')
-        expect(data['talk_id']).to eq(nil)
+  path '/events/{slug}/notifications/staff' do
+    get 'listar notificações como staff' do
+      tags 'Notificações'
+      security [token: []]
+      parameter name: :slug, in: :path, type: :string
+
+      response '200', 'listagem de notificações feita com sucesso' do
+        let(:Authorization) { @token }
+        let(:slug) { event.slug }
+        run_test!
       end
 
-      it 'should create a new talk notification' do
-        post "/events/#{event.slug}/notifications", headers: @headers, params: { title: 'Titulo', description: 'Notificação teste', event_id: event.id, talk_id: talk.id }
-        data = Oj.load response.body
-        expect(response.status).to eq 201
-        expect(data).to have_key('title')
-        expect(data['talk']['id']).to eq(talk.id)
-      end
-    end
-
-    describe 'PUT /notifications/1' do
-      it 'should delete a notification' do
-        put "/events/#{event.slug}/notifications/#{notifications.first.id}", headers: @headers, params: { description: 'Notificação atualizada' }
-        data = Oj.load response.body
-        expect(response.status).to eq 200
-        expect(data['description']).to eq('Notificação atualizada')
-      end
-    end
-
-    describe 'DELETE /notifications/1' do
-      it 'should delete a notification' do
-        delete "/events/#{event.slug}/notifications/#{notifications.first.id}", headers: @headers
-        expect(response.status).to eq 200
+      response '401', 'sem permissão para listar notificações' do
+        schema '$ref': '#/components/schemas/error'
+        let(:Authorization) { '' }
+        let(:slug) { event.slug }
+        run_test!
       end
     end
   end
 
-  context 'as an attendee' do
-    let!(:attendee) { create(:attendee) }
-    let!(:event) { create(:event) }
-    let!(:notifications) { create_list(:notification_with_user, 3, event: event)}
+  path '/events/{slug}/notifications' do
+    get 'listar notificações' do
+      tags 'Notificações'
+      security [token: []]
+      produces 'application/json'
+      parameter name: :slug, in: :path, type: :string
 
-    before do
-      @headers = { Authorization: authenticate(attendee) }
+      response '200', 'listagem de notificações feita com sucesso' do
+        let(:Authorization) { @token }
+        let(:slug) { event.slug }
+        run_test!
+      end
+
+      response '401', 'sem permissão para listar notificações' do
+        schema '$ref': '#/components/schemas/error'
+        let(:Authorization) { '' }
+        let(:slug) { event.slug }
+        run_test!
+      end
     end
 
-    describe 'GET /notifications' do
-      it 'should list notifications' do
-        get "/events/#{event.slug}/notifications", headers: @headers, params: { event_id: event.id }
-        data = Oj.load response.body
-        expect(response.status).to eq 200
-        expect(data).to be_an_instance_of(Array)
+    post 'criar nova notificação' do
+      tags 'Notificações'
+      security [token: []]
+      consumes 'application/json'
+      produces 'application/json'
+      parameter name: :slug, in: :path, type: :string
+
+      parameter name: :notification, in: :body, schema: {
+        type: :object,
+        properties: {
+          title: { type: :string },
+          description: { type: :string },
+          talk_id: { type: :string },
+        },
+        required: %w[title description]
+      }
+
+      response '201', 'criação de notificação feita com sucesso' do
+        let(:notification) { { title: 'Teste', description: 'Testando descrição' } }
+        let(:Authorization) { @token }
+        let(:slug) { event.slug }
+        run_test!
+      end
+
+      response '401', 'sem permissão para criar notificações' do
+        schema '$ref': '#/components/schemas/error'
+        let(:notification) { { title: 'Teste', description: 'Testando descrição' } }
+        let(:Authorization) { '' }
+        let(:slug) { event.slug }
+        run_test!
+      end
+
+      response '422', 'parâmetros inválidos' do
+        schema '$ref': '#/components/schemas/error'
+        let(:notification) { { title: 'Teste' } }
+        let(:Authorization) { @token }
+        let(:slug) { event.slug }
+        run_test!
+      end
+    end
+  end
+
+  path '/events/{slug}/notifications/{id}' do
+    put 'atualizar notificação' do
+      tags 'Notificações'
+      security [token: []]
+      produces 'application/json'
+      parameter name: :slug, in: :path, type: :string
+      parameter name: :id, in: :path, type: :string
+
+      parameter name: :notification, in: :body, schema: {
+        type: :object,
+        properties: {
+          title: { type: :string },
+          description: { type: :string },
+          talk_id: { type: :string },
+        },
+      }
+
+
+      response '200', 'atualização de notificação feita com sucesso' do
+        let(:notification) { { title: 'Teste', description: 'Testando descrição' } }
+        let(:id) { create(:notification, event: event, user: admin).id }
+        let(:Authorization) { @token }
+        let(:slug) { event.slug }
+        run_test!
+      end
+
+      response '401', 'sem permissão para atualizar notificações' do
+        schema '$ref': '#/components/schemas/error'
+        let(:notification) { { title: 'Teste', description: 'Testando descrição' } }
+        let(:Authorization) { '' }
+        let(:id) { create(:notification, event: event, user: admin).id }
+        let(:slug) { event.slug }
+        run_test!
+      end
+    end
+
+    delete 'remover notificação' do
+      tags 'Notificações'
+      security [token: []]
+      produces 'application/json'
+      parameter name: :slug, in: :path, type: :string
+      parameter name: :id, in: :path, type: :string
+
+      response '200', 'remoção de notificação feita com sucesso' do
+        let(:id) { create(:notification, event: event, user: admin).id }
+        let(:Authorization) { @token }
+        let(:slug) { event.slug }
+        run_test!
+      end
+
+      response '401', 'sem permissão para deletar notificações' do
+        schema '$ref': '#/components/schemas/error'
+        let(:id) { create(:notification, event: event, user: admin).id }
+        let(:Authorization) { '' }
+        let(:slug) { event.slug }
+        run_test!
       end
     end
   end
