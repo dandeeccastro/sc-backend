@@ -20,7 +20,6 @@ Rails.application.routes.draw do
     resources :reservations
     resources :category, except: %i[show]
 
-
     resources :talks, only: %i[index]
     get '/speakers', to: 'speaker#event'
     get '/users', to: 'user#event'

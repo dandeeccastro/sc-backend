@@ -1,5 +1,6 @@
 class Reservation < ApplicationRecord
   validate :under_stock_limit
+  validates :amount, comparison: { greater_than: 0 }
 
   belongs_to :user
   belongs_to :merch

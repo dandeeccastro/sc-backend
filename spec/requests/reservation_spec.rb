@@ -1,96 +1,171 @@
-require 'rails_helper'
+require 'swagger_helper'
 
-RSpec.describe "Reservations", type: :request do
-  context 'as staff' do
-    let!(:staff) { create(:staff) }
-    let!(:event) { create(:event) }
-    let!(:merch) { create(:merch, event: event) }
-    let!(:reservations) { create_list(:reservation, 3, merch: merch, user: create(:attendee)) }
+describe 'Reservation API' do
+  path '/events/{slug}/reservations' do
+    let(:event) { create(:event) }
+    let(:admin) { create(:admin) }
 
-    before do 
-      event.team.update users: [staff]
-      @headers = { Authorization: authenticate(staff) }
-    end
+    get 'mostrar todas as reservas de um evento' do
+      tags 'Reserva'
+      security [token: []]
+      consumes 'application/json'
 
-    describe 'GET /reservations' do
-      it 'should list all reservations' do
-        get "/events/#{event.slug}/reservations", headers: @headers
-        data = Oj.load response.body
+      parameter name: :slug, in: :path, type: :string
 
-        expect(response.status).to eq 200
-        expect(data).to be_an_instance_of Array
-        expect(data.length).to eq 3
+      response '200', 'listagem feita com sucesso' do
+        let(:Authorization) { authenticate(admin) }
+        let(:slug) { event.slug }
+        run_test!
+      end
+
+      response '401', 'sem permissão para listar reservas' do
+        let(:Authorization) { '' }
+        let(:slug) { event.slug }
+        run_test!
       end
     end
 
-    describe 'GET /reservations/1' do
-      it 'should get a single reservation' do
-        get "/events/#{event.slug}/reservations/#{reservations.first.id}", headers: @headers
-        data = Oj.load response.body
+    post 'criar uma reserva para si mesmo' do
+      tags 'Reserva'
+      security [token: []]
+      consumes 'application/json'
+      parameter name: :slug, in: :path, type: :string
 
-        expect(response.status).to eq 200
-        expect(data).to have_key 'merch'
+      parameter name: :reservation, in: :body, schema: {
+        type: :object,
+        properties: {
+          merch_id: { type: :integer },
+          delivered: { type: :boolean },
+          amount: { type: :integer },
+          options: { type: :object },
+        },
+      }
+
+      response '201', 'reserva criada com sucesso' do
+        let(:Authorization) { authenticate(admin) }
+        let(:slug) { event.slug }
+        let(:reservation) { {
+          merch_id: create(:merch, event: event).id,
+          delivered: false,
+          amount: 10,
+          options: {},
+        } }
+        run_test!
       end
-    end
 
-    describe 'POST /reservations' do
-      it 'should create a new reservation' do
-        post "/events/#{event.slug}/reservations", headers: @headers, params: { merch_id: merch.id }
-        data = Oj.load response.body
-
-        expect(response.status).to eq 201
-        expect(data).to have_key 'merch'
+      response '401', 'sem permissão para criar reservas' do
+        let(:Authorization) { '' }
+        let(:slug) { event.slug }
+        let(:reservation) { {
+          merch_id: create(:merch, event: event).id,
+          delivered: false,
+          amount: 10,
+          options: {},
+        } }
+        run_test!
       end
-    end
 
-    describe 'DELETE /reservations/1' do
-      it 'should destroy a reservation' do
-        delete "/events/#{event.slug}/reservations/#{reservations.first.id}", headers: @headers, params: { event_id: event.id }
-        expect(response.status).to eq 200
+      response '422', 'parâmetros inválidos' do
+        let(:Authorization) { authenticate(admin) }
+        let(:slug) { event.slug }
+        let(:reservation) { {
+          merch_id: create(:merch, event: event).id,
+          delivered: false,
+          amount: -10,
+          options: {},
+        } }
+        run_test!
       end
     end
   end
 
-  context 'owns reservation' do
-    let!(:attendee) { create(:attendee) }
-    let!(:event) { create(:event) }
-    let!(:merch) { create(:merch, event: event) }
-    let!(:reservations) { create_list(:reservation, 3, merch: create(:merch_with_event), user: create(:attendee)) }
-    let!(:reservation) { create(:reservation, merch: merch, user: attendee) }
+  path '/events/{slug}/reservations/{id}' do
+    let(:event) { create(:event) }
+    let(:admin) { create(:admin) }
+    let(:merch) { create(:merch, event:) }
+    let(:admin_reservation) { create(:reservation, merch:, user: admin) }
 
-    before { @headers = { Authorization: authenticate(attendee) } }
+    get 'mostrar sua reserva' do
+      tags 'Reserva'
+      security [token: []]
+      consumes 'application/json'
+      parameter name: :slug, in: :path, type: :string
+      parameter name: :id, in: :path, type: :string
 
-    describe 'GET /reservations' do
-      it 'should be able to list all reservations' do
-        get "/events/#{event.slug}/reservations", headers: @headers
-        expect(response).to have_http_status(:unauthorized)
+      response '200', 'listagem feita com sucesso' do
+        let(:slug) { event.slug }
+        let(:id) { admin_reservation.id }
+        let(:Authorization) { authenticate(admin) }
+        run_test!
+      end
+
+      response '401', 'sem permissão para mostrar reservas' do
+        let(:slug) { event.slug }
+        let(:id) { admin_reservation.id }
+        let(:Authorization) { '' }
+        run_test!
       end
     end
 
-    describe 'GET /reservations/1' do
-      it 'should be able to get a single reservation' do
-        get "/events/#{event.slug}/reservations/#{reservation.id}", headers: @headers, params: { event_id: event.id }
-        data = Oj.load response.body
+    put 'atualizar sua reserva' do
+      tags 'Reserva'
+      security [token: []]
+      consumes 'application/json'
+      parameter name: :slug, in: :path, type: :string
+      parameter name: :id, in: :path, type: :string
+      parameter name: :reservation, in: :body, schema: {
+        type: :object,
+        properties: {
+          merch_id: { type: :integer },
+          delivered: { type: :boolean },
+          amount: { type: :integer },
+        },
+      }
 
-        expect(response.status).to eq 200
-        expect(data).to have_key 'merch'
+      response '200', 'reserva atualizada com sucesso' do
+        let(:slug) { event.slug }
+        let(:id) { admin_reservation.id }
+        let(:reservation) { { delivered: true } }
+        let(:Authorization) { authenticate(admin) }
+        run_test!
+      end
+
+      response '401', 'sem permissão para atualizar reserva' do
+        let(:slug) { event.slug }
+        let(:id) { admin_reservation.id }
+        let(:reservation) { { delivered: true } }
+        let(:Authorization) { '' }
+        run_test!
+      end
+
+      response '422', 'parâmetros inválidos' do
+        let(:slug) { event.slug }
+        let(:id) { admin_reservation.id }
+        let(:reservation) { { amount: -123 } }
+        let(:Authorization) { authenticate(admin) }
+        run_test!
       end
     end
+    
+    delete 'remover sua reserva' do
+      tags 'Reserva'
+      security [token: []]
+      consumes 'application/json'
+      parameter name: :slug, in: :path, type: :string
+      parameter name: :id, in: :path, type: :string
 
-    describe 'POST /reservations' do
-      it 'should be able to create a new reservation' do
-        post "/events/#{event.slug}/reservations", headers: @headers, params: { merch_id: merch.id, user_id: attendee.id, event_id: event.id }
-        data = Oj.load response.body
-
-        expect(response.status).to eq 201
-        expect(data).to have_key 'merch'
+      response '200', 'remoção feita com sucesso' do
+        let(:slug) { event.slug }
+        let(:id) { admin_reservation.id }
+        let(:Authorization) { authenticate(admin) }
+        run_test!
       end
-    end
 
-    describe 'DELETE /reservations/1' do
-      it 'should be able to destroy own reservation' do
-        delete "/events/#{event.slug}/reservations/#{reservation.id}", headers: @headers, params: { event_id: event.id }
-        expect(response.status).to eq 200
+      response '401', 'sem permissão para listar reservas' do
+        let(:slug) { event.slug }
+        let(:id) { admin_reservation.id }
+        let(:Authorization) { '' }
+        run_test!
       end
     end
   end
