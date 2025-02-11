@@ -1,46 +1,99 @@
-RSpec.describe "Locations", type: :request do
-  context 'regular user' do
-    let!(:attendee) { create(:attendee) }
-    let!(:locations) { create_list(:location, 3) }
-    
-    describe 'GET /location' do
-      it 'should list all locations' do
-        get "/location", headers: { Authorization: authenticate(attendee) }
-        data = Oj.load(response.body)
-        expect(data).to be_an_instance_of(Array)
-        expect(data.length).to eq(3)
+require 'swagger_helper'
+
+describe 'Locations API' do
+  path '/location' do
+    let(:admin) { create(:admin) }
+
+    get 'listar localizações' do
+      tags 'Localização'
+      security [token: []] 
+      consumes 'application/json'
+
+      response '200', 'listagem de localização feita com sucesso' do
+        let(:Authorization) { authenticate(admin) }
+        run_test!
+      end
+
+      response '401', 'sem permissão para listar' do
+        let(:Authorization) { '' }
+        run_test!
+      end
+    end
+
+    post 'criar localização' do
+      tags 'Localização'
+      security [token: []] 
+      consumes 'application/json'
+
+      parameter name: :location, in: :body, schema: {
+        type: :object,
+        properties: {
+          name: { type: :string }
+        }
+      }
+
+      response '201', 'criação feita com sucesso' do
+        let(:Authorization) { authenticate(admin) }
+        let(:location) { { name: 'Lugar' } }
+        run_test!
+      end
+      
+      response '401', 'sem permissão para criar' do
+        let(:Authorization) { '' }
+        let(:location) { { name: 'Lugar' } }
+        run_test!
       end
     end
   end
 
-  context 'staff leader' do
-    let!(:staff_leader) { create(:staff_leader) }
-    let!(:location) { create(:location) }
+  path '/location/{id}' do
+    let(:admin) { create(:admin) }
+    let(:location) { create(:location) }
 
-    describe 'POST /location' do
-      it 'should create location' do
-        post "/location", headers: { Authorization: authenticate(staff_leader) }, params: { name: 'Localização Teste'}
-        data = Oj.load(response.body)
-        expect(data).to be_an_instance_of(Hash)
-        expect(data['name']).to eq('Localização Teste')
+    put 'atualizar localização' do
+      tags 'Localização'
+      security [token: []] 
+      consumes 'application/json'
+      parameter name: :id, in: :path, type: :integer
+
+      parameter name: :location_data, in: :body, schema: {
+        type: :object,
+        properties: {
+          name: { type: :string }
+        }
+      }
+
+      response '201', 'atualização feita com sucesso' do
+        let(:Authorization) { authenticate(admin) }
+        let(:location_data) { { name: 'Lugar' } }
+        let(:id) { location.id }
+        run_test!
+      end
+      
+      response '401', 'sem permissão para atualizar' do
+        let(:Authorization) { '' }
+        let(:location_data) { { name: 'Lugar' } }
+        let(:id) { location.id }
+        run_test!
       end
     end
 
-    describe 'PUT /location/1'  do
-      it 'should update location' do
-        put "/location/#{location.id}", headers: { Authorization: authenticate(staff_leader) }, params: { name: 'Nome Novo para Localização' }
-        data = Oj.load(response.body)
-        expect(data).to be_an_instance_of(Hash)
-        expect(data['name']).to eq('Nome Novo para Localização')
-      end
-    end
+    delete 'remover localização' do
+      tags 'Localização'
+      security [token: []] 
+      consumes 'application/json'
+      parameter name: :id, in: :path, type: :integer
 
-    describe 'DELETE /location/1' do
-      it 'should delete location' do
-        delete "/location/#{location.id}", headers: { Authorization: authenticate(staff_leader) }
-        data = Oj.load(response.body)
-        expect(data).to be_an_instance_of(Hash)
-        expect(data).to have_key('message')
+      response '200', 'remoção feita com sucesso' do
+        let(:Authorization) { authenticate(admin) }
+        let(:id) { location.id }
+        run_test!
+      end
+      
+      response '401', 'sem permissão para remover' do
+        let(:Authorization) { '' }
+        let(:id) { location.id }
+        run_test!
       end
     end
   end
