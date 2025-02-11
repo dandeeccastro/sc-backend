@@ -25,6 +25,8 @@ class VacanciesController < ApplicationController
   def participate
     if @event.registration_start_date > DateTime.now
       render json: { message: 'Inscrições ainda não foram abertas!' }, status: :unprocessable_entity
+    elsif !params[:talk_ids]
+      render json: { message: 'Palestras para inscrição não providenciadas' }, status: :unprocessable_entity
     else
       vacancies_data = params[:talk_ids].map { |talk_id| { talk_id: talk_id, user_id: @current_user.id } }
       vacancies = Vacancy.create(vacancies_data)
@@ -42,8 +44,7 @@ class VacanciesController < ApplicationController
       Vacancy.where(talk_id: params[:talk_id], user_id: params[:absence]).update_all(presence: false)
       render json: { message: 'Presenças marcadas!' }, status: :ok
     else
-      render json: { message: 'Proibído marcar presença de atividade que ainda não começou!' }, status: :unprocessable_entity
-    end
+      render json: { message: 'Proibído marcar presença de atividade que ainda não começou!' }, status: :unprocessable_entity end
   end
 
   private
@@ -57,6 +58,8 @@ class VacanciesController < ApplicationController
       @event = Event.find_by(slug: params[:event_slug])
     elsif params[:talk_id]
       @event = Event.find(Talk.find(params[:talk_id]).event_id)
+    elsif @vacancy
+      @event = @vacancy.talk.event
     end
   end
 
