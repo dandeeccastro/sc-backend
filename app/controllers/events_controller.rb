@@ -1,6 +1,7 @@
 class EventsController < ApplicationController
+  before_action :attempt_to_authenticate_user, only: %i[index]
   before_action :authenticate_user, only: %i[create update destroy validate]
-  before_action :set_event_by_slug, only: %i[show validate]
+  before_action :set_event_by_slug, only: %i[show validate publish]
   before_action :set_event, only: %i[update destroy]
 
   before_action only: %i[create update destroy] do
@@ -9,7 +10,7 @@ class EventsController < ApplicationController
   end
 
   def index
-    @events = Event.all
+    @events = list_events_based_on_user_permissions
     render json: EventBlueprint.render(@events)
   end
 
@@ -44,6 +45,11 @@ class EventsController < ApplicationController
     render json: @current_user.runs_event?(@event), status: :ok
   end
 
+  def publish
+    @event.update(published: !@event.published)
+    render json: @event, status: :ok
+  end
+
   private
 
   def set_event_by_slug
@@ -56,5 +62,17 @@ class EventsController < ApplicationController
 
   def event_params
     params.permit(:id, :name, :slug, :start_date, :end_date, :registration_start_date, :banner, :team_id, :cert_background)
+  end
+
+  def list_events_based_on_user_permissions
+    if @current_user.nil?
+      Event.where(published: true)
+    elsif @current_user.attendee?
+      Event.where(published: true)
+    elsif @current_user.staff? || @current_user.staff_leader?
+      Event.where(team: @current_user.teams).or(Event.where(published: true))
+    elsif @current_user.admin?
+      Event.all
+    end
   end
 end

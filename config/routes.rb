@@ -50,6 +50,8 @@ Rails.application.routes.draw do
   resources :teams, except: %i[show]
   resources :events, only: %i[update destroy]
 
+  put '/events/:slug/publish', to: 'events#publish'
+
   resources :speaker, except: %i[index show]
   resources :type, except: %i[show]
   resources :location, except: %i[show]
