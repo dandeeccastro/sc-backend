@@ -1,117 +1,145 @@
-require 'rails_helper'
+require 'swagger_helper'
 
-RSpec.describe "Merches", type: :request do
-  context 'as staff leader' do
-    let!(:staff) { create(:staff_leader) }
-    let!(:event) { create(:event) }
-    let!(:merches) { create_list(:merch, 3, event: event) }
+describe 'Merch API' do
+  path '/events/{slug}/merches' do
+    let(:admin) { create(:admin) }
 
-    before do 
-      event.team.update(users: [staff])
-      @headers = { Authorization: authenticate(staff) }
-    end
+    get 'listar mercadorias de evento' do
+      tags 'Mercadoria'
+      consumes 'application/json'
+      parameter name: :slug, in: :path, type: :string
 
-    describe 'GET /merches' do
-      it 'should get all merches' do
-        get "/events/#{event.slug}/merches", headers: @headers
-        data = Oj.load response.body
-
-        expect(response.status).to eq 200
-        expect(data).to be_an_instance_of Array
+      response '200', 'listagem de mercadorias feita com sucesso' do
+        let(:slug) { create(:event).slug }
+        run_test!
       end
     end
 
-    describe 'GET /merches/1' do
-      it 'should show a single merch' do
-        get "/events/#{event.slug}/merches/#{merches.first.id}", headers: @headers
-        data = Oj.load response.body
+    post 'criar mercadoria pro evento' do
+      tags 'Mercadoria'
+      security [token: []] 
+      consumes 'multipart/form-data'
+      parameter name: :slug, in: :path, type: :string
 
-        expect(data).to have_key 'name'
-        expect(data).to have_key 'price'
+      parameter name: :name, in: :formData, type: :string
+      parameter name: :image, in: :formData, type: :file, required: false
+      parameter name: :price, in: :formData, type: :integer
+      parameter name: :limit, in: :formData, type: :integer
+      parameter name: :event_id, in: :formData, type: :integer
+      parameter name: :stock, in: :formData, type: :integer
+      parameter name: :custom_fields, in: :formData, type: :object, required: false
+
+      response '201', 'criação de mercadoria feita com sucesso' do
+        let!(:event) { create(:event) }
+        let(:Authorization) { authenticate(admin) }
+        let(:slug) { event.slug }
+
+        let(:name) { 'Mercadoria' }
+        let(:price) { 1299 }
+        let(:event_id) { event.id }
+        let(:stock) { 50 }
+        let(:limit) { 50 }
+        let(:custom_fields) { {  } }
+
+        run_test!
       end
-    end
 
-    describe 'POST /merches' do
-      it 'should create a new merch' do
-        post "/events/#{event.slug}/merches", headers: @headers, params: { name: 'Example Merch', price: 9999, event_id: event.id }
-        data = Oj.load response.body
+      response '401', 'sem permissão para criar' do
+        let(:Authorization) { '' }
+        let(:event) { create(:event) }
+        let(:slug) { event.slug }
 
-        expect(response.status).to eq 201
-        expect(data).to have_key 'price'
-        expect(data['name']).to eq 'Example Merch'
+        let(:name) { 'Mercadoria' }
+        let(:price) { 1299 }
+        let(:event_id) { event.id }
+        let(:stock) { 50 }
+        let(:limit) { 50 }
+        let(:custom_fields) { {  } }
+
+        run_test!
       end
-    end
 
-    describe 'PUT /merches/1' do
-      it 'should update existing merch' do
-        put "/events/#{event.slug}/merches/#{merches[0].id}", headers: @headers, params: { price: 1999, event_id: event.id }
-        data = Oj.load response.body
-
-        expect(response.status).to eq 200
-        expect(data).to have_key 'price'
-        expect(data['price']).to eq 1999
-      end
-    end
-
-    describe 'DELETE /merches/1' do
-      it 'should delete a merch' do
-        delete "/events/#{event.slug}/merches/#{merches[0].id}", headers: @headers, params: { event_id: event.id }
-        data = Oj.load response.body
-
-        expect(response.status).to eq 200
-        expect(data).to have_key 'message'
-      end
+      # response '422', 'parâmetros inválidos' do
+      #   let(:event) { create(:event) }
+      #   let(:Authorization) { authenticate(admin) }
+      #   let(:slug) { event.slug }
+      #
+      #   let(:name) { 'Mercadoria' }
+      #   let(:price) { 'Jefferson' }
+      #   let(:event_id) { event.id }
+      #   let(:stock) { 50 }
+      #   let(:limit) { 50 }
+      #   let(:custom_fields) { {  } }
+      #
+      #   run_test!
+      # end
     end
   end
 
-  context 'unauthorized' do
-    let!(:attendee) { create(:attendee) }
-    let!(:event) { create(:event) }
-    let!(:team) { create(:team, event: event) }
-    let!(:merches) { create_list(:merch, 3, event: event) }
+  path '/events/{slug}/merches/{id}' do
+    let(:event) { create(:event) }
+    let(:merch) { create(:merch, event: )}
+    let(:admin) { create(:admin) }
 
-    before { @token = authenticate attendee }
+    get 'mostrar mercadoria de evento' do
+      tags 'Mercadoria'
+      consumes 'application/json'
+      parameter name: :slug, in: :path, type: :string
+      parameter name: :id, in: :path, type: :integer
 
-    describe 'GET /merches' do
-      it 'should get all merches' do
-        get "/events/#{event.slug}/merches", headers: @headers
-        data = Oj.load response.body
+      response '200', 'listagem de mercadorias feita com sucesso' do
+        let(:id) { merch.id }
+        let(:slug) { event.slug }
+        run_test!
+      end
+    end
+    
+    put 'atualizar mercadoria de evento' do
+      tags 'Mercadoria'
+      security [token: []] 
+      consumes 'application/json'
+      parameter name: :slug, in: :path, type: :string
+      parameter name: :id, in: :path, type: :integer
 
-        expect(response.status).to eq 200
-        expect(data).to be_an_instance_of Array
+      parameter name: :name, in: :formData, type: :string, required: false
+      parameter name: :image, in: :formData, type: :file, required: false
+      parameter name: :price, in: :formData, type: :integer, required: false
+      parameter name: :limit, in: :formData, type: :integer, required: false
+      parameter name: :event_id, in: :formData, type: :integer, required: false
+      parameter name: :stock, in: :formData, type: :integer, required: false
+      parameter name: :custom_fields, in: :formData, type: :object, required: false
+
+      response '200', 'atualização feitao com sucesso' do
+        let(:Authorization) { authenticate(admin) }
+        let(:slug) { event.slug }
+        let(:id) { merch.id }
+        let(:name) { 'Nome novo' }
+
+        run_test!
+      end
+
+      response '401', 'sem permissão para atualizar' do
+        let(:Authorization) { '' }
+        let(:slug) { event.slug }
+        let(:id) { merch.id }
+        let(:name) { 'Nome novo' }
+
+        run_test!
       end
     end
 
-    describe 'GET /merches/1' do
-      it 'should show a single merch' do
-        get "/events/#{event.slug}/merches/#{merches.first.id}", headers: @headers
-        data = Oj.load response.body
+    delete 'remover mercadoria do evento' do
+      tags 'Mercadoria'
+      security [token: []] 
+      consumes 'application/json'
+      parameter name: :slug, in: :path, type: :string
+      parameter name: :id, in: :path, type: :integer
 
-        expect(data).to have_key 'name'
-        expect(data).to have_key 'price'
-      end
-    end
-
-    describe 'POST /merches' do
-      it 'should not authorize to create a new merch' do
-        post "/events/#{event.slug}/merches", headers: @headers, params: { name: 'Example Merch', price: 9999, event_id: event.id }
-
-        expect(response.status).to eq 401
-      end
-    end
-
-    describe 'PUT /merches/1' do
-      it 'should update existing merch' do
-        put "/events/#{event.slug}/merches/#{merches[0].id}", headers: @headers, params: { price: 1999, event_id: event.id }
-
-        expect(response.status).to eq 401
-      end
-    end
-
-    describe 'DELETE /merches/1' do
-      it 'should delete a merch' do
-        delete "/events/#{event.slug}/merches/#{merches[0].id}", headers: @headers, params: { event_id: event.id }
-        expect(response.status).to eq 401
+      response '200', 'remoção feita com sucesso' do
+        let(:Authorization) { authenticate(admin) }
+        let(:slug) { event.slug }
+        let(:id) { merch.id }
+        run_test!
       end
     end
   end
