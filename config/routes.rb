@@ -26,6 +26,9 @@ Rails.application.routes.draw do
     get '/audit', to: 'audit#search'
   end
 
+  get '/reservations', to: 'reservations#from_user'
+  resources :reservations, only: %i[destroy]
+
   get '/events/:slug/staff', to: 'events#validate'
 
   get '/vacancies/me', to: 'vacancies#schedule'

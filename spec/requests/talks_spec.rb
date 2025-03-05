@@ -1,85 +1,211 @@
-RSpec.describe '/talks', type: :request do
-  context "Attendee" do
-    let!(:user) { create(:attendee) }
-    let!(:event) { create(:event) }
-    let!(:talk) { create(:talk_with_event, event: event) }
+require 'swagger_helper'
 
-    describe 'GET /show' do
-      it 'renders a successful response' do
-        token = authenticate user
-        get "/talks/#{talk.id}", headers: { Authorization: token }
-          expect(response).to be_successful
+describe 'Talks API' do
+  path '/events/{slug}/talks' do
+    let(:event) { create(:event) }
+    let(:talks) { create_list(:talks, 3, event: event) }
+
+    get 'listar palestras de evento' do
+      tags 'Palestras'
+      parameter name: :slug, in: :path, type: :string
+
+      response '200', 'palestras do evento listadas com sucesso' do
+        let(:slug) { event.slug }
+        run_test!
+      end
+    end
+  end
+
+  path '/talks' do
+    post 'criar nova palestra' do
+      tags 'Palestras'
+      security [token: []]
+      parameter name: :talk, in: :body, schema: {
+        type: :object,
+        properties: {
+          title: { type: :string },
+          description: { type: :string },
+          start_date: { type: :datetime },
+          end_date: { type: :datetime },
+          vacancy_limit: { type: :integer },
+          event_id: { type: :integer },
+          location_id: { type: :integer },
+          type_id: { type: :integer },
+          speaker_ids: { type: :array, items: { type: :integer } },
+          category_ids: { type: :array, items: { type: :integer } },
+        },
+        required: %w[title description start_date end_date vacancy_limit event_id location_id type_id speaker_ids category_ids]
+      }
+
+      response '201', 'palestra criada com sucesso' do
+        let(:Authorization) { authenticate(admin) }
+        let(:talk) { {
+          title: 'Título',
+          description: 'Descrição',
+          start_date: event.start_date,
+          end_date: event.start_date + 1.hour,
+          vacancy_limit: 50,
+          event_id: event.id,
+          location_id: location.id,
+          type_id: type.id,
+          speaker_ids: [speaker.id],
+          category_ids: [category.id],
+        } }
+        run_test!
+      end
+
+      response '401', 'sem permissão para criar palestra' do
+        let(:Authorization) { '' }
+        let(:talk) { {
+          title: 'Título',
+          description: 'Descrição',
+          start_date: event.start_date,
+          end_date: event.start_date + 1.hour,
+          vacancy_limit: 50,
+          event_id: event.id,
+          location_id: location.id,
+          type_id: type.id,
+          speaker_ids: [speaker.id],
+          category_ids: [category.id],
+        } }
+        run_test!
+      end
+
+      response '422', 'parâmetros inválidos' do
+        let(:Authorization) { authenticate(admin) }
+        let!(:talk) { {
+          title: 'Título',
+          description: 'Descrição',
+          start_date: '',
+          end_date: '',
+          vacancy_limit: -12,
+          event_id: event.id,
+          location_id: location.id,
+          type_id: type.id,
+          speaker_ids: [speaker.id],
+          category_ids: [category.id],
+        } }
+        run_test!
+      end
+    end
+  end
+
+  path '/talks/{id}' do
+    let(:event) { create(:event) }
+    let(:talk) { create(:talk, event: event, location: create(:location), type: create(:type)) }
+    let(:admin) { create(:admin) }
+
+    get 'mostrar palestra' do
+      tags 'Palestras'
+      parameter name: :id, in: :path, type: :string
+
+      response '200', 'palestra mostrada com sucesso' do
+        let(:id) { talk.id }
+        run_test!
       end
     end
 
+    put 'atualizar palestra' do
+      tags 'Palestras'
+      parameter name: :id, in: :path, type: :string
+      security [token: []]
+
+      response '200', 'palestra atualizada com sucesso' do
+      end
+
+      response '401', 'sem permissão para atualizar palestra' do
+      end
+
+      response '422', 'parâmetros inválidos' do
+      end
+    end
+
+    delete 'remover palestra' do
+      tags 'Palestras'
+      parameter name: :id, in: :path, type: :string
+      security [token: []]
+
+      response '200', 'palestra deletada com sucesso' do
+        let(:Authorization) { authenticate(admin) }
+        let(:id) { talk.id }
+        run_test!
+      end
+
+      response '401', 'sem permissão para deletar palestra' do
+        let(:Authorization) { '' }
+        let(:id) { talk.id }
+        run_test!
+      end
+    end
   end
 
-  context 'Staff' do
-    let!(:user) { create(:staff) }
-    let!(:event) { create(:event) }
-    let!(:talk) { create(:talk, event: event, location: create(:location), speakers: [create(:speaker, event: event)], type: create(:type), categories: create_list(:category, 3, event: event)) }
+  path '/talks/{id}/staff' do
+    let(:event) { create(:event) }
+    let(:talk) { create(:talk, event: event, location: create(:location), type: create(:type)) }
+    let(:admin) { create(:admin) }
 
-    before { event.team.update users: [user] }
+    get 'mostrar palestra como staff' do
+      tags 'Palestras'
+      parameter name: :id, in: :path, type: :string
+      security [token: []]
 
-    describe 'PUT /update' do
-      it 'should update talk' do
-        token = authenticate user
-        put "/talks/#{talk.id}", headers: { Authorization: token }, params: {
-          title: 'Novo nome da Palestra',
+      response '200', 'palestra mostrada com sucesso' do
+        let(:Authorization) { authenticate(admin) }
+        let(:id) { talk.id }
+        run_test!
+      end
+
+      response '401', 'sem permissão para mostrar palestra' do
+        let(:Authorization) { '' }
+        let(:id) { talk.id }
+        run_test!
+      end
+    end
+  end
+
+  path '/talks/{id}/status' do
+    let(:event) { create(:event) }
+    let(:talk) { create(:talk, event: event, location: create(:location), type: create(:type)) }
+    let(:admin) { create(:admin) }
+
+    get 'mostrar status da palestra' do
+      tags 'Palestras'
+      parameter name: :id, in: :path, type: :string
+      security [token: []]
+
+      response '200', 'status mostrado com sucesso' do
+        let(:Authorization) { authenticate(admin) }
+        let(:id) { talk.id }
+        run_test!
+      end
+
+      response '401', 'sem permissão para mostrar status' do
+        let(:Authorization) { '' }
+        let(:id) { talk.id }
+        run_test!
+      end
+    end
+  end
+
+  path '/talks/{id}/rate' do
+    post 'avaliar palestra' do
+      tags 'Palestras'
+      parameter name: :id, in: :path, type: :string
+      security [token: []]
+
+      parameter name: :rating, in: :body, schema: {
+        type: :object,
+        properties: {
+          talk_id: { type: :number },
+          score: { type: :number },
         }
-        data = Oj.load response.body
+      }
 
-        expect(response.status).to eq 200
-        expect(data['title']).to eq 'Novo nome da Palestra'
+      response '200', 'palestra avaliada com sucesso' do
+      end
+
+      response '401', 'sem permissão para avaliar palestra' do
       end
     end
   end
-
-  context 'Admin' do
-    let!(:event) { create(:event) }
-    let!(:location) { create(:location) }
-    let!(:user) { create(:admin) }
-    let!(:type) { create(:type) }
-    let!(:speaker) { create(:speaker, event: event) }
-    let!(:categories) { create_list(:category, 3, event: event) }
-    let!(:talk) { create(:talk, event: event, location: location, speakers: [speaker], type: type, categories: categories) }
-
-    describe 'POST /create' do
-      it 'should create a talk' do
-        token = authenticate user
-        post '/talks', headers: { Authorization: token },
-          params: {
-            title: 'Palestra exemplo',
-            description: 'Um exemplo de palestra',
-            start_date: talk.end_date,
-            end_date: talk.end_date + 1.hour,
-            vacancy_limit: 50,
-            event_id: event.id,
-            location_id: location.id,
-            type_id: type.id,
-            speaker_ids: [speaker.id],
-            category_ids: categories.map(&:id)
-          }
-
-        data = Oj.load response.body
-        expect(response.status).to eq 201
-        expect(data).to have_key 'title'
-      end
-    end
-
-    describe 'PUT /update' do
-      it 'should update talk' do
-        token = authenticate user
-        put "/talks/#{talk.id}", headers: { Authorization: token }, params: {
-          title: 'Novo nome da Palestra',
-        }
-        data = Oj.load response.body
-
-        expect(response.status).to eq 200
-        expect(data['title']).to eq 'Novo nome da Palestra'
-      end
-    end
-  end
-
-
 end

@@ -6,11 +6,18 @@ class ReservationsController < ApplicationController
   before_action do set_permissions(user_id: @reservation&.user_id) end
   before_action only: %i[index update] do check_permissions(%i[admin staff_leader staff]) end
   before_action only: %i[show destroy] do check_permissions(%i[admin staff_leader staff owns_resource]) end
+  before_action only: %i[from_user] do check_permissions(%i[admin staff_leader staff attendee]) end
 
-  after_action :log_data, only: %i[create update destroy]
+  after_action :log_data, only: %i[create update]
+  after_action only: %i[destroy] do log_data_from_event(@reservation.merch.event) end
 
   def index
     @reservations = Reservation.joins(merch: [:event]).where(merch: { event_id: @event.id }).distinct
+    render json: ReservationBlueprint.render(@reservations)
+  end
+
+  def from_user
+    @reservations = Reservation.where(user: @current_user)
     render json: ReservationBlueprint.render(@reservations)
   end
 

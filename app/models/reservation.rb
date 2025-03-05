@@ -15,6 +15,6 @@ class Reservation < ApplicationRecord
 
   def under_merch_limit
     merch = Merch.find(merch_id)
-  errors.add(:over_merch_limit, 'Reserva maior do que o limite permitido para essa mercadoria!') if amount > merch.limit
+    errors.add(:over_merch_limit, 'Reserva maior do que o limite permitido para essa mercadoria!') if amount > merch.limit
   end
 end
