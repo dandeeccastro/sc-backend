@@ -4,6 +4,7 @@ class VacancyBlueprint < Blueprinter::Base
 
   view :staff do
     fields :presence
+    exclude :talk
     association :user, blueprint: UserBlueprint
   end
 

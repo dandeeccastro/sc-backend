@@ -43,8 +43,12 @@ class ReservationsController < ApplicationController
   end
 
   def destroy
-    @reservation.destroy
-    render json: {message: "Reserva deletada com sucesso!"}, status: :ok
+    unless @reservation.delivered
+      @reservation.destroy
+      render json: {message: "Reserva deletada com sucesso!"}, status: :ok
+    else
+      render json: { message: 'Reserva já entregue não pode ser deletada!' }, status: :unprocessable_entity
+    end
   end
 
   private

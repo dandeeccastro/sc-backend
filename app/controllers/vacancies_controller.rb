@@ -37,6 +37,20 @@ class VacanciesController < ApplicationController
     end
   end
 
+  def enroll
+    if @event.registration_start_date > DateTime.now
+      render json: { message: 'Inscrições ainda não foram abertas!' }, status: :unprocessable_entity
+    else
+      talk = Talk.find(params[:talk_id])
+      new_vacancy_total = params[:user_ids].length + talk.vacancies.count 
+
+      talk.update(vacancy_limit: new_vacancy_total) if new_vacancy_total > talk.vacancy_limit
+
+      vacancies = Vacancy.create(params[:user_ids].map { |user_id| { user_id: , talk_id: params[:talk_id] }})
+      render json: VacancyBlueprint.render(vacancies)
+    end
+  end
+
   def validate
     talk = Talk.find(params[:talk_id])
     if talk.end_date >= DateTime.now

@@ -34,6 +34,7 @@ Rails.application.routes.draw do
   get '/vacancies/me', to: 'vacancies#schedule'
   post '/participate', to: 'vacancies#participate'
   post '/validate', to: 'vacancies#validate'
+  post '/enroll', to: 'vacancies#enroll'
 
   resources :vacancies, only: %i[destroy]
 
