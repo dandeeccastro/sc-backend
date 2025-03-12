@@ -1,5 +1,5 @@
 class MerchesController < ApplicationController
-  before_action :authenticate_user, except: %i[index show]
+  before_action :authenticate_user, except: %i[show]
   before_action :set_event
   before_action :set_merch, only: %i[show update destroy]
 
@@ -12,7 +12,11 @@ class MerchesController < ApplicationController
 
   def index
     @merches = Merch.where(event_id: @event.id)
-    render json: MerchBlueprint.render(@merches), status: :ok
+    if @current_user&.admin? || @current_user&.staff_leader? || @current_user&.staff?
+      render json: MerchBlueprint.render(@merches, view: :staff), status: :ok
+    else
+      render json: MerchBlueprint.render(@merches), status: :ok
+    end
   end
 
   def show
