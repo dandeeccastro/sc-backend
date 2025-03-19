@@ -9,8 +9,6 @@ class VacanciesController < ApplicationController
   # before_action only: %i[schedule] do check_permissions(%i[admin owns_resource attendee]) end
   before_action only: %i[validate] do check_permissions(%i[admin staff_leader staff]) end
 
-  after_action :log_data, only: %i[create update destroy validate]
-
   def schedule
     talks = Event.find_by(slug: params[:event_slug]).talks
     @vacancies = Vacancy.where(user_id: @current_user.id, talk_id: talks.map(&:id))
@@ -19,6 +17,7 @@ class VacanciesController < ApplicationController
 
   def destroy
     @vacancy.destroy
+    AuditLogger.log_message("#{@current_user} removeu a inscrição na atividade #{@vacancy.talk}")
     render json: { message: "Você removeu sua inscrição para #{@vacancy.talk.title} com sucesso!" }, status: :ok
   end
 
@@ -47,6 +46,7 @@ class VacanciesController < ApplicationController
       talk.update(vacancy_limit: new_vacancy_total) if new_vacancy_total > talk.vacancy_limit
 
       vacancies = Vacancy.create(params[:user_ids].map { |user_id| { user_id: , talk_id: params[:talk_id] }})
+      AuditLogger.log_message("#{@current_user} inscreveu #{params[:user_ids].length} participantes na atividade #{talk}")
       render json: VacancyBlueprint.render(vacancies)
     end
   end
@@ -56,6 +56,7 @@ class VacanciesController < ApplicationController
     if talk.end_date >= DateTime.now
       Vacancy.where(talk_id: params[:talk_id], user_id: params[:presence]).update_all(presence: true)
       Vacancy.where(talk_id: params[:talk_id], user_id: params[:absence]).update_all(presence: false)
+      AuditLogger.log_message("#{@current_user} marcou as presenças da atividade #{talk}")
       render json: { message: 'Presenças marcadas!' }, status: :ok
     else
       render json: { message: 'Proibído marcar presença de atividade que ainda não começou!' }, status: :unprocessable_entity end

@@ -8,6 +8,15 @@ class AuditLogger
     log_file.close
   end
 
+  def self.log_message(message)
+    Dir.mkdir "#{Rails.root}/log/audit" unless Dir.exist? "#{Rails.root}/log/audit"
+
+    log_message = "[#{DateTime.now.to_time.iso8601}] #{message}\n"
+    log_file = File.open(current_log_filepath, mode: 'a')
+    log_file.write(log_message)
+    log_file.close
+  end
+
   def self.get_log(event)
     return nil unless File.exist? current_log_filepath
 

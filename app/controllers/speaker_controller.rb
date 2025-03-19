@@ -8,8 +8,6 @@ class SpeakerController < ApplicationController
     check_permissions(%i[admin staff_leader staff])
   end
 
-  after_action :log_data, only: %i[create update destroy]
-
   def event
     speakers = Speaker.where(event_id: @event.id)
     render json: SpeakerBlueprint.render(speakers, view: :detailed)
@@ -18,6 +16,7 @@ class SpeakerController < ApplicationController
   def create
     @speaker = Speaker.new(speaker_params)
     if @speaker.save
+      AuditLogger.log_message("#{@current_user} criou palestrante #{@speaker.name}")
       render json: SpeakerBlueprint.render(@speaker), status: :created
     else
       render json: { errors: @speaker.errors }, status: :unprocessable_entity
@@ -26,6 +25,7 @@ class SpeakerController < ApplicationController
 
   def update
     if @speaker.update(speaker_params)
+      AuditLogger.log_message("#{@current_user} atualizou dados do palestrante #{@speaker.name}")
       render json: SpeakerBlueprint.render(@speaker), status: :ok
     else
       render json: { message: @speaker.errors }, status: :unprocessable_entity
@@ -33,6 +33,7 @@ class SpeakerController < ApplicationController
   end
 
   def destroy
+    AuditLogger.log_message("#{@current_user} deletou palestrante #{@speaker.name}")
     @speaker.destroy
     render json: { message: 'Palestrante excluído' }, status: :ok
   end

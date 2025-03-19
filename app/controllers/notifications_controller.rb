@@ -9,8 +9,6 @@ class NotificationsController < ApplicationController
     check_permissions(%i[admin staff_leader staff])
   end
 
-  after_action :log_data, only: %i[create update destroy]
-
   def index
     talk_ids = Vacancy.joins(talk: [ :event ]).where(user_id: @current_user.id, event: { id: @event.id }).map(&:talk_id)
     notifications = Notification.where(event_id: @event.id, talk_id: nil).or(Notification.where(talk_id: talk_ids)).order(created_at: :desc)
@@ -31,6 +29,7 @@ class NotificationsController < ApplicationController
     @notification = Notification.new(notification_params)
 
     if @notification.save
+      AuditLogger.log_message("#{@current_user} criou a notificação #{@notification.title}")
       render json: NotificationBlueprint.render(@notification, view: :detailed), status: :created
     else
       render json: @notification.errors, status: :unprocessable_entity
@@ -39,6 +38,7 @@ class NotificationsController < ApplicationController
 
   def update
     if @notification.update(notification_params)
+      AuditLogger.log_message("#{@current_user} atualizou a notificação #{@notification.title}")
       render json: NotificationBlueprint.render(@notification, view: :detailed), status: :ok
     else
       render json: @notification.errors, status: :unprocessable_entity
@@ -46,6 +46,7 @@ class NotificationsController < ApplicationController
   end
 
   def destroy
+    AuditLogger.log_message("#{@current_user} deletou a notificação #{@notification.title}")
     @notification.destroy
     render json: { message: 'Notificação deletada!' }, status: :ok
   end

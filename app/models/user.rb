@@ -56,4 +56,18 @@ class User < ApplicationRecord
   def cpf_valid?
     errors.add(:invalid_cpf, 'CPF inválido') unless CPF.valid?(cpf)
   end
+
+  def to_s
+    "#{role} #{name} (email: #{email})"
+  end
+
+  private
+
+  def role
+    return "ADMIN" if admin?
+    return "LÍDER DE EQUIPE" if staff_leader?
+    return "STAFF" if staff?
+    return "PALESTRANTE" if speaker?
+    "PARTICIPANTE"
+  end
 end

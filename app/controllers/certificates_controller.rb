@@ -8,8 +8,6 @@ class CertificatesController < ActionController::Base
   before_action :set_permissions, only: %i[emit]
   before_action :set_variables, except: %i[debug]
 
-  after_action :log_data, only: %i[emit]
-
   def list
     certificates = @finder.find
     render json: certificates, status: :ok
@@ -17,6 +15,10 @@ class CertificatesController < ActionController::Base
 
   def emit
     EmitCertificatesJob.perform_now(email: params[:email], talk_id: params[:talk_id], slug: params[:event_slug])
+
+    emission_type = generate_emission_message(params[:email], params[:talk_id], params[:event_slug])
+    AuditLogger.log_message("#{@current_user.name} emitiu #{emission_type}")
+
     render json: { message: 'Certificados emitidos com sucesso!' }, status: :ok
   end
 
@@ -133,5 +135,29 @@ class CertificatesController < ActionController::Base
       idx += 1
     end
     attachments
+  end
+
+  def generate_emission_message(email, talk_id, event_slug)
+    if email && talk_id
+      user = User.find_by(email: email)
+      talk = Talk.find(talk_id)
+      emission_type = "certificados da atividade #{talk} para o usuário #{user}"
+    elsif email && event_slug
+      user = User.find_by(email: email)
+      event = Event.find_by(slug: event_slug)
+      emission_type = "certificados do evento #{event.title} para o usuário #{user}"
+    elsif email
+      user = User.find_by(email: email)
+      emission_type = "certificados do usuário #{user}"
+    elsif talk_id
+      talk = Talk.find(talk_id)
+      emission_type = "certificados da atividade #{user}"
+    elsif slug
+      event = Event.find_by(slug: event_slug)
+      emission_type = "certificados do evento #{event}"
+    else
+      emission_type = 'certificados de forma incorreta'
+    end
+
   end
 end

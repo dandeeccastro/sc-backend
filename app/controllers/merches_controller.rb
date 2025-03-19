@@ -8,8 +8,6 @@ class MerchesController < ApplicationController
     check_permissions(%i[admin staff_leader staff])
   end
 
-  after_action :log_data, only: %i[create update destroy]
-
   def index
     @merches = Merch.where(event_id: @event.id)
     if @current_user&.admin? || @current_user&.staff_leader? || @current_user&.staff?
@@ -28,7 +26,7 @@ class MerchesController < ApplicationController
 
     if @merch.save
       @event = Event.find(merch_params[:event_id])
-      AuditLogger.log(@event, "Staff #{@current_user.name} criou mercadoria #{merch_params[:name]}")
+      AuditLogger.log(@event, "#{@current_user} criou mercadoria #{@merch.name}")
       render json: MerchBlueprint.render(@merch), status: :created
     else
       render json: @merch.errors, status: :unprocessable_entity
@@ -37,6 +35,7 @@ class MerchesController < ApplicationController
 
   def update
     if @merch.update(merch_params)
+      AuditLogger.log(@event, "#{@current_user} atualizou mercadoria #{@merch.name}")
       render json: MerchBlueprint.render(@merch), status: :ok
     else
       render json: @merch.errors, status: :unprocessable_entity
@@ -44,6 +43,7 @@ class MerchesController < ApplicationController
   end
 
   def destroy
+    AuditLogger.log(@event, "#{@current_user} deletou mercadoria #{@merch.name}")
     @merch.destroy
     render json: { message: 'Mercadoria deletada com sucesso!' }, status: :ok
   end

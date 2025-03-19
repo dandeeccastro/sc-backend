@@ -8,9 +8,6 @@ class ReservationsController < ApplicationController
   before_action only: %i[show destroy] do check_permissions(%i[admin staff_leader staff owns_resource]) end
   before_action only: %i[from_user] do check_permissions(%i[admin staff_leader staff attendee]) end
 
-  after_action :log_data, only: %i[create update]
-  after_action only: %i[destroy] do log_data_from_event(@reservation.merch.event) end
-
   def index
     @reservations = Reservation.joins(merch: [:event]).where(merch: { event_id: @event.id }).distinct
     render json: ReservationBlueprint.render(@reservations)
@@ -28,6 +25,7 @@ class ReservationsController < ApplicationController
   def create
     @reservation = Reservation.new(reservation_params.merge(user_id: @current_user.id))
     if @reservation.save
+      AuditLogger.log_message("#{@current_user.name} criou #{@reservation}")
       render json: ReservationBlueprint.render(@reservation), status: :created
     else
       render json: @reservation.errors, status: :unprocessable_entity
@@ -36,6 +34,7 @@ class ReservationsController < ApplicationController
 
   def update
     if @reservation.update(reservation_params)
+      AuditLogger.log_message("#{@current_user.name} atualizou #{@reservation}")
       render json: ReservationBlueprint.render(@reservation), status: :ok
     else
       render json: @reservation.errors, status: :unprocessable_entity
@@ -44,6 +43,7 @@ class ReservationsController < ApplicationController
 
   def destroy
     unless @reservation.delivered
+      AuditLogger.log_message("#{@current_user.name} deletou #{@reservation}")
       @reservation.destroy
       render json: {message: "Reserva deletada com sucesso!"}, status: :ok
     else

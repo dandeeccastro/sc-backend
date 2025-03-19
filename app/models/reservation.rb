@@ -20,4 +20,8 @@ class Reservation < ApplicationRecord
     full_amount = amount + previous_reservations_amount
     errors.add(:over_merch_limit, 'Suas reservas dessa mercadoria excedem o limite permitido!') if full_amount > merch.limit
   end
+
+  def to_s
+    "Reserva de #{user.name} para #{amount} unidades do item #{merch.name}"
+  end
 end
