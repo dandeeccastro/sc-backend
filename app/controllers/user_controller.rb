@@ -5,7 +5,7 @@ class UserController < ApplicationController
   before_action :set_user, only: %i[show update destroy]
 
   before_action except: %i[create] do set_permissions(user_id: @user&.id) end
-  before_action only: %i[index] do check_permissions(%i[admin staff_leader]) end
+  before_action only: %i[index] do check_permissions(%i[admin staff_leader staff]) end
   before_action only: %i[show update] do check_permissions(%i[admin staff_leader owns_resource]) end
   before_action only: %i[destroy] do check_permissions(%i[admin owns_resource]) end
   before_action only: %i[event] do check_permissions(%i[admin staff_leader staff]) end
