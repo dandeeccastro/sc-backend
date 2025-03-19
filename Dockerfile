@@ -13,7 +13,7 @@ ENV HOME=/app \
 COPY .ruby-version Gemfile Gemfile.lock ./
 
 RUN bundle install
-RUN rails db:migrate
+RUN rails db:migrate db:seed
 
 ENTRYPOINT ["bin/docker-entrypoint"]
 
