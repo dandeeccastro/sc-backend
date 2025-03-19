@@ -7,7 +7,7 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins 'localhost:8080', 'venti-sandy.vercel.app'
+    origins 'localhost:8080', 'venti-sandy.vercel.app', 'venti.ic.ufrj.br'
 
     resource "*",
       headers: :any,
